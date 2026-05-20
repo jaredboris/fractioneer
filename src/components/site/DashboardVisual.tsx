@@ -1,4 +1,4 @@
-import { ArrowUpRight, Check, CircleDollarSign, FileCheck2, Receipt, Users } from "lucide-react";
+import { Check, CircleDollarSign, FileCheck2, Receipt, Users, Wallet, Building2, Percent } from "lucide-react";
 
 export function DashboardVisual() {
   return (
@@ -13,68 +13,91 @@ export function DashboardVisual() {
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-accent" />
             <span className="text-xs font-medium text-foreground/70">
-              Finance Operations — Q3
+              Sample franchise finance snapshot
             </span>
           </div>
           <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            Live
+            Illustrative
           </span>
         </div>
 
         {/* Top stats */}
         <div className="grid grid-cols-3 border-b border-border">
           <Stat label="Monthly close" value="On track" tone="ok" />
-          <Stat label="Cash runway" value="14.2 mo" tone="up" />
-          <Stat label="AP open" value="$184k" tone="neutral" />
+          <Stat label="Cash forecast" value="14.2 mo" tone="up" />
+          <Stat label="AP / AR" value="Current" tone="ok" />
         </div>
 
-        {/* Chart + side */}
+        {/* Middle: Location-level P&L + Royalty tracking */}
         <div className="grid grid-cols-5 gap-px bg-border">
           <div className="col-span-3 bg-card p-5">
             <div className="flex items-center justify-between">
-              <div>
-                <div className="text-xs text-muted-foreground">Unit-level revenue</div>
-                <div className="mt-1 text-xl font-semibold text-foreground">
-                  $2.41M
-                </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Building2 className="h-3.5 w-3.5 text-accent" />
+                Location-level P&amp;L
               </div>
-              <div className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-1 text-xs font-medium text-accent">
-                <ArrowUpRight className="h-3 w-3" /> 8.4%
-              </div>
+              <span className="text-[10px] text-muted-foreground">Sample data</span>
             </div>
-            <Sparkline />
-            <div className="mt-3 flex gap-1.5">
-              {["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP"].map((m) => (
-                <span key={m} className="flex-1 text-center text-[9px] tracking-wide text-muted-foreground">
-                  {m}
-                </span>
+            <ul className="mt-4 space-y-2.5">
+              {[
+                { name: "Northeast — 12 units", v: "$612k", pct: 88 },
+                { name: "Midwest — 9 units", v: "$548k", pct: 78 },
+                { name: "Southeast — 8 units", v: "$489k", pct: 70 },
+                { name: "West — 7 units", v: "$421k", pct: 60 },
+              ].map((row) => (
+                <li key={row.name} className="text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground/80">{row.name}</span>
+                    <span className="font-medium text-foreground">{row.v}</span>
+                  </div>
+                  <div className="mt-1 h-1.5 rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-accent/80"
+                      style={{ width: `${row.pct}%` }}
+                    />
+                  </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           <div className="col-span-2 bg-card p-5">
-            <div className="text-xs text-muted-foreground">Locations</div>
-            <ul className="mt-3 space-y-2.5">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Percent className="h-3.5 w-3.5 text-accent" />
+              Royalty tracking
+            </div>
+            <ul className="mt-4 space-y-2.5">
               {[
-                { name: "Northeast", v: "$612k" },
-                { name: "Midwest", v: "$548k" },
-                { name: "Southeast", v: "$489k" },
-                { name: "West", v: "$421k" },
+                { name: "Collected", v: "94%" },
+                { name: "Pending", v: "5%" },
+                { name: "Past due", v: "1%" },
               ].map((row) => (
-                <li key={row.name} className="flex items-center justify-between text-xs">
+                <li
+                  key={row.name}
+                  className="flex items-center justify-between text-xs"
+                >
                   <span className="text-foreground/80">{row.name}</span>
                   <span className="font-medium text-foreground">{row.v}</span>
                 </li>
               ))}
             </ul>
+            <div className="mt-4 pt-3 border-t border-border">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <Wallet className="h-3 w-3 text-accent" />
+                Cash forecast — 90 days
+              </div>
+              <div className="mt-1 text-sm font-semibold text-foreground">
+                Positive
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Module strip */}
         <div className="grid grid-cols-3 border-t border-border">
           <Module icon={<Users className="h-3.5 w-3.5" />} label="Payroll" status="Run complete" />
-          <Module icon={<Receipt className="h-3.5 w-3.5" />} label="AP / AR" status="42 invoices" />
-          <Module icon={<FileCheck2 className="h-3.5 w-3.5" />} label="Audit" status="Ready" />
+          <Module icon={<Receipt className="h-3.5 w-3.5" />} label="AP / AR" status="Reconciled" />
+          <Module icon={<FileCheck2 className="h-3.5 w-3.5" />} label="Audit ready" status="Documented" />
         </div>
       </div>
 
@@ -84,8 +107,8 @@ export function DashboardVisual() {
           <CircleDollarSign className="h-3.5 w-3.5" />
         </span>
         <div className="text-[11px] leading-tight">
-          <div className="font-medium text-foreground">Cash flow forecast</div>
-          <div className="text-muted-foreground">Updated today</div>
+          <div className="font-medium text-foreground">Monthly close</div>
+          <div className="text-muted-foreground">Day 10 target</div>
         </div>
       </div>
     </div>
@@ -113,34 +136,5 @@ function Module({ icon, label, status }: { icon: React.ReactNode; label: string;
       </div>
       <div className="mt-0.5 text-[11px] text-muted-foreground">{status}</div>
     </div>
-  );
-}
-
-function Sparkline() {
-  // simple SVG sparkline using accent color
-  const pts = [22, 28, 24, 34, 30, 42, 38, 50, 56];
-  const max = 60;
-  const w = 280;
-  const h = 70;
-  const step = w / (pts.length - 1);
-  const d = pts
-    .map((p, i) => {
-      const x = i * step;
-      const y = h - (p / max) * h;
-      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
-  const area = `${d} L${w},${h} L0,${h} Z`;
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 w-full h-16">
-      <defs>
-        <linearGradient id="spark" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.7 0.17 240)" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="oklch(0.7 0.17 240)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d={area} fill="url(#spark)" />
-      <path d={d} fill="none" stroke="oklch(0.7 0.17 240)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

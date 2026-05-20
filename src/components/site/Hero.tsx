@@ -1,6 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { DashboardVisual } from "./DashboardVisual";
 import { BookACallButton } from "./BookACallButton";
+import michaelPhoto from "@/assets/testimonial-michael-abdy.jpeg";
+
 
 export function Hero() {
   return (
@@ -38,6 +40,23 @@ export function Hero() {
                 <ArrowRight className="h-4 w-4" />
               </a>
             </div>
+
+            <figure className="mt-8 flex items-start gap-3 max-w-lg">
+              <img
+                src={michaelPhoto}
+                alt="Michael C. Abdy"
+                className="h-10 w-10 rounded-full object-cover border border-border shrink-0"
+                loading="lazy"
+              />
+              <div className="min-w-0">
+                <blockquote className="text-[13px] leading-relaxed text-foreground/80">
+                  &ldquo;Fractioneer has run financial operations for my companies for over 6 years. I would trust them with anything.&rdquo;
+                </blockquote>
+                <figcaption className="mt-1.5 text-[11px] text-muted-foreground">
+                  <span className="font-medium text-foreground/90">Michael C. Abdy</span> — Founder / General Partner, Abaco
+                </figcaption>
+              </div>
+            </figure>
           </div>
 
           <div className="lg:pl-6">
