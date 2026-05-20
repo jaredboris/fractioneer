@@ -15,7 +15,7 @@ export function Section({
     <section
       id={id}
       className={cn(
-        "w-full py-20 md:py-28",
+        "w-full py-14 md:py-20",
         muted && "bg-muted/50",
         className,
       )}
