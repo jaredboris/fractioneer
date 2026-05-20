@@ -14,7 +14,13 @@ import lashLounge from "@/assets/logos/lash-lounge.webp";
 import youngChefs from "@/assets/logos/young-chefs-academy.png";
 import weaver from "@/assets/logos/weaver-materiel.webp";
 
-type Logo = { name: string; src?: string; wordmark?: string; href: string };
+type Logo = {
+  name: string;
+  src?: string;
+  wordmark?: string;
+  href: string;
+  invert?: boolean;
+};
 
 const heroLogos: Logo[] = [
   { name: "Abaco", src: abaco, href: "https://abaco.co/" },
@@ -28,7 +34,7 @@ const heroLogos: Logo[] = [
 ];
 
 const selectedLogos: Logo[] = [
-  { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/" },
+  { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/", invert: true },
   { name: "Pretium", src: pretium, href: "https://pretium.com/" },
   { name: "Frenchies", src: frenchies, href: "https://frenchiesnails.com/" },
   { name: "Bishops", src: bishops, href: "https://bishops.co/" },
@@ -58,6 +64,7 @@ function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
         <img
           src={logo.src}
           alt={logo.name}
+          style={logo.invert ? { filter: "invert(1) brightness(0.5)" } : undefined}
           className={`${h} w-auto max-w-[140px] object-contain opacity-80 group-hover:opacity-100 transition-opacity`}
           loading="lazy"
         />
