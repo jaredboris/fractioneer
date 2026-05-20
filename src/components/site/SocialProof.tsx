@@ -83,7 +83,7 @@ function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
 
 export function SocialProof() {
   return (
-    <Section className="py-16 md:py-20">
+    <Section id="clients" className="py-16 md:py-20">
       <p className="text-center text-sm md:text-base font-medium text-muted-foreground max-w-2xl mx-auto">
         Trusted by franchise brands, PE firms, and founder-owned operators.
       </p>
