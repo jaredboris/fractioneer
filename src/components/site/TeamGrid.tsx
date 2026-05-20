@@ -1,127 +1,135 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
-import { cn } from "@/lib/utils";
 import jonPaulPhoto from "@/assets/team/jon-paul-mcgahan.jpeg";
 import blakePhoto from "@/assets/team/blake-folsom.jpeg";
 import markPhoto from "@/assets/team/mark-carman.jpeg";
 import keriPhoto from "@/assets/team/keri-chang.jpeg";
 
-// NOTE: Roles and bios below are placeholder drafts for client review.
-type Person = { name: string; role: string; bio: string; photo?: string };
+type Person = {
+  name: string;
+  role: string;
+  chips: string[];
+  bio: string;
+  photo?: string;
+};
 
 const leaders: Person[] = [
   {
     name: "Jon Paul McGahan",
-    role: "Founding Partner",
-    bio: "Leads firm strategy and senior client relationships across franchise and PE-backed engagements.",
+    role: "Chief Executive Officer / Founder",
+    chips: ["15+ years", "100+ clients", "$10B+ AUM client experience"],
+    bio: "JP has led fractional finance work for 100+ clients, from private funds to founder-owned businesses.",
     photo: jonPaulPhoto,
   },
   {
-    name: "Blake Folsom",
-    role: "Partner, CFO Services",
-    bio: "Heads fractional CFO engagements with multi-unit operators and franchise platforms.",
-    photo: blakePhoto,
+    name: "Mark Carman",
+    role: "Chief Operating Officer",
+    chips: ["PE / VC", "Franchising", "Controller operations"],
+    bio: "Mark brings PE, VC, franchising, modeling, and controller experience to client finance operations.",
+    photo: markPhoto,
   },
   {
-    name: "Mark Carman",
-    role: "Partner, Controllership",
-    bio: "Oversees controller-led engagements, financial controls, and monthly close operations.",
-    photo: markPhoto,
+    name: "Blake Folsom, CPA",
+    role: "Fractional CFO",
+    chips: ["CPA", "M&A", "Internal controls"],
+    bio: "Blake helps growing companies improve cash flow, controls, reporting, and finance strategy.",
+    photo: blakePhoto,
   },
 ];
 
-const fullTeam: Person[] = [
+const execution: Person[] = [
   {
     name: "Keri Chang",
-    role: "Director, Accounting",
-    bio: "Runs accounting delivery across multi-entity clients and complex consolidations.",
+    role: "Senior Staff Accountant",
+    chips: ["25 years", "Bookkeeping", "Franchising"],
+    bio: "Keri manages bookkeeping, reconciliations, reporting, and day-to-day accounting accuracy.",
     photo: keriPhoto,
   },
   {
     name: "Theresa Laietta",
-    role: "Director, Payroll & Benefits",
-    bio: "Leads multi-state payroll, benefits administration, and HR-finance coordination.",
+    role: "Senior Payroll Supervisor",
+    chips: ["25+ years", "Payroll", "HR compliance"],
+    bio: "Theresa supports payroll, benefits, PEO systems, compliance, onboarding, and deductions.",
   },
   {
     name: "Angie Serrano",
-    role: "Director, AP/AR Operations",
-    bio: "Manages vendor payments, customer invoicing, and AP/AR processes across the portfolio.",
+    role: "Senior Staff Accountant",
+    chips: ["10+ years", "AP/AR", "Audit support"],
+    bio: "Angie supports bookkeeping, invoicing, AP, AR, audit support, and accounting accuracy.",
   },
 ];
 
 function initials(name: string) {
   return name
+    .replace(/,.*$/, "")
     .split(" ")
     .map((n) => n[0])
     .slice(0, 2)
     .join("");
 }
 
-function PersonCard({ p }: { p: Person }) {
+function PersonCard({ p, prominent = false }: { p: Person; prominent?: boolean }) {
+  const avatarSize = prominent ? "h-16 w-16" : "h-14 w-14";
   return (
-    <div className="rounded-xl border border-border bg-card p-6 flex gap-4 items-start">
+    <div
+      className={
+        "rounded-xl border border-border bg-card p-6 flex gap-4 items-start transition-colors hover:border-accent/40" +
+        (prominent ? " shadow-sm" : "")
+      }
+    >
       {p.photo ? (
         <img
           src={p.photo}
           alt={p.name}
           loading="lazy"
-          className="h-14 w-14 shrink-0 rounded-lg object-cover border border-border"
+          className={`${avatarSize} shrink-0 rounded-lg object-cover border border-border`}
         />
       ) : (
         <div
           aria-hidden
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-base font-semibold"
+          className={`flex ${avatarSize} shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-base font-semibold`}
         >
           {initials(p.name)}
         </div>
       )}
-      <div>
+      <div className="min-w-0">
         <div className="text-base font-semibold text-foreground">{p.name}</div>
         <div className="text-xs font-medium uppercase tracking-wider text-accent mt-0.5">
           {p.role}
         </div>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.bio}</p>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {p.chips.map((c) => (
+            <span
+              key={c}
+              className="inline-flex items-center rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.bio}</p>
       </div>
     </div>
   );
 }
 
-
 export function TeamGrid() {
-  const [showAll, setShowAll] = useState(false);
   return (
     <Section id="team" muted>
       <SectionHeader
         eyebrow="Team"
-        title="Experienced finance operators, not just accountants."
+        title="The finance team behind your finance function."
+        description="Senior finance leadership, controller support, bookkeeping, payroll, and AP/AR execution under one coordinated team."
       />
       <div className="grid gap-5 md:grid-cols-3">
         {leaders.map((p) => (
-          <PersonCard key={p.name} p={p} />
+          <PersonCard key={p.name} p={p} prominent />
         ))}
       </div>
-
-      {showAll && (
-        <div className="mt-5 grid gap-5 md:grid-cols-3">
-          {fullTeam.map((p) => (
-            <PersonCard key={p.name} p={p} />
-          ))}
-        </div>
-      )}
-
-      <div className="mt-8 flex justify-center">
-        <button
-          type="button"
-          onClick={() => setShowAll((v) => !v)}
-          className="inline-flex items-center gap-2 rounded-md border border-border bg-background px-5 h-10 text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
-        >
-          {showAll ? "Show less" : "Meet the full team"}
-          <ChevronDown
-            className={cn("h-4 w-4 transition-transform", showAll && "rotate-180")}
-          />
-        </button>
+      <div className="mt-5 grid gap-5 md:grid-cols-3">
+        {execution.map((p) => (
+          <PersonCard key={p.name} p={p} />
+        ))}
       </div>
     </Section>
   );
