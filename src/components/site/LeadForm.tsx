@@ -42,6 +42,7 @@ const locationOptions = [
 
 const helpOptions = [
   "Fractional CFO",
+  "Controller support",
   "Bookkeeping/accounting",
   "Payroll",
   "AP/AR",
