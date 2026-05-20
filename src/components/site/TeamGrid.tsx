@@ -3,31 +3,41 @@ import { ChevronDown } from "lucide-react";
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
 import { cn } from "@/lib/utils";
+import jonPaulPhoto from "@/assets/team/jon-paul-mcgahan.jpeg";
+import blakePhoto from "@/assets/team/blake-folsom.jpeg";
+import markPhoto from "@/assets/team/mark-carman.jpeg";
+import keriPhoto from "@/assets/team/keri-chang.jpeg";
 
 // NOTE: Roles and bios below are placeholder drafts for client review.
-const leaders = [
+type Person = { name: string; role: string; bio: string; photo?: string };
+
+const leaders: Person[] = [
   {
     name: "Jon Paul McGahan",
     role: "Founding Partner",
     bio: "Leads firm strategy and senior client relationships across franchise and PE-backed engagements.",
+    photo: jonPaulPhoto,
   },
   {
     name: "Blake Folsom",
     role: "Partner, CFO Services",
     bio: "Heads fractional CFO engagements with multi-unit operators and franchise platforms.",
+    photo: blakePhoto,
   },
   {
     name: "Mark Carman",
     role: "Partner, Controllership",
     bio: "Oversees controller-led engagements, financial controls, and monthly close operations.",
+    photo: markPhoto,
   },
 ];
 
-const fullTeam = [
+const fullTeam: Person[] = [
   {
     name: "Keri Chang",
     role: "Director, Accounting",
     bio: "Runs accounting delivery across multi-entity clients and complex consolidations.",
+    photo: keriPhoto,
   },
   {
     name: "Theresa Laietta",
@@ -49,15 +59,24 @@ function initials(name: string) {
     .join("");
 }
 
-function PersonCard({ p }: { p: { name: string; role: string; bio: string } }) {
+function PersonCard({ p }: { p: Person }) {
   return (
     <div className="rounded-xl border border-border bg-card p-6 flex gap-4 items-start">
-      <div
-        aria-hidden
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-base font-semibold"
-      >
-        {initials(p.name)}
-      </div>
+      {p.photo ? (
+        <img
+          src={p.photo}
+          alt={p.name}
+          loading="lazy"
+          className="h-14 w-14 shrink-0 rounded-lg object-cover border border-border"
+        />
+      ) : (
+        <div
+          aria-hidden
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-base font-semibold"
+        >
+          {initials(p.name)}
+        </div>
+      )}
       <div>
         <div className="text-base font-semibold text-foreground">{p.name}</div>
         <div className="text-xs font-medium uppercase tracking-wider text-accent mt-0.5">
@@ -68,6 +87,7 @@ function PersonCard({ p }: { p: { name: string; role: string; bio: string } }) {
     </div>
   );
 }
+
 
 export function TeamGrid() {
   const [showAll, setShowAll] = useState(false);
