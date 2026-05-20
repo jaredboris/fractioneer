@@ -4,11 +4,15 @@ import logo from "@/assets/fractioneer-logo.jpg";
 import { cn } from "@/lib/utils";
 import { BookACallButton } from "./BookACallButton";
 
-const links = [
+const desktopLinks = [
   { href: "#services", label: "Services" },
-  { href: "#franchise", label: "Franchise" },
-  { href: "#approach", label: "Approach" },
+  { href: "#problem", label: "Franchise Finance" },
+  { href: "#clients", label: "Clients" },
   { href: "#team", label: "Team" },
+];
+
+const mobileLinks = [
+  ...desktopLinks,
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -36,7 +40,7 @@ export function Navbar() {
         </a>
 
         <nav className="hidden md:flex items-center gap-8">
-          {links.map((l) => (
+          {desktopLinks.map((l) => (
             <a
               key={l.href}
               href={l.href}
@@ -63,7 +67,7 @@ export function Navbar() {
       {open && (
         <div className="md:hidden border-t border-border bg-background">
           <div className="mx-auto max-w-6xl px-6 py-4 flex flex-col gap-1">
-            {links.map((l) => (
+            {mobileLinks.map((l: { href: string; label: string }) => (
               <a
                 key={l.href}
                 href={l.href}
