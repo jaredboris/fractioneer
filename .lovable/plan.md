@@ -1,89 +1,111 @@
-# Fractioneer Homepage — Build Plan (revised)
+# Conversion flow: "Book a call" + booking modal
 
-Premium franchise-finance homepage built around the **existing Fractioneer brand**. No rebrand, no new accent. The visual upgrade comes from typography, spacing, composition, and restrained use of the brand's navy + bright blue.
+## Recommendation
+Use **Calendly** (or Cal.com / HubSpot Meetings) — not a custom scheduler. Building a real calendar means timezone handling, availability, Google/Outlook OAuth, reminders, reschedules, and routing — weeks of work with no premium-feel upside. We'll ship a clean modal with a clearly-marked embed slot now; pasting a Calendly inline embed later is a one-line change.
 
-## Brand + design system
+## Scope
+- Replace all CTA copy ("Book a consultation" / "Explore franchise…" secondary CTA stays as-is) with **"Book a call"** in: Navbar, Hero (primary), Final CTA.
+- Remove `mailto:` and `#contact` hash links from those CTAs.
+- New `BookingModal` component opens on any "Book a call" click. No auto-open, no exit-intent.
+- Inside the modal: headline, subheadline, calendar embed placeholder, and a collapsed "Not ready to book?" fallback that expands into a lead form.
+- Lead form submits to Lovable Cloud (`leads` table). After success, replace form with thank-you message.
 
-Logo: I'll copy your uploaded file to `src/assets/fractioneer-logo.png` and use it in the navbar and footer (height ~28px in nav, ~32px in footer). No recoloring, no cropping.
+## Files
 
-Tokens in `src/styles.css` (all `oklch`, mapped to Tailwind semantic classes):
+**New**
+- `src/components/site/BookingModal.tsx` — shadcn `Dialog` wrapper, exposes context + trigger button.
+- `src/components/site/BookingProvider.tsx` — React context (`useBooking()` → `openBooking()`) so any button anywhere triggers the same modal instance. Mounted once in `src/routes/index.tsx`.
+- `src/components/site/BookACallButton.tsx` — reusable button (variants: `primary` navy, `light` white-on-navy for FinalCTA). Calls `openBooking()`.
+- `src/components/site/LeadForm.tsx` — the fallback form (zod + react-hook-form + shadcn Form/Input/Select/Textarea).
+- `src/lib/leads.functions.ts` — `submitLead` server fn using `supabaseAdmin` (public form, no auth). Zod-validated inputs.
+- Supabase migration: `leads` table.
 
-- `--background` white
-- `--foreground` deep navy from the logo (~`#0A1F44`)
-- `--primary` same deep navy (buttons, headings, footer)
-- `--primary-foreground` white
-- `--accent` bright logo blue (~`#1AA7FF`) — used sparingly: badge text, small icon marks, underlines on key numerals, link hovers, focus ring, active nav state
-- `--accent-foreground` white
-- `--muted` very light gray section band (~`#F5F7FA`)
-- `--muted-foreground` slate gray for body copy
-- `--border` hairline gray
-- `--ring` accent blue at lower opacity
-- `--gradient-navy` and `--gradient-blue` tokens for *very* minimal gradients (hero badge sheen, final CTA band, dashboard accent line only — never on body text or large surfaces)
+**Edited**
+- `src/components/site/Navbar.tsx` — desktop + mobile "Book a consultation" → `<BookACallButton>`.
+- `src/components/site/Hero.tsx` — primary CTA → `<BookACallButton>`; keep secondary "Explore franchise finance support" link.
+- `src/components/site/FinalCTA.tsx` — `mailto:` button → `<BookACallButton variant="light">`; section headline copy unchanged.
+- `src/routes/index.tsx` — wrap `<main>` in `<BookingProvider>`.
 
-No gold. No third accent color.
+## Modal structure
 
-Typography: Inter via Google Fonts, weights 400/500/600/700. Display sizes use tight tracking (`-0.02em`), 16–17px body in `text-muted-foreground`. Strong hierarchy: eyebrow (uppercase, accent blue, tracked) → H2 (navy, large) → sub (slate) → cards.
-
-Spacing rhythm: `py-24 md:py-32` sections, `max-w-6xl` container, hairline `border-border` dividers, alternating white / `bg-muted/40` bands.
-
-Motion: restrained framer-motion fade+rise on section enter. No parallax, no bounce.
-
-## File structure
-
+```text
+┌─ Dialog (max-w-2xl) ──────────────────────────┐
+│ Book a call with Fractioneer                  │
+│ Pick a time to talk with our team about your  │
+│ franchise finance needs.                      │
+│                                               │
+│ ┌─ Calendar embed slot (dashed border) ─────┐ │
+│ │ Calendar embed goes here. Replace with    │ │
+│ │ Calendly, HubSpot Meetings, or Cal.com    │ │
+│ │ embed code.                               │ │
+│ └───────────────────────────────────────────┘ │
+│                                               │
+│ ── divider ──                                 │
+│                                               │
+│ Not ready to book?                            │
+│ Tell us what you need and we'll follow up.    │
+│ [ Share your details ▾ ]   ← collapsed by default
+└───────────────────────────────────────────────┘
 ```
-src/assets/fractioneer-logo.png       ← copied from upload
-src/routes/index.tsx                  ← assembles sections, sets head()
-src/components/site/
-  Navbar.tsx       Footer.tsx
-  Section.tsx      SectionHeader.tsx
-  Hero.tsx         DashboardVisual.tsx
-  SocialProof.tsx  ProblemSection.tsx
-  ServicesGrid.tsx FranchiseSection.tsx
-  WhyFractioneer.tsx EngagementModels.tsx
-  TeamGrid.tsx     Testimonials.tsx
-  FAQ.tsx          FinalCTA.tsx
-  ServiceCard.tsx  PersonCard.tsx  QuoteCard.tsx  LogoPlaceholder.tsx
+
+Embed slot is a single `<div id="booking-embed-slot">` with the placeholder text + a code-comment marker `{/* BOOKING_EMBED_SLOT */}` so it's easy to find and replace.
+
+Clicking "Share your details" expands `<LeadForm>` inline (no second modal). After successful submit, the form area is replaced with the thank-you message; the calendar embed slot stays visible above.
+
+## Lead form
+
+Fields (all required except message):
+- First name, Last name — text, 1–80 chars
+- Work email — `z.string().email()`, max 200
+- Company name — text, 1–120 chars
+- Company type — select: Franchisor / Multi-unit franchise operator / Franchise platform / PE-backed company / Founder-owned business / Other
+- Number of locations — select: 1 to 5 / 6 to 20 / 21 to 50 / 51+ / Not applicable
+- What do you need help with — select: Fractional CFO / Bookkeeping/accounting / Payroll / AP/AR / Cash flow management / Audit support / Not sure yet
+- Message — optional textarea, max 1000
+
+Submit button: **Send request**. While submitting → disabled + spinner. On success → "Thanks. We'll review your information and follow up shortly." On error → inline error message, form remains.
+
+## Backend (Lovable Cloud)
+
+Enable Lovable Cloud (one tool call). Migration:
+
+```sql
+create table public.leads (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  first_name text not null,
+  last_name text not null,
+  work_email text not null,
+  company_name text not null,
+  company_type text not null,
+  num_locations text not null,
+  help_with text not null,
+  message text,
+  source text not null default 'website_booking_modal'
+);
+alter table public.leads enable row level security;
+-- No public select/insert policies. All writes go through the server fn
+-- using the service-role client (supabaseAdmin), which bypasses RLS.
 ```
 
-## Section-by-section
+`src/lib/leads.functions.ts`:
+- `createServerFn({ method: "POST" })` with zod `inputValidator` matching the form schema (enums enforced server-side).
+- Handler imports `supabaseAdmin` from `@/integrations/supabase/client.server` and inserts the row. Returns `{ ok: true }` or throws on error.
+- File contains ONLY the server fn + its imports (no plain helpers) so the `client.server` import doesn't leak to the client bundle.
 
-1. **Hero** — left: bordered badge "Finance operations for franchise growth" (accent-blue text, white bg, hairline border); H1 in navy; subhead in slate; primary CTA navy "Book a consultation"; ghost CTA "Explore franchise finance support" with arrow. Right: `DashboardVisual` — HTML/SVG composed dashboard mock showing the six modules (unit-level reporting, monthly close, cash flow, payroll, AP/AR, audit support). Cards, hairline borders, one accent-blue sparkline + one accent dot indicator. Stacks on mobile.
+Client uses `useServerFn(submitLead)` from `LeadForm`.
 
-2. **Social proof** — headline, 5-column logo strip using `LogoPlaceholder` cards each explicitly labeled "Client logo". Below: 4 proof points (100+, 15+, plus the two qualitative statements you supplied — rendered as statements, not invented numbers).
+CRM hookup later: add a second step inside the handler (HubSpot/Resend/etc.) without changing the client. Schema is CRM-friendly.
 
-3. **Problem** — center header + 3 cards (Multi-location reporting, Cash flow visibility, Audit-ready operations). Small geometric accent-blue glyph per card.
+## Design notes
+- Modal uses existing tokens (`bg-background`, `text-foreground`, accent blue for the expand toggle, hairline divider).
+- Embed slot: `min-h-[420px]`, `rounded-lg border border-dashed border-border bg-muted/40`, centered placeholder text in `text-muted-foreground text-sm`.
+- Fallback toggle: ghost button with chevron, accent-blue label.
+- Mobile: modal becomes full-height sheet via shadcn Dialog responsive sizing; form stacks single-column.
+- Accessibility: Dialog handles focus trap + Esc; form fields have associated labels and `aria-invalid` on errors.
 
-4. **Services** — 3×2 grid of 6 cards (Fractional CFO, Fractional Controller, Bookkeeping, Payroll & Benefits, AP/AR Management, Cash Flow & Audit Support). One tight plain-English paragraph each, written to spec.
-
-5. **Franchise-specific** — `bg-muted/40` band, 3×2 grid of 6 cards (Franchisor reporting, Multi-unit financial visibility, Royalty & fee tracking, Payroll & vendor coordination, Board & investor reporting, Audit & diligence support).
-
-6. **Why Fractioneer** — 4 differentiators, numbered `01–04` in accent blue, 4-col desktop / 2-col tablet / 1-col mobile.
-
-7. **Engagement models** — 3 tier cards (Finance Foundation, Controller-Led Operations, CFO Partnership). Middle card has a thin accent-blue top border for emphasis. Each: tier name, who it's for, 4–5 included capabilities as a check list. No prices.
-
-8. **Team** — 6 cards for the named people. Each: navy monogram tile with initials (no fake headshots), name, role, 1–2 line bio focused on finance/PE/franchise/payroll experience. **Roles and bios are placeholders flagged for your review** — I won't invent credentials.
-
-9. **Testimonials** — 3 quote cards for Michael C. Abdy (Abaco), Aakeem Andrada (Riverside), Paul Ferrara (PatchMaster). Quotes will be **neutral draft copy clearly marked for your approval/replacement** — no fabricated specifics.
-
-10. **FAQ** — shadcn Accordion, 7 questions exactly as you listed, single-open, answers in the same direct tone.
-
-11. **Final CTA** — full-width deep-navy band with a very subtle navy→blue gradient sheen, white headline + sub, single white-on-navy primary button "Book a consultation".
-
-**Navbar**: white, sticky, hairline bottom border on scroll. Fractioneer logo left; links Services / Franchise / Approach / Team / FAQ (anchor scroll); "Book a consultation" CTA right. Mobile uses a sheet menu.
-
-**Footer**: navy background, white text, logo + short positioning line, 3 link columns (Services / Company / Contact), legal row.
-
-## SEO + a11y
-
-- Single H1, semantic sections, `head()` in route sets title (`Fractioneer — Finance operations for franchise growth`), description, OG/Twitter tags. Logo used as `og:image`.
-- Accent blue used only on non-body-text or large/bold text to keep WCAG AA contrast on white.
-- Fully responsive: grids collapse to 1 col on mobile, hero stacks, nav becomes sheet.
-
-## What I will NOT do
-
-- No rebrand. No logo changes. No gold.
-- No stock people photos.
-- No invented metrics beyond the four proof points you provided.
-- No lorem ipsum.
-- No client logos invented — placeholders clearly labeled.
-- Team bios and testimonial quotes shipped as **clearly-marked drafts** for your review.
+## Out of scope
+- Real Calendly/HubSpot embed code (placeholder only, per request).
+- Email notification on lead submit (table is ready; wire later).
+- Admin view of leads.
+- Removing/renaming the existing `#contact` anchor on the FinalCTA section (kept for any deep links; the button inside it switches to opening the modal).
