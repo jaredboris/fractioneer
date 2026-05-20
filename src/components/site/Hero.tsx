@@ -11,7 +11,7 @@ export function Hero() {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(60%_60%_at_50%_0%,oklch(0.7_0.17_240/0.08),transparent)]"
       />
-      <div className="relative mx-auto max-w-6xl px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+      <div className="relative mx-auto max-w-6xl px-6 pt-6 pb-16 md:pt-10 md:pb-20">
         <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-16">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium">
