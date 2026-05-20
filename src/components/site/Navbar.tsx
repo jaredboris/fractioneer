@@ -4,11 +4,15 @@ import logo from "@/assets/fractioneer-logo.jpg";
 import { cn } from "@/lib/utils";
 import { BookACallButton } from "./BookACallButton";
 
-const links = [
+const desktopLinks = [
   { href: "#services", label: "Services" },
-  { href: "#franchise", label: "Franchise" },
-  { href: "#approach", label: "Approach" },
+  { href: "#problem", label: "Franchise Finance" },
+  { href: "#clients", label: "Clients" },
   { href: "#team", label: "Team" },
+];
+
+const mobileLinks = [
+  ...desktopLinks,
   { href: "#faq", label: "FAQ" },
 ];
 
