@@ -43,12 +43,10 @@ function Index() {
           <Hero />
           <SocialProof />
           <ProblemSection />
-          <ServicesGrid />
-          <FranchiseSection />
-          <WhyFractioneer />
+          <ServicesFranchise />
           <EngagementModels />
-          <TeamGrid />
           <Testimonials />
+          <TeamGrid />
           <FAQ />
           <FinalCTA />
         </main>
