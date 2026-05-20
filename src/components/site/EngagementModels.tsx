@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
+import { BookACallButton } from "./BookACallButton";
 import { cn } from "@/lib/utils";
 
 const tiers = [
