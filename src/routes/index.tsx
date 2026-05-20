@@ -1,26 +1,58 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Navbar } from "@/components/site/Navbar";
+import { Footer } from "@/components/site/Footer";
+import { Hero } from "@/components/site/Hero";
+import { SocialProof } from "@/components/site/SocialProof";
+import { ProblemSection } from "@/components/site/ProblemSection";
+import { ServicesGrid } from "@/components/site/ServicesGrid";
+import { FranchiseSection } from "@/components/site/FranchiseSection";
+import { WhyFractioneer } from "@/components/site/WhyFractioneer";
+import { EngagementModels } from "@/components/site/EngagementModels";
+import { TeamGrid } from "@/components/site/TeamGrid";
+import { Testimonials } from "@/components/site/Testimonials";
+import { FAQ } from "@/components/site/FAQ";
+import { FinalCTA } from "@/components/site/FinalCTA";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Fractioneer — Finance operations for franchise growth" },
+      {
+        name: "description",
+        content:
+          "Fractioneer runs the CFO, controller, bookkeeping, payroll, AP/AR, cash flow, and audit support functions that franchisors, franchise platforms, and multi-unit operators need to scale.",
+      },
+      { property: "og:title", content: "Fractioneer — Finance operations for franchise growth" },
+      {
+        property: "og:description",
+        content:
+          "The outsourced finance department behind growing franchise systems. Fractional CFO, controller, accounting, payroll, AP/AR, cash flow, and audit support.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
+function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main>
+        <Hero />
+        <SocialProof />
+        <ProblemSection />
+        <ServicesGrid />
+        <FranchiseSection />
+        <WhyFractioneer />
+        <EngagementModels />
+        <TeamGrid />
+        <Testimonials />
+        <FAQ />
+        <FinalCTA />
+      </main>
+      <Footer />
     </div>
   );
-}
-
-function Index() {
-  return <PlaceholderIndex />;
 }
