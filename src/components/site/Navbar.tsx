@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { cn } from "@/lib/utils";
+import { BookACallButton } from "./BookACallButton";
 
 const links = [
   { href: "#services", label: "Services" },
@@ -47,12 +48,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="#contact"
-            className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            Book a consultation
-          </a>
+          <BookACallButton variant="nav" />
         </div>
 
         <button
@@ -77,13 +73,7 @@ export function Navbar() {
                 {l.label}
               </a>
             ))}
-            <a
-              href="#contact"
-              onClick={() => setOpen(false)}
-              className="mt-3 inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-            >
-              Book a consultation
-            </a>
+            <BookACallButton variant="nav" className="mt-3 w-full" />
           </div>
         </div>
       )}

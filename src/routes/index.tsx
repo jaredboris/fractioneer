@@ -12,6 +12,7 @@ import { TeamGrid } from "@/components/site/TeamGrid";
 import { Testimonials } from "@/components/site/Testimonials";
 import { FAQ } from "@/components/site/FAQ";
 import { FinalCTA } from "@/components/site/FinalCTA";
+import { BookingProvider } from "@/components/site/BookingProvider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,22 +38,24 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main>
-        <Hero />
-        <SocialProof />
-        <ProblemSection />
-        <ServicesGrid />
-        <FranchiseSection />
-        <WhyFractioneer />
-        <EngagementModels />
-        <TeamGrid />
-        <Testimonials />
-        <FAQ />
-        <FinalCTA />
-      </main>
-      <Footer />
-    </div>
+    <BookingProvider>
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main>
+          <Hero />
+          <SocialProof />
+          <ProblemSection />
+          <ServicesGrid />
+          <FranchiseSection />
+          <WhyFractioneer />
+          <EngagementModels />
+          <TeamGrid />
+          <Testimonials />
+          <FAQ />
+          <FinalCTA />
+        </main>
+        <Footer />
+      </div>
+    </BookingProvider>
   );
 }

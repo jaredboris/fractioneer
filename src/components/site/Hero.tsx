@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { DashboardVisual } from "./DashboardVisual";
+import { BookACallButton } from "./BookACallButton";
 
 export function Hero() {
   return (
@@ -28,12 +29,7 @@ export function Hero() {
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <a
-                href="#contact"
-                className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                Book a consultation
-              </a>
+              <BookACallButton />
               <a
                 href="#franchise"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
