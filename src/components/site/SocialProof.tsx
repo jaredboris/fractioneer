@@ -14,26 +14,26 @@ import lashLounge from "@/assets/logos/lash-lounge.webp";
 import youngChefs from "@/assets/logos/young-chefs-academy.png";
 import weaver from "@/assets/logos/weaver-materiel.webp";
 
-type Logo = { name: string; src?: string; wordmark?: string };
+type Logo = { name: string; src?: string; wordmark?: string; href: string };
 
 const heroLogos: Logo[] = [
-  { name: "Abaco", src: abaco },
-  { name: "Riverside", src: riverside },
-  { name: "FranDevCo", src: frandevco },
-  { name: "HomeFront Brands", src: homefront },
-  { name: "PatchMaster", src: patchmaster },
-  { name: "The Lash Lounge", src: lashLounge },
-  { name: "Young Chefs Academy", src: youngChefs },
-  { name: "Costa Oil", src: costaOil },
+  { name: "Abaco", src: abaco, href: "https://abaco.co/" },
+  { name: "Riverside", src: riverside, href: "https://www.riversidecompany.com/" },
+  { name: "FranDevCo", src: frandevco, href: "https://www.frandev.co/" },
+  { name: "HomeFront Brands", src: homefront, href: "https://homefrontbrands.com/" },
+  { name: "PatchMaster", src: patchmaster, href: "https://patchmaster.com/" },
+  { name: "The Lash Lounge", src: lashLounge, href: "https://franchise.thelashlounge.com/" },
+  { name: "Young Chefs Academy", src: youngChefs, href: "https://franchise.youngchefsacademy.com/" },
+  { name: "Costa Oil", src: costaOil, href: "https://costaoils.com/" },
 ];
 
 const selectedLogos: Logo[] = [
-  { name: "MPK Equity Partners", src: mpk },
-  { name: "Pretium", src: pretium },
-  { name: "Frenchies", src: frenchies },
-  { name: "Bishops", src: bishops },
-  { name: "Weaver Materiel", src: weaver },
-  { name: "Ged Lawyers", src: gedLawyers },
+  { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/" },
+  { name: "Pretium", src: pretium, href: "https://pretium.com/" },
+  { name: "Frenchies", src: frenchies, href: "https://frenchiesnails.com/" },
+  { name: "Bishops", src: bishops, href: "https://bishops.co/" },
+  { name: "Weaver Materiel", src: weaver, href: "https://wmsinc.com/" },
+  { name: "Ged Lawyers", src: gedLawyers, href: "https://www.gedlawyers.com/" },
 ];
 
 const proofPoints = [
@@ -45,28 +45,32 @@ const proofPoints = [
 
 function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
   const h = size === "lg" ? "h-8 md:h-9" : "h-6 md:h-7";
-  if (logo.src) {
-    return (
-      <div className="flex items-center justify-center px-3 py-2">
+  return (
+    <a
+      href={logo.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Visit ${logo.name} website`}
+      title={logo.name}
+      className="group flex items-center justify-center px-3 py-2 rounded-md border border-transparent hover:border-border hover:-translate-y-0.5 hover:shadow-[0_4px_14px_-8px_rgba(10,31,68,0.25)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+    >
+      {logo.src ? (
         <img
           src={logo.src}
           alt={logo.name}
-          className={`${h} w-auto max-w-[140px] object-contain opacity-80 hover:opacity-100 transition-opacity`}
+          className={`${h} w-auto max-w-[140px] object-contain opacity-80 group-hover:opacity-100 transition-opacity`}
           loading="lazy"
         />
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-center justify-center px-3 py-2">
-      <span
-        className={`${
-          size === "lg" ? "text-sm md:text-[15px]" : "text-xs md:text-sm"
-        } font-semibold tracking-tight text-foreground/70 hover:text-foreground transition-colors text-center`}
-      >
-        {logo.wordmark}
-      </span>
-    </div>
+      ) : (
+        <span
+          className={`${
+            size === "lg" ? "text-sm md:text-[15px]" : "text-xs md:text-sm"
+          } font-semibold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors text-center`}
+        >
+          {logo.wordmark}
+        </span>
+      )}
+    </a>
   );
 }
 
