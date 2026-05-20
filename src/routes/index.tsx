@@ -12,6 +12,7 @@ import { TeamGrid } from "@/components/site/TeamGrid";
 import { Testimonials } from "@/components/site/Testimonials";
 import { FAQ } from "@/components/site/FAQ";
 import { FinalCTA } from "@/components/site/FinalCTA";
+import { BookingProvider } from "@/components/site/BookingProvider";
 
 export const Route = createFileRoute("/")({
   head: () => ({

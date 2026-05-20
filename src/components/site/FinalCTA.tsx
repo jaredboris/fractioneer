@@ -1,3 +1,5 @@
+import { BookACallButton } from "./BookACallButton";
+
 export function FinalCTA() {
   return (
     <section id="contact" className="w-full py-20 md:py-28">
@@ -18,13 +20,8 @@ export function FinalCTA() {
               Get CFO-level guidance, clean reporting, and day-to-day finance execution
               without building a full in-house team.
             </p>
-            <div className="mt-9">
-              <a
-                href="mailto:hello@fractioneer.com"
-                className="inline-flex h-12 items-center justify-center rounded-md bg-white px-7 text-sm font-semibold text-primary hover:bg-white/90 transition-colors"
-              >
-                Book a consultation
-              </a>
+            <div className="mt-9 flex justify-center">
+              <BookACallButton variant="light" />
             </div>
           </div>
         </div>

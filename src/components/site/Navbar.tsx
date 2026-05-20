@@ -77,10 +77,6 @@ export function Navbar() {
           </div>
         </div>
       )}
-      <span hidden onClick={() => setOpen(false)} />
-          </div>
-        </div>
-      )}
     </header>
   );
 }
