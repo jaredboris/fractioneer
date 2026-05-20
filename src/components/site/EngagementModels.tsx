@@ -48,6 +48,7 @@ export function EngagementModels() {
       <SectionHeader
         eyebrow="Engagement models"
         title="Flexible support based on where the business is today."
+        description="Most clients start with the support they need today, then expand as the business grows."
       />
       <div className="grid gap-6 md:grid-cols-3">
         {tiers.map((t) => (
@@ -73,17 +74,18 @@ export function EngagementModels() {
                 </li>
               ))}
             </ul>
-            <a
-              href="#contact"
-              className={cn(
-                "mt-8 inline-flex h-10 items-center justify-center rounded-md border px-4 text-sm font-medium transition-colors",
-                t.featured
-                  ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
-                  : "border-border text-foreground hover:border-accent hover:text-accent",
-              )}
-            >
-              Talk with us
-            </a>
+            <div className="mt-8">
+              <BookACallButton
+                variant={t.featured ? "primary" : "nav"}
+                className={cn(
+                  "w-full",
+                  !t.featured &&
+                    "bg-transparent text-foreground border border-border hover:bg-transparent hover:border-accent hover:text-accent",
+                )}
+              >
+                Book a call
+              </BookACallButton>
+            </div>
           </div>
         ))}
       </div>
