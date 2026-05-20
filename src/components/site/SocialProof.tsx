@@ -46,7 +46,7 @@ const proofPoints = [
   { stat: "100+", label: "Client engagements" },
   { stat: "15+ yrs", label: "Fractional finance experience" },
   { stat: "Long-term", label: "Portfolio finance relationships" },
-  { stat: "One team", label: "CFO, controller, accounting, payroll, AP/AR" },
+  { stat: "Full team", label: "CFO, controller, accounting, payroll, AP/AR" },
 ];
 
 function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {

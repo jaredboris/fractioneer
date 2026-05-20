@@ -5,18 +5,18 @@ import { SectionHeader } from "./SectionHeader";
 const items = [
   {
     icon: BarChart3,
-    title: "Multi-location reporting",
-    body: "Consolidate financials across units, regions, and entities so leadership sees one clear picture.",
+    title: "Multi-location reporting gets messy",
+    body: "Unit, regional, and entity-level numbers stop rolling up cleanly — and leadership loses one clear picture.",
   },
   {
     icon: LineChart,
-    title: "Cash flow visibility",
-    body: "Know what's coming in, what's going out, and what the business can fund — week by week.",
+    title: "Cash visibility becomes harder",
+    body: "Royalties, payroll cycles, vendor terms, and timing differences make weekly cash positions hard to trust.",
   },
   {
     icon: ShieldCheck,
-    title: "Audit-ready operations",
-    body: "Clean books, documented processes, and reports that hold up to lenders, auditors, and investors.",
+    title: "Clean books are not enough",
+    body: "Lenders, auditors, and investors expect documented process and reporting — not just reconciled bank feeds.",
   },
 ];
 
