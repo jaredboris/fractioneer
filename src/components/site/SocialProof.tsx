@@ -9,17 +9,21 @@ import bishops from "@/assets/logos/bishops.png";
 import gedLawyers from "@/assets/logos/ged-lawyers.jpg";
 import pretium from "@/assets/logos/pretium.webp";
 import mpk from "@/assets/logos/mpk-equity.png";
+import riverside from "@/assets/logos/riverside.gif";
+import lashLounge from "@/assets/logos/lash-lounge.webp";
+import youngChefs from "@/assets/logos/young-chefs-academy.png";
+import weaver from "@/assets/logos/weaver-materiel.webp";
 
 type Logo = { name: string; src?: string; wordmark?: string };
 
 const heroLogos: Logo[] = [
   { name: "Abaco", src: abaco },
-  { name: "Riverside", wordmark: "Riverside" },
+  { name: "Riverside", src: riverside },
   { name: "FranDevCo", src: frandevco },
   { name: "HomeFront Brands", src: homefront },
   { name: "PatchMaster", src: patchmaster },
-  { name: "The Lash Lounge", wordmark: "The Lash Lounge" },
-  { name: "Young Chefs Academy", wordmark: "Young Chefs Academy" },
+  { name: "The Lash Lounge", src: lashLounge },
+  { name: "Young Chefs Academy", src: youngChefs },
   { name: "Costa Oil", src: costaOil },
 ];
 
@@ -28,7 +32,7 @@ const selectedLogos: Logo[] = [
   { name: "Pretium", src: pretium },
   { name: "Frenchies", src: frenchies },
   { name: "Bishops", src: bishops },
-  { name: "Weaver Materiel", wordmark: "Weaver Materiel" },
+  { name: "Weaver Materiel", src: weaver },
   { name: "Ged Lawyers", src: gedLawyers },
 ];
 
