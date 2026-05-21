@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Fractioneer provides outsourced finance operations for franchise businesses, enabling growth and clarity." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      
       { name: "twitter:title", content: "Fractioneer" },
       { name: "twitter:description", content: "Fractioneer provides outsourced finance operations for franchise businesses, enabling growth and clarity." },
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c0e8da31-7851-40a0-b865-e30397426768/id-preview-2fd74200--448d2617-5eb4-49d5-b26d-6b1b107226cc.lovable.app-1779297792980.png" },

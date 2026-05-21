@@ -1,4 +1,5 @@
 import { BookACallButton } from "./BookACallButton";
+import { SendInfoButton } from "./SendInfoButton";
 
 export function FinalCTA() {
   return (
@@ -14,14 +15,15 @@ export function FinalCTA() {
           />
           <div className="relative">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight text-white max-w-3xl mx-auto">
-              Ready to build a finance function for your franchise system?
+              Ready to build a finance function that scales with your business?
             </h2>
             <p className="mt-5 text-base md:text-lg text-white/75 max-w-2xl mx-auto leading-relaxed">
               Get CFO-level guidance, clean reporting, and day-to-day finance execution
               without building a full in-house team.
             </p>
-            <div className="mt-9 flex justify-center">
+            <div className="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
               <BookACallButton variant="light" />
+              <SendInfoButton variant="light" />
             </div>
           </div>
         </div>

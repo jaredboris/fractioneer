@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { DashboardVisual } from "./DashboardVisual";
 import { BookACallButton } from "./BookACallButton";
+import { SendInfoButton } from "./SendInfoButton";
 import michaelPhoto from "@/assets/testimonial-michael-abdy.jpeg";
 
 
@@ -24,6 +25,10 @@ export function Hero() {
               <span className="text-accent">franchise systems</span>.
             </h1>
 
+            <p className="mt-4 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Finance operations for franchisors, franchise platforms, multi-unit operators, and PE-backed brands.
+            </p>
+
             <p className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground">
               Fractioneer runs the CFO, controller, bookkeeping, payroll, AP/AR,
               cash flow, and audit support functions that franchisors, franchise
@@ -32,8 +37,9 @@ export function Hero() {
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <BookACallButton />
+              <SendInfoButton />
               <a
-                href="#franchise"
+                href="#problem"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
               >
                 Explore franchise finance support
