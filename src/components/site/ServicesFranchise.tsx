@@ -13,37 +13,37 @@ const services = [
   {
     icon: Briefcase,
     title: "CFO leadership",
-    body: "Forecasting, capital planning, and board-ready reporting for franchisors and PE-backed platforms — without hiring a full-time CFO.",
+    body: "Forecasting, planning, and board-ready reporting.",
   },
   {
     icon: ClipboardList,
     title: "Controller and monthly close",
-    body: "A reliable monthly close across entities and locations so franchise leadership can trust the numbers every period.",
+    body: "Reliable close processes across entities and locations.",
   },
   {
     icon: BookOpen,
     title: "Bookkeeping and reconciliations",
-    body: "Clean, current books structured for unit-level, regional, and franchisor-wide reporting — not just tax prep.",
+    body: "Clean books built for operator reporting.",
   },
   {
     icon: Users,
     title: "Payroll and benefits",
-    body: "Multi-state payroll runs and benefits administration coordinated cleanly across franchise entities and locations.",
+    body: "Payroll, deductions, benefits support, and compliance workflows.",
   },
   {
     icon: Receipt,
     title: "AP/AR and vendor coordination",
-    body: "Vendor payments, royalty and fee tracking, and customer invoicing handled on a steady cadence across the system.",
+    body: "Vendor payments, receivables, invoicing, and working capital visibility.",
   },
   {
     icon: Wallet,
     title: "Cash flow and reporting support",
-    body: "Weekly cash visibility, lender and investor packages, and documentation that supports audits, diligence, and franchisor reporting.",
+    body: "Cash forecasting, reporting packages, and audit preparation.",
   },
   {
     icon: ShieldCheck,
     title: "Franchise audits for franchisors",
-    body: "Support for franchisors that need clean documentation, reporting coordination, and financial process support across franchise locations.",
+    body: "Support for documentation, reporting coordination, and franchise location review.",
   },
 ];
 
@@ -58,9 +58,8 @@ export function ServicesFranchise() {
           What Fractioneer runs for growing operators.
         </h2>
         <p className="mt-5 text-base md:text-lg leading-relaxed text-muted-foreground">
-          One coordinated finance team across CFO strategy, controllership,
-          accounting, payroll, AP/AR, cash flow, reporting, and franchise
-          audit support.
+          One coordinated finance team across CFO, controller, accounting,
+          payroll, AP/AR, cash flow, reporting, and franchise audit support.
         </p>
       </div>
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

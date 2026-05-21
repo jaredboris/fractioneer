@@ -14,6 +14,7 @@ import { FinalCTA } from "@/components/site/FinalCTA";
 import { BookingProvider } from "@/components/site/BookingProvider";
 import { WhoWeHelp } from "@/components/site/WhoWeHelp";
 import { InlineCTA } from "@/components/site/InlineCTA";
+import { HowItWorks } from "@/components/site/HowItWorks";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -54,6 +55,7 @@ function Index() {
             primaryLabel="Talk through your setup"
           />
           <LeadershipVisibility />
+          <HowItWorks />
           <EngagementModels />
           <Testimonials />
           <InlineCTA

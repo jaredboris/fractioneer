@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils";
 const tiers = [
   {
     name: "Finance Foundation",
-    description:
-      "For businesses that need clean books, payroll, AP/AR, and reliable monthly reporting.",
+    bestFor: "Clean books, payroll, AP/AR, and monthly reporting.",
     features: [
       "Bookkeeping and reconciliations",
       "Payroll administration",
@@ -20,14 +19,12 @@ const tiers = [
   },
   {
     name: "Controller-Led Operations",
-    description:
-      "For growing operators that need stronger financial controls, reporting, close processes, and cash flow management.",
+    bestFor: "Close ownership, controls, cash flow, and multi-entity reporting.",
     features: [
       "Controller ownership of the close",
       "Multi-entity reporting",
       "Cash flow management",
       "Financial controls and process",
-      "Lender and vendor support",
     ],
     featured: true,
     cta: "Discuss controller support",
@@ -35,14 +32,12 @@ const tiers = [
   },
   {
     name: "CFO Partnership",
-    description:
-      "For leadership teams that need strategic finance, board support, forecasting, audit support, and decision-ready reporting.",
+    bestFor: "Forecasting, board support, strategic finance, and audit readiness.",
     features: [
       "Fractional CFO leadership",
       "Forecasting and scenario planning",
       "Board and investor packages",
       "Audit and diligence support",
-      "Capital and lender strategy",
     ],
     cta: "Discuss CFO support",
     intent: "CFO support",
@@ -55,7 +50,7 @@ export function EngagementModels() {
       <SectionHeader
         eyebrow="Engagement models"
         title="Flexible support based on where the business is today."
-        description="Most clients start with the support they need today, then expand as the business grows."
+        description="Most clients start with what they need today, then expand as the business grows."
       />
       <div className="grid gap-6 md:grid-cols-3">
         {tiers.map((t) => (
@@ -70,17 +65,27 @@ export function EngagementModels() {
               <div className="absolute inset-x-0 -top-px h-px bg-accent rounded-t-xl" />
             )}
             <h3 className="text-lg font-semibold text-foreground">{t.name}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              {t.description}
-            </p>
-            <ul className="mt-6 space-y-2.5">
-              {t.features.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-foreground/85">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                  {f}
-                </li>
-              ))}
-            </ul>
+            <div className="mt-4">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-accent">
+                Best for
+              </div>
+              <p className="mt-1.5 text-sm leading-relaxed text-foreground/85">
+                {t.bestFor}
+              </p>
+            </div>
+            <div className="mt-6">
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                What it includes
+              </div>
+              <ul className="mt-3 space-y-2.5">
+                {t.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground/85">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <div className="mt-8">
               <BookACallButton
                 variant={t.featured ? "primary" : "nav"}

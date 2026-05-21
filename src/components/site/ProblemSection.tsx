@@ -6,17 +6,17 @@ const items = [
   {
     icon: BarChart3,
     title: "Multi-location reporting gets messy",
-    body: "Unit, regional, and entity-level numbers stop rolling up cleanly — and leadership loses one clear picture.",
+    body: "Unit, regional, and entity numbers stop rolling up cleanly.",
   },
   {
     icon: LineChart,
     title: "Cash visibility becomes harder",
-    body: "Royalties, payroll cycles, vendor terms, and timing differences make weekly cash positions hard to trust.",
+    body: "Royalties, payroll, and vendor timing blur the weekly cash picture.",
   },
   {
     icon: ShieldCheck,
     title: "Clean books are not enough",
-    body: "Lenders, auditors, and investors expect documented process and reporting — not just reconciled bank feeds.",
+    body: "Lenders and auditors expect documented process — not just reconciliations.",
   },
 ];
 
@@ -26,7 +26,7 @@ export function ProblemSection() {
       <SectionHeader
         eyebrow="The problem"
         title="Franchise finance gets complicated fast."
-        description="As franchise systems grow, finance gets harder to manage across entities, locations, payroll cycles, vendors, royalties, reports, and audits."
+        description="Growth multiplies the work across entities, locations, payroll, vendors, royalties, and audits."
       />
       <div className="grid gap-5 md:grid-cols-3">
         {items.map((i) => (

@@ -6,17 +6,20 @@ const audiences = [
   {
     icon: Building2,
     title: "Franchise systems",
-    body: "Franchisors, franchise platforms, and multi-unit operators that need clean reporting, payroll coordination, royalty visibility, and scalable finance operations.",
+    body: "Clean reporting, payroll, royalties, and scalable finance ops.",
+    chips: ["Franchisors", "Multi-unit", "Platforms"],
   },
   {
     icon: Briefcase,
     title: "PE-backed operators",
-    body: "Portfolio companies and operators that need stronger monthly reporting, cash visibility, controls, audit support, and finance execution.",
+    body: "Stronger reporting, cash visibility, controls, and audit support.",
+    chips: ["Portfolio cos.", "Diligence-ready"],
   },
   {
     icon: Users,
     title: "Founder-owned businesses",
-    body: "Growing businesses that need CFO-level guidance and day-to-day finance support without building a full in-house team.",
+    body: "CFO-level guidance plus day-to-day finance execution.",
+    chips: ["Growing teams", "No full hire"],
   },
 ];
 
@@ -26,7 +29,7 @@ export function WhoWeHelp() {
       <SectionHeader
         eyebrow="Who we help"
         title="Built for franchise systems — and the operators around them."
-        description="Fractioneer is franchise-focused, and also supports PE-backed operators and founder-owned businesses that need a real finance function."
+        description="Franchise-focused, with deep support for PE-backed operators and founder-owned businesses."
       />
       <div className="grid gap-5 md:grid-cols-3">
         {audiences.map((a) => (
@@ -43,6 +46,16 @@ export function WhoWeHelp() {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {a.body}
             </p>
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {a.chips.map((c) => (
+                <span
+                  key={c}
+                  className="inline-flex items-center rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                >
+                  {c}
+                </span>
+              ))}
+            </div>
           </div>
         ))}
       </div>

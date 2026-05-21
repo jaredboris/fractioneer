@@ -97,12 +97,13 @@ function PersonCard({ p, prominent = false }: { p: Person; prominent?: boolean }
         <div className="text-xs font-medium uppercase tracking-wider text-accent mt-0.5">
           {p.role}
         </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-x-2 gap-y-1.5">
           {p.chips.map((c) => (
             <span
               key={c}
-              className="inline-flex items-center rounded-md border border-border bg-muted/50 px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground"
             >
+              <span aria-hidden className="h-1 w-1 rounded-full bg-accent/70" />
               {c}
             </span>
           ))}
