@@ -5,17 +5,17 @@ import { SectionHeader } from "./SectionHeader";
 const steps = [
   {
     icon: Search,
-    title: "Assess the current setup",
+    title: "Assess",
     body: "Review books, reporting, payroll, AP/AR, cash flow, systems, and franchise-specific needs.",
   },
   {
     icon: Settings2,
-    title: "Build the operating rhythm",
+    title: "Build",
     body: "Set up the monthly close, reporting cadence, payroll coordination, cash visibility, and finance workflows.",
   },
   {
     icon: TrendingUp,
-    title: "Run and improve the function",
+    title: "Run",
     body: "Stay embedded as the finance team, helping leadership make decisions with cleaner numbers.",
   },
 ];
@@ -26,7 +26,7 @@ export function HowItWorks() {
       <SectionHeader
         eyebrow="How it works"
         title="How Fractioneer works with your team"
-        description="A simple path from messy finance operations to a finance function leadership can rely on."
+        description="A simple path from scattered finance activity to a finance function leadership can rely on."
       />
 
       <div className="relative">

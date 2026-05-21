@@ -8,12 +8,7 @@ const tiers = [
   {
     name: "Finance Foundation",
     bestFor: "Clean books, payroll, AP/AR, and monthly reporting.",
-    features: [
-      "Bookkeeping and reconciliations",
-      "Payroll administration",
-      "AP/AR management",
-      "Monthly financial reporting",
-    ],
+    features: ["Bookkeeping", "Payroll", "AP/AR", "Monthly reporting"],
     cta: "Talk through this model",
     intent: "Bookkeeping",
   },
@@ -21,10 +16,10 @@ const tiers = [
     name: "Controller-Led Operations",
     bestFor: "Close ownership, controls, cash flow, and multi-entity reporting.",
     features: [
-      "Controller ownership of the close",
+      "Monthly close",
       "Multi-entity reporting",
       "Cash flow management",
-      "Financial controls and process",
+      "Financial controls",
     ],
     featured: true,
     cta: "Discuss controller support",
@@ -35,7 +30,7 @@ const tiers = [
     bestFor: "Forecasting, board support, strategic finance, and audit readiness.",
     features: [
       "Fractional CFO leadership",
-      "Forecasting and scenario planning",
+      "Forecasting",
       "Board and investor packages",
       "Audit and diligence support",
     ],
@@ -57,7 +52,7 @@ export function EngagementModels() {
           <div
             key={t.name}
             className={cn(
-              "relative rounded-xl border border-border bg-card p-8 flex flex-col",
+              "relative rounded-xl border border-border bg-card p-7 flex flex-col",
               t.featured && "border-accent/40 shadow-[0_24px_50px_-30px_rgba(26,167,255,0.35)]",
             )}
           >
@@ -69,24 +64,24 @@ export function EngagementModels() {
               <div className="text-[11px] font-semibold uppercase tracking-wider text-accent">
                 Best for
               </div>
-              <p className="mt-1.5 text-sm leading-relaxed text-foreground/85">
+              <p className="mt-1.5 text-sm leading-snug text-foreground/85">
                 {t.bestFor}
               </p>
             </div>
             <div className="mt-6">
               <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                What it includes
+                Includes
               </div>
-              <ul className="mt-3 space-y-2.5">
+              <ul className="mt-3 space-y-2">
                 {t.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 text-sm text-foreground/85">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-foreground/85">
+                    <Check className="h-4 w-4 shrink-0 text-accent" />
                     {f}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="mt-8">
+            <div className="mt-7">
               <BookACallButton
                 variant={t.featured ? "primary" : "nav"}
                 intent={t.intent}

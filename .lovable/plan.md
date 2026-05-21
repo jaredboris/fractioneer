@@ -1,117 +1,66 @@
-## Targeted Fractioneer homepage updates (revised)
+# Plan: Reduce text density in the middle of the page
 
-Scope: conversion + credibility only. No site reorder. No fabricated proof. Surgical edits.
+Targeted edits to four sections. No new sections beyond what's specified. No booking modal, proof, pricing, or extra CTA changes.
 
-### 1. Tighter vertical spacing (~20–30%)
-- `Section.tsx`: `py-14 md:py-20` → `py-10 md:py-14`.
-- `FinalCTA.tsx`: outer `py-20 md:py-28` → `py-14 md:py-20`; inner card `py-16 md:py-20` → `py-12 md:py-16`.
-- `SocialProof.tsx`: override `py-14 md:py-16` → `py-10 md:py-12`.
-Keep generous internal padding and gaps so the page still feels premium.
+## 1. `ServicesFranchise.tsx` — Layered "finance operating system"
 
-### 2. Header nav relabel
-- `Navbar.tsx`: change `"Franchise Finance"` to `"Who We Help"` (keep `#problem` href) in both desktop and mobile lists.
+Replace the 7-card uniform grid with **3 stacked horizontal layers**, each labeled as a tier of the finance stack.
 
-### 3. Franchise audits as a service (conservative)
-- `ServicesFranchise.tsx`: add 7th card (icon `ShieldCheck`)
-  - Title: "Franchise audits for franchisors"
-  - Body: "Support for franchisors that need clean documentation, reporting coordination, and financial process support across franchise locations."
-- Lightly broaden existing "Cash flow, audit, and reporting support" body to mention franchisor audit support — no overclaiming.
+Structure:
+```text
+┌─ Layer 01 · Strategic finance ──────────────────────────┐
+│  [icon] CFO leadership          [icon] Cash flow & reporting │
+└──────────────────────────────────────────────────────────┘
+┌─ Layer 02 · Controls & close ───────────────────────────┐
+│  [icon] Controller & monthly close   [icon] Franchise audits │
+└──────────────────────────────────────────────────────────┘
+┌─ Layer 03 · Daily finance operations ───────────────────┐
+│  [icon] Bookkeeping  [icon] Payroll  [icon] AP/AR        │
+└──────────────────────────────────────────────────────────┘
+```
 
-### 4. New "What leadership can see clearly" section
-- New file `src/components/site/LeadershipVisibility.tsx` (uses `<Section>` + `<SectionHeader>`).
-- Heading: "What leadership can see clearly."
-- Subtext: "Fractioneer helps franchise leaders turn scattered finance activity into reporting they can actually use."
-- 5 compact icon cards: Monthly close status, Cash position, Unit-level P&L, Royalty and fee tracking, Audit readiness (exact copy from brief).
-- Mount in `routes/index.tsx` between `<ServicesFranchise />` and `<EngagementModels />`.
+- Each layer = a horizontal band (card with subtle border) with a small layer label/eyebrow on the left (e.g. "01 · Strategic finance") and the services as inline icon+title+one-line items inside.
+- Each service: icon (left), bold title, one-line description below. No paragraph copy.
+- Use the exact copy provided in the request (one line per service).
+- Headline: "What Fractioneer runs for growing operators."
+- Subhead: "A complete finance function across strategy, controls, close, reporting, and day-to-day execution."
+- Responsive: layers stack full-width; inside each layer the services switch from row → 2-col → 1-col on small screens.
+- Keep `muted` background. Keep section id `services`.
 
-### 5. Consultative engagement CTAs with intent passthrough
-- `BookingProvider.tsx`: extend API to
-  ```ts
-  openBooking(opts?: { view?: "calendar" | "form"; intent?: string }): void
-  ```
-  Default (no args) = calendar view, no intent. Preserves all existing call sites.
-- `BookACallButton.tsx`: add optional `view` and `intent` props that forward to `openBooking`.
-- `EngagementModels.tsx`: per-tier CTA label + intent
-  - Finance Foundation → "Talk through this model" / intent "Bookkeeping"
-  - Controller-Led Operations → "Discuss controller support" / intent "Controller support"
-  - CFO Partnership → "Discuss CFO support" / intent "CFO support"
-  Buttons still open the calendar view; intent is preserved and applied if the user switches to the form.
+## 2. `LeadershipVisibility.tsx` — Compact output tiles
 
-### 6. Testimonial credibility polish (no reorder, no metrics)
-- `Testimonials.tsx`: add a small subtle label chip above each quote
-  - Abdy/Abaco → "Portfolio finance"
-  - Andrada/Riverside → "Portfolio finance"
-  - Ferrara/PatchMaster → "Franchisor support"
-- Slight layout tweak so name/role/company/headshot read more prominently. No fabricated outcomes.
-- Michael Abdy's hero testimonial stays exactly as is.
+Already close, but tighten:
+- Reduce padding (p-5 → p-4), tighter typography.
+- Shorten body lines to ≤6 words each (e.g. "On track, delayed, or ready", "Cash across the business", "By location, region, or entity", "Collected, pending, past-due", "Docs ready for audits/diligence").
+- Keep 5-column layout on lg, 2-col on sm.
+- Keep status chip (Live / Weekly / Monthly / Live / Always-on).
+- Add a subtle "Outputs" eyebrow framing — already handled by SectionHeader eyebrow "Leadership visibility".
 
-### 7. FAQ answers
-- `FAQ.tsx`: replace `a` text for the 7 existing questions with the stronger brief-supplied answers, and append a new entry:
-  - Q: "Can you help with franchise audits?"
-  - A: brief-supplied conservative answer.
+## 3. `HowItWorks.tsx` — Already exists; refine copy + visual
 
-### 8. Booking modal — two clear paths, calendar default
-- `BookingModal.tsx`: internal `view: "calendar" | "form"` state. Resets to whatever `initialView` the provider passes whenever the modal re-opens.
+Section already added after LeadershipVisibility, before EngagementModels. Update copy to match request exactly:
+- Subhead: "A simple path from scattered finance activity to a finance function leadership can rely on."
+- Steps simplify to **Assess / Build / Run** as the bold titles (currently "Assess the current setup" etc.) with the longer descriptions kept as supporting text.
+- Horizontal stepper on desktop (already implemented), stacked on mobile (already implemented). Keep current numbered circle + icon. No animation changes.
 
-Calendar view:
-- Headline: "Book a call with Fractioneer"
-- Subtext: "Pick a time to talk with our team about your franchise finance needs."
-- Existing embed placeholder
-- Below it, a compact secondary card:
-  - "Prefer not to schedule right now?"
-  - "Send us a few details and we'll follow up."
-  - Button: "Send details instead" → switches to form view
-- No form rendered underneath the calendar by default.
+## 4. `EngagementModels.tsx` — Tighter comparison
 
-Form view:
-- Headline: "Send us a few details."
-- Subtext: "Tell us what you need and we'll follow up shortly."
-- `<LeadForm>` at the top of the modal
-- Small "← Back to calendar" link
-- Forwarded `intent` preselects the "What do you need help with?" option
+Current structure is close. Tighten:
+- Trim "What it includes" to **3–4 short label-style items** (no full sentences). Use exact copy from request:
+  - Finance Foundation: Bookkeeping · Payroll · AP/AR · Monthly reporting
+  - Controller-Led: Monthly close · Multi-entity reporting · Cash flow management · Financial controls
+  - CFO Partnership: Fractional CFO leadership · Forecasting · Board & investor packages · Audit & diligence support
+- Keep "Best for" line as-is (already added).
+- Keep current CTAs.
+- Reduce card padding slightly (p-8 → p-7) and feature list line-height for denser comparison.
 
-### 9. LeadForm rewrite (short, low-friction)
-- `LeadForm.tsx`:
-  - Replace `first_name` + `last_name` with one `full_name` field.
-  - Required: Full name, Work email, Company name, What do you need help with?
-  - Optional: Company type, Number of locations, Anything else?
-  - `helpOptions`: CFO support, Controller support, Bookkeeping, Payroll, AP/AR, Cash flow, Reporting, Franchise audits, Audit support, Not sure yet.
-  - Accept optional `initialHelpWith` prop wired from `intent`.
+## Files touched
 
-### 10. Final CTA — dual buttons
-- `FinalCTA.tsx`:
-  - Primary "Book a call" → `openBooking()` (calendar view)
-  - Secondary "Send details instead" → `openBooking({ view: "form" })`
-  - Replace the current underline link with a real secondary button styled to fit the navy gradient card.
+- `src/components/site/ServicesFranchise.tsx` — restructure to 3 layered bands
+- `src/components/site/LeadershipVisibility.tsx` — shorten copy, tighten padding
+- `src/components/site/HowItWorks.tsx` — copy refinement (subhead + step titles)
+- `src/components/site/EngagementModels.tsx` — shorten includes to label-style items
 
-### 11. Logo readability
-- `SocialProof.tsx`: bump hero logo cells `h-8 md:h-9` → `h-10 md:h-12`, `max-w-[140px]` → `max-w-[160px]`. Bump `selectedLogos` from `sm` to `h-8 md:h-9`. Section stays compact (covered by #1).
+## Out of scope
 
-### 12. No fabricated proof
-- No new stats, outcomes, client claims, or audit deliverables. Keep all existing credible proof intact.
-
----
-
-### Technical notes
-
-- `LeadForm` schema: `full_name` (min 1, max 160). Server fn splits on first space into `first_name` / `last_name` (last_name `""` if absent) before insert — avoids a DB migration this pass.
-- `helpOptions` enum must match exactly between `LeadForm.tsx` and `leads.functions.ts`, or the server will reject submissions.
-- `BookingProvider` stores `{ view, intent }` in state alongside `open`, passes both into `<BookingModal>` as `initialView` and `intent`. Modal resets `view` to `initialView` on each open via a `useEffect` on `open`.
-- No new routes, no new packages, no DB migrations.
-
-### Files touched
-- edit: `src/components/site/Section.tsx`
-- edit: `src/components/site/Navbar.tsx`
-- edit: `src/components/site/ServicesFranchise.tsx`
-- new:  `src/components/site/LeadershipVisibility.tsx`
-- edit: `src/routes/index.tsx`
-- edit: `src/components/site/BookingProvider.tsx`
-- edit: `src/components/site/BookingModal.tsx`
-- edit: `src/components/site/BookACallButton.tsx`
-- edit: `src/components/site/EngagementModels.tsx`
-- edit: `src/components/site/Testimonials.tsx`
-- edit: `src/components/site/FAQ.tsx`
-- edit: `src/components/site/LeadForm.tsx`
-- edit: `src/components/site/FinalCTA.tsx`
-- edit: `src/components/site/SocialProof.tsx`
-- edit: `src/lib/leads.functions.ts`
+No changes to: Hero, SocialProof, WhoWeHelp, ProblemSection, InlineCTA, Testimonials, TeamGrid, FAQ, FinalCTA, Footer, Navbar, BookingModal, routes, or any data/logic.
