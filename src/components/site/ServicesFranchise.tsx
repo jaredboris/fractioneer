@@ -5,6 +5,7 @@ import {
   Users,
   Receipt,
   Wallet,
+  ShieldCheck,
 } from "lucide-react";
 import { Section } from "./Section";
 
