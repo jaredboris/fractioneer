@@ -10,7 +10,7 @@ export function Footer() {
               <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-primary-foreground/70">
-              Finance operations for franchisors, franchise platforms, multi-unit operators, and PE-backed brands.
+              Fractioneer supports franchise systems, PE-backed operators, and founder-owned businesses with CFO, controller, accounting, payroll, AP/AR, cash flow, reporting, and audit support.
             </p>
           </div>
 
