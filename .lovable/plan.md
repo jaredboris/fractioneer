@@ -1,111 +1,117 @@
-# Conversion flow: "Book a call" + booking modal
+## Targeted Fractioneer homepage updates (revised)
 
-## Recommendation
-Use **Calendly** (or Cal.com / HubSpot Meetings) — not a custom scheduler. Building a real calendar means timezone handling, availability, Google/Outlook OAuth, reminders, reschedules, and routing — weeks of work with no premium-feel upside. We'll ship a clean modal with a clearly-marked embed slot now; pasting a Calendly inline embed later is a one-line change.
+Scope: conversion + credibility only. No site reorder. No fabricated proof. Surgical edits.
 
-## Scope
-- Replace all CTA copy ("Book a consultation" / "Explore franchise…" secondary CTA stays as-is) with **"Book a call"** in: Navbar, Hero (primary), Final CTA.
-- Remove `mailto:` and `#contact` hash links from those CTAs.
-- New `BookingModal` component opens on any "Book a call" click. No auto-open, no exit-intent.
-- Inside the modal: headline, subheadline, calendar embed placeholder, and a collapsed "Not ready to book?" fallback that expands into a lead form.
-- Lead form submits to Lovable Cloud (`leads` table). After success, replace form with thank-you message.
+### 1. Tighter vertical spacing (~20–30%)
+- `Section.tsx`: `py-14 md:py-20` → `py-10 md:py-14`.
+- `FinalCTA.tsx`: outer `py-20 md:py-28` → `py-14 md:py-20`; inner card `py-16 md:py-20` → `py-12 md:py-16`.
+- `SocialProof.tsx`: override `py-14 md:py-16` → `py-10 md:py-12`.
+Keep generous internal padding and gaps so the page still feels premium.
 
-## Files
+### 2. Header nav relabel
+- `Navbar.tsx`: change `"Franchise Finance"` to `"Who We Help"` (keep `#problem` href) in both desktop and mobile lists.
 
-**New**
-- `src/components/site/BookingModal.tsx` — shadcn `Dialog` wrapper, exposes context + trigger button.
-- `src/components/site/BookingProvider.tsx` — React context (`useBooking()` → `openBooking()`) so any button anywhere triggers the same modal instance. Mounted once in `src/routes/index.tsx`.
-- `src/components/site/BookACallButton.tsx` — reusable button (variants: `primary` navy, `light` white-on-navy for FinalCTA). Calls `openBooking()`.
-- `src/components/site/LeadForm.tsx` — the fallback form (zod + react-hook-form + shadcn Form/Input/Select/Textarea).
-- `src/lib/leads.functions.ts` — `submitLead` server fn using `supabaseAdmin` (public form, no auth). Zod-validated inputs.
-- Supabase migration: `leads` table.
+### 3. Franchise audits as a service (conservative)
+- `ServicesFranchise.tsx`: add 7th card (icon `ShieldCheck`)
+  - Title: "Franchise audits for franchisors"
+  - Body: "Support for franchisors that need clean documentation, reporting coordination, and financial process support across franchise locations."
+- Lightly broaden existing "Cash flow, audit, and reporting support" body to mention franchisor audit support — no overclaiming.
 
-**Edited**
-- `src/components/site/Navbar.tsx` — desktop + mobile "Book a consultation" → `<BookACallButton>`.
-- `src/components/site/Hero.tsx` — primary CTA → `<BookACallButton>`; keep secondary "Explore franchise finance support" link.
-- `src/components/site/FinalCTA.tsx` — `mailto:` button → `<BookACallButton variant="light">`; section headline copy unchanged.
-- `src/routes/index.tsx` — wrap `<main>` in `<BookingProvider>`.
+### 4. New "What leadership can see clearly" section
+- New file `src/components/site/LeadershipVisibility.tsx` (uses `<Section>` + `<SectionHeader>`).
+- Heading: "What leadership can see clearly."
+- Subtext: "Fractioneer helps franchise leaders turn scattered finance activity into reporting they can actually use."
+- 5 compact icon cards: Monthly close status, Cash position, Unit-level P&L, Royalty and fee tracking, Audit readiness (exact copy from brief).
+- Mount in `routes/index.tsx` between `<ServicesFranchise />` and `<EngagementModels />`.
 
-## Modal structure
+### 5. Consultative engagement CTAs with intent passthrough
+- `BookingProvider.tsx`: extend API to
+  ```ts
+  openBooking(opts?: { view?: "calendar" | "form"; intent?: string }): void
+  ```
+  Default (no args) = calendar view, no intent. Preserves all existing call sites.
+- `BookACallButton.tsx`: add optional `view` and `intent` props that forward to `openBooking`.
+- `EngagementModels.tsx`: per-tier CTA label + intent
+  - Finance Foundation → "Talk through this model" / intent "Bookkeeping"
+  - Controller-Led Operations → "Discuss controller support" / intent "Controller support"
+  - CFO Partnership → "Discuss CFO support" / intent "CFO support"
+  Buttons still open the calendar view; intent is preserved and applied if the user switches to the form.
 
-```text
-┌─ Dialog (max-w-2xl) ──────────────────────────┐
-│ Book a call with Fractioneer                  │
-│ Pick a time to talk with our team about your  │
-│ franchise finance needs.                      │
-│                                               │
-│ ┌─ Calendar embed slot (dashed border) ─────┐ │
-│ │ Calendar embed goes here. Replace with    │ │
-│ │ Calendly, HubSpot Meetings, or Cal.com    │ │
-│ │ embed code.                               │ │
-│ └───────────────────────────────────────────┘ │
-│                                               │
-│ ── divider ──                                 │
-│                                               │
-│ Not ready to book?                            │
-│ Tell us what you need and we'll follow up.    │
-│ [ Share your details ▾ ]   ← collapsed by default
-└───────────────────────────────────────────────┘
-```
+### 6. Testimonial credibility polish (no reorder, no metrics)
+- `Testimonials.tsx`: add a small subtle label chip above each quote
+  - Abdy/Abaco → "Portfolio finance"
+  - Andrada/Riverside → "Portfolio finance"
+  - Ferrara/PatchMaster → "Franchisor support"
+- Slight layout tweak so name/role/company/headshot read more prominently. No fabricated outcomes.
+- Michael Abdy's hero testimonial stays exactly as is.
 
-Embed slot is a single `<div id="booking-embed-slot">` with the placeholder text + a code-comment marker `{/* BOOKING_EMBED_SLOT */}` so it's easy to find and replace.
+### 7. FAQ answers
+- `FAQ.tsx`: replace `a` text for the 7 existing questions with the stronger brief-supplied answers, and append a new entry:
+  - Q: "Can you help with franchise audits?"
+  - A: brief-supplied conservative answer.
 
-Clicking "Share your details" expands `<LeadForm>` inline (no second modal). After successful submit, the form area is replaced with the thank-you message; the calendar embed slot stays visible above.
+### 8. Booking modal — two clear paths, calendar default
+- `BookingModal.tsx`: internal `view: "calendar" | "form"` state. Resets to whatever `initialView` the provider passes whenever the modal re-opens.
 
-## Lead form
+Calendar view:
+- Headline: "Book a call with Fractioneer"
+- Subtext: "Pick a time to talk with our team about your franchise finance needs."
+- Existing embed placeholder
+- Below it, a compact secondary card:
+  - "Prefer not to schedule right now?"
+  - "Send us a few details and we'll follow up."
+  - Button: "Send details instead" → switches to form view
+- No form rendered underneath the calendar by default.
 
-Fields (all required except message):
-- First name, Last name — text, 1–80 chars
-- Work email — `z.string().email()`, max 200
-- Company name — text, 1–120 chars
-- Company type — select: Franchisor / Multi-unit franchise operator / Franchise platform / PE-backed company / Founder-owned business / Other
-- Number of locations — select: 1 to 5 / 6 to 20 / 21 to 50 / 51+ / Not applicable
-- What do you need help with — select: Fractional CFO / Bookkeeping/accounting / Payroll / AP/AR / Cash flow management / Audit support / Not sure yet
-- Message — optional textarea, max 1000
+Form view:
+- Headline: "Send us a few details."
+- Subtext: "Tell us what you need and we'll follow up shortly."
+- `<LeadForm>` at the top of the modal
+- Small "← Back to calendar" link
+- Forwarded `intent` preselects the "What do you need help with?" option
 
-Submit button: **Send request**. While submitting → disabled + spinner. On success → "Thanks. We'll review your information and follow up shortly." On error → inline error message, form remains.
+### 9. LeadForm rewrite (short, low-friction)
+- `LeadForm.tsx`:
+  - Replace `first_name` + `last_name` with one `full_name` field.
+  - Required: Full name, Work email, Company name, What do you need help with?
+  - Optional: Company type, Number of locations, Anything else?
+  - `helpOptions`: CFO support, Controller support, Bookkeeping, Payroll, AP/AR, Cash flow, Reporting, Franchise audits, Audit support, Not sure yet.
+  - Accept optional `initialHelpWith` prop wired from `intent`.
 
-## Backend (Lovable Cloud)
+### 10. Final CTA — dual buttons
+- `FinalCTA.tsx`:
+  - Primary "Book a call" → `openBooking()` (calendar view)
+  - Secondary "Send details instead" → `openBooking({ view: "form" })`
+  - Replace the current underline link with a real secondary button styled to fit the navy gradient card.
 
-Enable Lovable Cloud (one tool call). Migration:
+### 11. Logo readability
+- `SocialProof.tsx`: bump hero logo cells `h-8 md:h-9` → `h-10 md:h-12`, `max-w-[140px]` → `max-w-[160px]`. Bump `selectedLogos` from `sm` to `h-8 md:h-9`. Section stays compact (covered by #1).
 
-```sql
-create table public.leads (
-  id uuid primary key default gen_random_uuid(),
-  created_at timestamptz not null default now(),
-  first_name text not null,
-  last_name text not null,
-  work_email text not null,
-  company_name text not null,
-  company_type text not null,
-  num_locations text not null,
-  help_with text not null,
-  message text,
-  source text not null default 'website_booking_modal'
-);
-alter table public.leads enable row level security;
--- No public select/insert policies. All writes go through the server fn
--- using the service-role client (supabaseAdmin), which bypasses RLS.
-```
+### 12. No fabricated proof
+- No new stats, outcomes, client claims, or audit deliverables. Keep all existing credible proof intact.
 
-`src/lib/leads.functions.ts`:
-- `createServerFn({ method: "POST" })` with zod `inputValidator` matching the form schema (enums enforced server-side).
-- Handler imports `supabaseAdmin` from `@/integrations/supabase/client.server` and inserts the row. Returns `{ ok: true }` or throws on error.
-- File contains ONLY the server fn + its imports (no plain helpers) so the `client.server` import doesn't leak to the client bundle.
+---
 
-Client uses `useServerFn(submitLead)` from `LeadForm`.
+### Technical notes
 
-CRM hookup later: add a second step inside the handler (HubSpot/Resend/etc.) without changing the client. Schema is CRM-friendly.
+- `LeadForm` schema: `full_name` (min 1, max 160). Server fn splits on first space into `first_name` / `last_name` (last_name `""` if absent) before insert — avoids a DB migration this pass.
+- `helpOptions` enum must match exactly between `LeadForm.tsx` and `leads.functions.ts`, or the server will reject submissions.
+- `BookingProvider` stores `{ view, intent }` in state alongside `open`, passes both into `<BookingModal>` as `initialView` and `intent`. Modal resets `view` to `initialView` on each open via a `useEffect` on `open`.
+- No new routes, no new packages, no DB migrations.
 
-## Design notes
-- Modal uses existing tokens (`bg-background`, `text-foreground`, accent blue for the expand toggle, hairline divider).
-- Embed slot: `min-h-[420px]`, `rounded-lg border border-dashed border-border bg-muted/40`, centered placeholder text in `text-muted-foreground text-sm`.
-- Fallback toggle: ghost button with chevron, accent-blue label.
-- Mobile: modal becomes full-height sheet via shadcn Dialog responsive sizing; form stacks single-column.
-- Accessibility: Dialog handles focus trap + Esc; form fields have associated labels and `aria-invalid` on errors.
-
-## Out of scope
-- Real Calendly/HubSpot embed code (placeholder only, per request).
-- Email notification on lead submit (table is ready; wire later).
-- Admin view of leads.
-- Removing/renaming the existing `#contact` anchor on the FinalCTA section (kept for any deep links; the button inside it switches to opening the modal).
+### Files touched
+- edit: `src/components/site/Section.tsx`
+- edit: `src/components/site/Navbar.tsx`
+- edit: `src/components/site/ServicesFranchise.tsx`
+- new:  `src/components/site/LeadershipVisibility.tsx`
+- edit: `src/routes/index.tsx`
+- edit: `src/components/site/BookingProvider.tsx`
+- edit: `src/components/site/BookingModal.tsx`
+- edit: `src/components/site/BookACallButton.tsx`
+- edit: `src/components/site/EngagementModels.tsx`
+- edit: `src/components/site/Testimonials.tsx`
+- edit: `src/components/site/FAQ.tsx`
+- edit: `src/components/site/LeadForm.tsx`
+- edit: `src/components/site/FinalCTA.tsx`
+- edit: `src/components/site/SocialProof.tsx`
+- edit: `src/lib/leads.functions.ts`
