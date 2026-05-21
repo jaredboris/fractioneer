@@ -15,6 +15,8 @@ const tiers = [
       "AP/AR management",
       "Monthly financial reporting",
     ],
+    cta: "Talk through this model",
+    intent: "Bookkeeping",
   },
   {
     name: "Controller-Led Operations",
@@ -28,6 +30,8 @@ const tiers = [
       "Lender and vendor support",
     ],
     featured: true,
+    cta: "Discuss controller support",
+    intent: "Controller support",
   },
   {
     name: "CFO Partnership",
@@ -40,6 +44,8 @@ const tiers = [
       "Audit and diligence support",
       "Capital and lender strategy",
     ],
+    cta: "Discuss CFO support",
+    intent: "CFO support",
   },
 ];
 
@@ -78,13 +84,14 @@ export function EngagementModels() {
             <div className="mt-8">
               <BookACallButton
                 variant={t.featured ? "primary" : "nav"}
+                intent={t.intent}
                 className={cn(
                   "w-full",
                   !t.featured &&
                     "bg-transparent text-foreground border border-border hover:bg-transparent hover:border-accent hover:text-accent",
                 )}
               >
-                Book a call
+                {t.cta}
               </BookACallButton>
             </div>
           </div>

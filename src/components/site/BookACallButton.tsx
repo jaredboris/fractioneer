@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { useBooking } from "./BookingProvider";
+import { useBooking, type BookingView } from "./BookingProvider";
 
 type Variant = "primary" | "light" | "nav";
 
@@ -15,16 +15,20 @@ export function BookACallButton({
   variant = "primary",
   className,
   children = "Book a call",
+  view,
+  intent,
 }: {
   variant?: Variant;
   className?: string;
   children?: React.ReactNode;
+  view?: BookingView;
+  intent?: string;
 }) {
   const { openBooking } = useBooking();
   return (
     <button
       type="button"
-      onClick={openBooking}
+      onClick={() => openBooking({ view, intent })}
       className={cn(
         "inline-flex items-center justify-center rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
         styles[variant],
