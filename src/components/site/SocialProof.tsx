@@ -45,7 +45,7 @@ const selectedLogos: Logo[] = [
 const proofPoints = [
   { stat: "100+", label: "Client engagements" },
   { stat: "15+ yrs", label: "Fractional finance experience" },
-  { stat: "Long-term", label: "Portfolio finance relationships" },
+  { stat: "6+ yrs", label: "Average client relationship length" },
   { stat: "Full team", label: "CFO, controller, accounting, payroll, AP/AR" },
 ];
 
