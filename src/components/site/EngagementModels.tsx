@@ -2,7 +2,6 @@ import { Check } from "lucide-react";
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
 import { BookACallButton } from "./BookACallButton";
-import { SendInfoButton } from "./SendInfoButton";
 import { cn } from "@/lib/utils";
 
 const tiers = [
@@ -76,7 +75,7 @@ export function EngagementModels() {
                 </li>
               ))}
             </ul>
-            <div className="mt-8 flex flex-col gap-2">
+            <div className="mt-8">
               <BookACallButton
                 variant={t.featured ? "primary" : "nav"}
                 className={cn(
@@ -87,7 +86,6 @@ export function EngagementModels() {
               >
                 Book a call
               </BookACallButton>
-              <SendInfoButton variant="nav" className="w-full" />
             </div>
           </div>
         ))}

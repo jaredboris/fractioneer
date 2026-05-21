@@ -12,18 +12,15 @@ import { LeadForm } from "./LeadForm";
 export function BookingModal({
   open,
   onOpenChange,
-  initialShowForm = false,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  initialShowForm?: boolean;
 }) {
-  const [showForm, setShowForm] = useState(initialShowForm);
+  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
-    if (open) setShowForm(initialShowForm);
-    else setShowForm(false);
-  }, [open, initialShowForm]);
+    if (!open) setShowForm(false);
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

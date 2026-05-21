@@ -22,9 +22,7 @@ export function Footer() {
               <li><a href="#services" className="hover:text-accent">Fractional CFO</a></li>
               <li><a href="#services" className="hover:text-accent">Controller</a></li>
               <li><a href="#services" className="hover:text-accent">Bookkeeping</a></li>
-              <li><a href="#services" className="hover:text-accent">Payroll and AP/AR</a></li>
-              <li><a href="#services" className="hover:text-accent">Cash Flow and Audit Support</a></li>
-              <li><a href="#services" className="hover:text-accent">Franchise Audits</a></li>
+              <li><a href="#services" className="hover:text-accent">Payroll & AP/AR</a></li>
             </ul>
           </div>
 
@@ -33,7 +31,7 @@ export function Footer() {
               Company
             </div>
             <ul className="mt-4 space-y-2 text-sm text-primary-foreground/80">
-              <li><a href="#clients" className="hover:text-accent">Clients</a></li>
+              <li><a href="#approach" className="hover:text-accent">Approach</a></li>
               <li><a href="#team" className="hover:text-accent">Team</a></li>
               <li><a href="#faq" className="hover:text-accent">FAQ</a></li>
               <li><a href="#contact" className="hover:text-accent">Contact</a></li>
@@ -43,8 +41,10 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-t border-white/10 pt-6 text-xs text-primary-foreground/60">
           <div>© {new Date().getFullYear()} Fractioneer. All rights reserved.</div>
-          {/* [Add Privacy Policy page before launch] */}
-          {/* [Add Terms page before launch] */}
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-accent">Privacy</a>
+            <a href="#" className="hover:text-accent">Terms</a>
+          </div>
         </div>
       </div>
     </footer>

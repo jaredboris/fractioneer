@@ -36,10 +36,6 @@ const faqs = [
     q: "Do you work with PE-backed companies?",
     a: "Yes. We support sponsor-owned platforms with reporting cadences, board packages, and the documentation needed for diligence and audits.",
   },
-  {
-    q: "Do you perform franchise audits?",
-    a: "[Answer to be added — awaiting elaboration before launch.]",
-  },
 ];
 
 export function FAQ() {

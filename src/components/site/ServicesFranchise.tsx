@@ -5,7 +5,6 @@ import {
   Users,
   Receipt,
   Wallet,
-  ShieldCheck,
 } from "lucide-react";
 import { Section } from "./Section";
 
@@ -39,11 +38,6 @@ const services = [
     icon: Wallet,
     title: "Cash flow, audit, and reporting support",
     body: "Weekly cash visibility, lender and investor packages, and documentation that holds up to audits and diligence.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Franchise audit support",
-    body: "Royalty audits, franchisee compliance reviews, and unit-level financial audits that give franchisors accurate visibility and confidence across the system.",
   },
 ];
 

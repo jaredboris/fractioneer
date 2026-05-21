@@ -1,8 +1,9 @@
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
-
-// [Awaiting headshots for Theresa Laietta and Angie Serrano — replace initials with real photos when provided]
-// Temporarily showing all six team members with initials so the section looks consistent.
+import jonPaulPhoto from "@/assets/team/jon-paul-mcgahan.jpeg";
+import blakePhoto from "@/assets/team/blake-folsom.jpeg";
+import markPhoto from "@/assets/team/mark-carman.jpeg";
+import keriPhoto from "@/assets/team/keri-chang.jpeg";
 
 type Person = {
   name: string;
@@ -18,18 +19,21 @@ const leaders: Person[] = [
     role: "Chief Executive Officer / Founder",
     chips: ["15+ years", "100+ clients", "$10B+ AUM client experience"],
     bio: "JP has led fractional finance work for 100+ clients, from private funds to founder-owned businesses.",
+    photo: jonPaulPhoto,
   },
   {
     name: "Mark Carman",
     role: "Chief Operating Officer",
     chips: ["PE / VC", "Franchising", "Controller operations"],
     bio: "Mark brings PE, VC, franchising, modeling, and controller experience to client finance operations.",
+    photo: markPhoto,
   },
   {
     name: "Blake Folsom, CPA",
     role: "Fractional CFO",
     chips: ["CPA", "M&A", "Internal controls"],
     bio: "Blake helps growing companies improve cash flow, controls, reporting, and finance strategy.",
+    photo: blakePhoto,
   },
 ];
 
@@ -39,6 +43,7 @@ const execution: Person[] = [
     role: "Senior Staff Accountant",
     chips: ["25 years", "Bookkeeping", "Franchising"],
     bio: "Keri manages bookkeeping, reconciliations, reporting, and day-to-day accounting accuracy.",
+    photo: keriPhoto,
   },
   {
     name: "Theresa Laietta",
