@@ -4,6 +4,7 @@ import { BookingModal } from "./BookingModal";
 type BookingContextValue = {
   open: boolean;
   openBooking: () => void;
+  openLeadForm: () => void;
   closeBooking: () => void;
 };
 
@@ -11,13 +12,21 @@ const BookingContext = createContext<BookingContextValue | null>(null);
 
 export function BookingProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
-  const openBooking = useCallback(() => setOpen(true), []);
+  const [initialShowForm, setInitialShowForm] = useState(false);
+  const openBooking = useCallback(() => {
+    setInitialShowForm(false);
+    setOpen(true);
+  }, []);
+  const openLeadForm = useCallback(() => {
+    setInitialShowForm(true);
+    setOpen(true);
+  }, []);
   const closeBooking = useCallback(() => setOpen(false), []);
 
   return (
-    <BookingContext.Provider value={{ open, openBooking, closeBooking }}>
+    <BookingContext.Provider value={{ open, openBooking, openLeadForm, closeBooking }}>
       {children}
-      <BookingModal open={open} onOpenChange={setOpen} />
+      <BookingModal open={open} onOpenChange={setOpen} initialShowForm={initialShowForm} />
     </BookingContext.Provider>
   );
 }
