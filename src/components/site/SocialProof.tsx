@@ -50,7 +50,8 @@ const proofPoints = [
 ];
 
 function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
-  const h = size === "lg" ? "h-8 md:h-9" : "h-6 md:h-7";
+  const h = size === "lg" ? "h-10 md:h-12" : "h-8 md:h-9";
+  const maxW = size === "lg" ? "max-w-[160px]" : "max-w-[140px]";
   return (
     <a
       href={logo.href}
@@ -65,7 +66,7 @@ function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
           src={logo.src}
           alt={logo.name}
           style={logo.invert ? { filter: "invert(1) brightness(0.5)" } : undefined}
-          className={`${h} w-auto max-w-[140px] object-contain opacity-80 group-hover:opacity-100 transition-opacity`}
+          className={`${h} ${maxW} w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity`}
           loading="lazy"
         />
       ) : (
@@ -83,7 +84,7 @@ function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
 
 export function SocialProof() {
   return (
-    <Section id="clients" className="py-14 md:py-16">
+    <Section id="clients" className="py-10 md:py-12">
       <p className="text-center text-sm md:text-base font-medium text-muted-foreground max-w-3xl mx-auto">
         Client and portfolio experience across franchise brands, PE firms, and founder-owned operators.
       </p>
