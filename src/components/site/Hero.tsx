@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { DashboardVisual } from "./DashboardVisual";
 import { BookACallButton } from "./BookACallButton";
+import { SendInfoButton } from "./SendInfoButton";
 import michaelPhoto from "@/assets/testimonial-michael-abdy.jpeg";
 
 
