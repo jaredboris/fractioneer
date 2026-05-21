@@ -12,6 +12,8 @@ import { Testimonials } from "@/components/site/Testimonials";
 import { FAQ } from "@/components/site/FAQ";
 import { FinalCTA } from "@/components/site/FinalCTA";
 import { BookingProvider } from "@/components/site/BookingProvider";
+import { WhoWeHelp } from "@/components/site/WhoWeHelp";
+import { InlineCTA } from "@/components/site/InlineCTA";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,11 +45,23 @@ function Index() {
         <main>
           <Hero />
           <SocialProof />
+          <WhoWeHelp />
           <ProblemSection />
           <ServicesFranchise />
+          <InlineCTA
+            title="Need help running these finance functions?"
+            subtext="Talk through your current setup and see where Fractioneer can help. No pressure — we'll point you in the right direction."
+            primaryLabel="Talk through your setup"
+          />
           <LeadershipVisibility />
           <EngagementModels />
           <Testimonials />
+          <InlineCTA
+            title="Want to see if Fractioneer fits your business?"
+            subtext="Share your current finance setup and we'll point you in the right direction."
+            primaryLabel="Book a call"
+            secondaryLabel="Send details instead"
+          />
           <TeamGrid />
           <FAQ />
           <FinalCTA />

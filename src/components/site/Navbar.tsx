@@ -8,7 +8,7 @@ type NavLink = { href: string; label: string };
 
 const desktopLinks: NavLink[] = [
   { href: "#services", label: "Services" },
-  { href: "#problem", label: "Who We Help" },
+  { href: "#who-we-help", label: "Who We Help" },
   { href: "#clients", label: "Clients" },
   { href: "#team", label: "Team" },
 ];
