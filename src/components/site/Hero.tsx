@@ -20,23 +20,23 @@ export function Hero() {
             </div>
 
             <h1 className="mt-6 text-4xl md:text-5xl lg:text-[3.5rem] font-semibold leading-[1.05] text-foreground">
-              The outsourced finance department behind growing{" "}
+              The outsourced finance department for growing{" "}
               <span className="text-accent">franchise systems</span>.
             </h1>
 
             <p className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground">
-              Fractioneer runs the CFO, controller, bookkeeping, payroll, AP/AR,
-              cash flow, and audit support functions that franchisors, franchise
-              platforms, and multi-unit operators need to scale with clarity.
+              Fractioneer runs CFO, controller, bookkeeping, payroll, AP/AR,
+              cash flow, and audit support for franchisors, franchise platforms,
+              multi-unit operators, and PE-backed brands.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <BookACallButton />
               <a
-                href="#franchise"
+                href="#services"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
               >
-                Explore franchise finance support
+                See how we support franchise finance
                 <ArrowRight className="h-4 w-4" />
               </a>
             </div>

@@ -53,8 +53,7 @@ export function ServicesFranchise() {
         </h2>
         <p className="mt-5 text-base md:text-lg leading-relaxed text-muted-foreground">
           One coordinated finance team across CFO strategy, controllership,
-          accounting, payroll, AP/AR, and cash flow — built for the way
-          franchisors and multi-unit operators actually run.
+          accounting, payroll, AP/AR, cash flow, and reporting.
         </p>
       </div>
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
