@@ -46,7 +46,7 @@ export function FAQ() {
         title="Common questions from franchise leaders."
       />
       <div className="mx-auto max-w-3xl">
-        <Accordion type="single" collapsible className="w-full">
+        <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
           {faqs.map((item, i) => (
             <AccordionItem key={i} value={`item-${i}`} className="border-border">
               <AccordionTrigger className="text-left text-base font-medium text-foreground hover:no-underline py-5">
