@@ -1,13 +1,11 @@
 import { BookACallButton } from "./BookACallButton";
-import { useBooking } from "./BookingProvider";
 
 export function FinalCTA() {
-  const { openBooking } = useBooking();
   return (
-    <section id="contact" className="w-full py-20 md:py-28">
+    <section id="contact" className="w-full py-14 md:py-20">
       <div className="mx-auto max-w-6xl px-6">
         <div
-          className="relative overflow-hidden rounded-2xl px-8 py-16 md:px-16 md:py-20 text-center"
+          className="relative overflow-hidden rounded-2xl px-8 py-12 md:px-16 md:py-16 text-center"
           style={{ background: "var(--gradient-navy-blue)" }}
         >
           <div
@@ -22,15 +20,17 @@ export function FinalCTA() {
               Get CFO-level guidance, clean reporting, and day-to-day finance execution
               without building a full in-house team.
             </p>
-            <div className="mt-9 flex flex-col items-center gap-4">
-              <BookACallButton variant="light" />
-              <button
-                type="button"
-                onClick={openBooking}
-                className="text-sm text-white/80 hover:text-white underline underline-offset-4 transition-colors"
+            <div className="mt-9 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <BookACallButton variant="light" view="calendar">
+                Book a call
+              </BookACallButton>
+              <BookACallButton
+                variant="nav"
+                view="form"
+                className="bg-transparent border border-white/30 text-white hover:bg-white/10"
               >
-                Not ready to book? Send us your info.
-              </button>
+                Send details instead
+              </BookACallButton>
             </div>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { SocialProof } from "@/components/site/SocialProof";
 import { ProblemSection } from "@/components/site/ProblemSection";
 import { ServicesFranchise } from "@/components/site/ServicesFranchise";
 import { EngagementModels } from "@/components/site/EngagementModels";
+import { LeadershipVisibility } from "@/components/site/LeadershipVisibility";
 import { TeamGrid } from "@/components/site/TeamGrid";
 import { Testimonials } from "@/components/site/Testimonials";
 import { FAQ } from "@/components/site/FAQ";
@@ -44,6 +45,7 @@ function Index() {
           <SocialProof />
           <ProblemSection />
           <ServicesFranchise />
+          <LeadershipVisibility />
           <EngagementModels />
           <Testimonials />
           <TeamGrid />

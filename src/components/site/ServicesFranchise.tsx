@@ -5,6 +5,7 @@ import {
   Users,
   Receipt,
   Wallet,
+  ShieldCheck,
 } from "lucide-react";
 import { Section } from "./Section";
 
@@ -36,8 +37,13 @@ const services = [
   },
   {
     icon: Wallet,
-    title: "Cash flow, audit, and reporting support",
-    body: "Weekly cash visibility, lender and investor packages, and documentation that holds up to audits and diligence.",
+    title: "Cash flow and reporting support",
+    body: "Weekly cash visibility, lender and investor packages, and documentation that supports audits, diligence, and franchisor reporting.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Franchise audits for franchisors",
+    body: "Support for franchisors that need clean documentation, reporting coordination, and financial process support across franchise locations.",
   },
 ];
 
@@ -53,7 +59,8 @@ export function ServicesFranchise() {
         </h2>
         <p className="mt-5 text-base md:text-lg leading-relaxed text-muted-foreground">
           One coordinated finance team across CFO strategy, controllership,
-          accounting, payroll, AP/AR, cash flow, and reporting.
+          accounting, payroll, AP/AR, cash flow, reporting, and franchise
+          audit support.
         </p>
       </div>
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
