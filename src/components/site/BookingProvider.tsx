@@ -1,9 +1,15 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
 import { BookingModal } from "./BookingModal";
 
+export type BookingView = "calendar" | "form";
+
+export type OpenBookingOpts = { view?: BookingView; intent?: string };
+
 type BookingContextValue = {
   open: boolean;
-  openBooking: () => void;
+  view: BookingView;
+  intent?: string;
+  openBooking: (opts?: OpenBookingOpts) => void;
   closeBooking: () => void;
 };
 
@@ -11,13 +17,25 @@ const BookingContext = createContext<BookingContextValue | null>(null);
 
 export function BookingProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
-  const openBooking = useCallback(() => setOpen(true), []);
+  const [view, setView] = useState<BookingView>("calendar");
+  const [intent, setIntent] = useState<string | undefined>(undefined);
+
+  const openBooking = useCallback((opts?: OpenBookingOpts) => {
+    setView(opts?.view ?? "calendar");
+    setIntent(opts?.intent);
+    setOpen(true);
+  }, []);
   const closeBooking = useCallback(() => setOpen(false), []);
 
   return (
-    <BookingContext.Provider value={{ open, openBooking, closeBooking }}>
+    <BookingContext.Provider value={{ open, view, intent, openBooking, closeBooking }}>
       {children}
-      <BookingModal open={open} onOpenChange={setOpen} />
+      <BookingModal
+        open={open}
+        onOpenChange={setOpen}
+        initialView={view}
+        intent={intent}
+      />
     </BookingContext.Provider>
   );
 }

@@ -41,41 +41,48 @@ const locationOptions = [
 ] as const;
 
 const helpOptions = [
-  "Fractional CFO",
+  "CFO support",
   "Controller support",
-  "Bookkeeping/accounting",
+  "Bookkeeping",
   "Payroll",
   "AP/AR",
-  "Cash flow management",
+  "Cash flow",
+  "Reporting",
+  "Franchise audits",
   "Audit support",
   "Not sure yet",
 ] as const;
 
 const schema = z.object({
-  first_name: z.string().trim().min(1, "Required").max(80),
-  last_name: z.string().trim().min(1, "Required").max(80),
+  full_name: z.string().trim().min(1, "Required").max(160),
   work_email: z.string().trim().email("Enter a valid email").max(200),
   company_name: z.string().trim().min(1, "Required").max(120),
-  company_type: z.enum(companyTypes, { required_error: "Select an option" }),
-  num_locations: z.enum(locationOptions, { required_error: "Select an option" }),
   help_with: z.enum(helpOptions, { required_error: "Select an option" }),
+  company_type: z.enum(companyTypes).optional(),
+  num_locations: z.enum(locationOptions).optional(),
   message: z.string().trim().max(1000).optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
-export function LeadForm() {
+export function LeadForm({ initialHelpWith }: { initialHelpWith?: string }) {
   const submit = useServerFn(submitLead);
   const [submitted, setSubmitted] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
+  const preselectedHelp = (helpOptions as readonly string[]).includes(
+    initialHelpWith ?? "",
+  )
+    ? (initialHelpWith as (typeof helpOptions)[number])
+    : undefined;
+
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      first_name: "",
-      last_name: "",
+      full_name: "",
       work_email: "",
       company_name: "",
+      help_with: preselectedHelp,
       message: "",
     },
   });
@@ -105,34 +112,19 @@ export function LeadForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="first_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First name</FormLabel>
-                <FormControl>
-                  <Input {...field} autoComplete="given-name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="last_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last name</FormLabel>
-                <FormControl>
-                  <Input {...field} autoComplete="family-name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="full_name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full name</FormLabel>
+              <FormControl>
+                <Input {...field} autoComplete="name" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
@@ -162,57 +154,6 @@ export function LeadForm() {
           )}
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="company_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Company type</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select…" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {companyTypes.map((o) => (
-                      <SelectItem key={o} value={o}>
-                        {o}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="num_locations"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Number of locations</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select…" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {locationOptions.map((o) => (
-                      <SelectItem key={o} value={o}>
-                        {o}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
         <FormField
           control={form.control}
           name="help_with"
@@ -238,12 +179,69 @@ export function LeadForm() {
           )}
         />
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="company_type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-muted-foreground">
+                  Company type <span className="text-xs">(optional)</span>
+                </FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select…" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {companyTypes.map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="num_locations"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-muted-foreground">
+                  Number of locations <span className="text-xs">(optional)</span>
+                </FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select…" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {locationOptions.map((o) => (
+                      <SelectItem key={o} value={o}>
+                        {o}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="message"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Anything else? (optional)</FormLabel>
+              <FormLabel className="text-muted-foreground">
+                Anything else? <span className="text-xs">(optional)</span>
+              </FormLabel>
               <FormControl>
                 <Textarea rows={3} {...field} />
               </FormControl>
