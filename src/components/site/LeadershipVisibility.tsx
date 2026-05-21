@@ -12,27 +12,37 @@ const items = [
   {
     icon: CalendarCheck,
     title: "Monthly close status",
-    body: "See whether books are on track, delayed, or ready for review.",
+    body: "On track, delayed, or ready for review.",
+    status: "Live",
+    tone: "accent" as const,
   },
   {
     icon: Wallet,
     title: "Cash position",
-    body: "Understand cash visibility across the business.",
+    body: "Cash visibility across the business.",
+    status: "Weekly",
+    tone: "muted" as const,
   },
   {
     icon: BarChart3,
     title: "Unit-level P&L",
-    body: "Track performance by location, region, or entity.",
+    body: "Performance by location, region, or entity.",
+    status: "Monthly",
+    tone: "muted" as const,
   },
   {
     icon: Receipt,
     title: "Royalty and fee tracking",
-    body: "Keep collected, pending, and past-due amounts visible.",
+    body: "Collected, pending, and past-due amounts.",
+    status: "Live",
+    tone: "accent" as const,
   },
   {
     icon: ShieldCheck,
     title: "Audit readiness",
-    body: "Maintain documentation and reporting support for audits and diligence.",
+    body: "Documentation ready for audits and diligence.",
+    status: "Always-on",
+    tone: "muted" as const,
   },
 ];
 
@@ -42,7 +52,7 @@ export function LeadershipVisibility() {
       <SectionHeader
         eyebrow="Leadership visibility"
         title="What leadership can see clearly."
-        description="Fractioneer helps franchise leaders turn scattered finance activity into reporting they can actually use."
+        description="Scattered finance activity turned into reporting leadership can actually use."
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {items.map((i) => (
@@ -50,9 +60,27 @@ export function LeadershipVisibility() {
             key={i.title}
             className="rounded-xl border border-border bg-card p-5 flex flex-col"
           >
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent">
-              <i.icon className="h-[18px] w-[18px]" />
-            </span>
+            <div className="flex items-start justify-between gap-2">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                <i.icon className="h-[18px] w-[18px]" />
+              </span>
+              <span
+                className={
+                  "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider " +
+                  (i.tone === "accent"
+                    ? "bg-accent/10 text-accent"
+                    : "bg-muted text-muted-foreground")
+                }
+              >
+                <span
+                  className={
+                    "h-1.5 w-1.5 rounded-full " +
+                    (i.tone === "accent" ? "bg-accent" : "bg-muted-foreground/60")
+                  }
+                />
+                {i.status}
+              </span>
+            </div>
             <h3 className="mt-4 text-sm font-semibold text-foreground">
               {i.title}
             </h3>
