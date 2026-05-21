@@ -26,7 +26,7 @@ export function ProblemSection() {
       <SectionHeader
         eyebrow="The problem"
         title="Franchise finance gets complicated fast."
-        description="As franchise systems grow, finance becomes harder to manage across entities, locations, payroll cycles, vendors, royalties, reports, and audits. Basic bookkeeping is not enough. Fractioneer gives operators the financial structure they need to scale."
+        description="As franchise systems grow, finance gets harder to manage across entities, locations, payroll cycles, vendors, royalties, reports, and audits."
       />
       <div className="grid gap-5 md:grid-cols-3">
         {items.map((i) => (
