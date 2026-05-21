@@ -55,7 +55,7 @@ export function ServicesFranchise() {
           What we run
         </div>
         <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-semibold leading-[1.1] text-foreground">
-          What Fractioneer runs for franchise systems.
+          What Fractioneer runs for growing operators.
         </h2>
         <p className="mt-5 text-base md:text-lg leading-relaxed text-muted-foreground">
           One coordinated finance team across CFO strategy, controllership,

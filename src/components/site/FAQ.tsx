@@ -47,7 +47,7 @@ export function FAQ() {
     <Section id="faq" muted>
       <SectionHeader
         eyebrow="FAQ"
-        title="Common questions from franchise leaders."
+        title="Common questions from growing operators."
       />
       <div className="mx-auto max-w-3xl">
         <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
