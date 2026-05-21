@@ -12,35 +12,35 @@ const items = [
   {
     icon: CalendarCheck,
     title: "Monthly close status",
-    body: "On track, delayed, or ready for review.",
+    body: "On track, delayed, or ready.",
     status: "Live",
     tone: "accent" as const,
   },
   {
     icon: Wallet,
     title: "Cash position",
-    body: "Cash visibility across the business.",
+    body: "Cash across the business.",
     status: "Weekly",
     tone: "muted" as const,
   },
   {
     icon: BarChart3,
     title: "Unit-level P&L",
-    body: "Performance by location, region, or entity.",
+    body: "By location, region, or entity.",
     status: "Monthly",
     tone: "muted" as const,
   },
   {
     icon: Receipt,
     title: "Royalty and fee tracking",
-    body: "Collected, pending, and past-due amounts.",
+    body: "Collected, pending, past-due.",
     status: "Live",
     tone: "accent" as const,
   },
   {
     icon: ShieldCheck,
     title: "Audit readiness",
-    body: "Documentation ready for audits and diligence.",
+    body: "Docs ready for audits and diligence.",
     status: "Always-on",
     tone: "muted" as const,
   },
@@ -58,11 +58,11 @@ export function LeadershipVisibility() {
         {items.map((i) => (
           <div
             key={i.title}
-            className="rounded-xl border border-border bg-card p-5 flex flex-col"
+            className="rounded-xl border border-border bg-card p-4 flex flex-col"
           >
             <div className="flex items-start justify-between gap-2">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 text-accent">
-                <i.icon className="h-[18px] w-[18px]" />
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                <i.icon className="h-4 w-4" />
               </span>
               <span
                 className={
@@ -81,10 +81,10 @@ export function LeadershipVisibility() {
                 {i.status}
               </span>
             </div>
-            <h3 className="mt-4 text-sm font-semibold text-foreground">
+            <h3 className="mt-3 text-sm font-semibold text-foreground leading-snug">
               {i.title}
             </h3>
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-1 text-[13px] leading-snug text-muted-foreground">
               {i.body}
             </p>
           </div>
