@@ -83,9 +83,9 @@ function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
 
 export function SocialProof() {
   return (
-    <Section id="clients" className="py-16 md:py-20">
-      <p className="text-center text-sm md:text-base font-medium text-muted-foreground max-w-2xl mx-auto">
-        Trusted by franchise brands, PE firms, and founder-owned operators.
+    <Section id="clients" className="py-14 md:py-16">
+      <p className="text-center text-sm md:text-base font-medium text-muted-foreground max-w-3xl mx-auto">
+        Client and portfolio experience across franchise brands, PE firms, and founder-owned operators.
       </p>
 
       <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 items-center gap-x-2 gap-y-4">
@@ -94,7 +94,13 @@ export function SocialProof() {
         ))}
       </div>
 
-      <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-center gap-x-2 gap-y-3 rounded-xl bg-muted/40 border border-border px-4 py-5">
+        {selectedLogos.map((l) => (
+          <LogoCell key={l.name} logo={l} size="sm" />
+        ))}
+      </div>
+
+      <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
         {proofPoints.map((p) => (
           <div key={p.label} className="bg-card p-6">
             <div className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
@@ -105,21 +111,6 @@ export function SocialProof() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-16 md:mt-20">
-        <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-            Selected client experience
-          </span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-center gap-x-2 gap-y-3 rounded-xl bg-muted/40 border border-border px-4 py-6">
-          {selectedLogos.map((l) => (
-            <LogoCell key={l.name} logo={l} size="sm" />
-          ))}
-        </div>
       </div>
     </Section>
   );
