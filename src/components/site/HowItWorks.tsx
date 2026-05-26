@@ -6,17 +6,17 @@ const steps = [
   {
     icon: Search,
     title: "Assess",
-    body: "Review books, reporting, payroll, AP/AR, cash flow, systems, and franchise-specific needs.",
+    body: "We review your current finance setup, systems, reporting, and business-specific needs.",
   },
   {
     icon: Settings2,
     title: "Build",
-    body: "Set up the monthly close, reporting cadence, payroll coordination, cash visibility, and finance workflows.",
+    body: "We create the operating rhythm, reporting structure, and finance support model.",
   },
   {
     icon: TrendingUp,
     title: "Run",
-    body: "Stay embedded as the finance team, helping leadership make decisions with cleaner numbers.",
+    body: "We handle the finance work on a recurring cadence so leadership can trust the numbers.",
   },
 ];
 

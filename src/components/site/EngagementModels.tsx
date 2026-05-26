@@ -6,36 +6,44 @@ import { cn } from "@/lib/utils";
 
 const tiers = [
   {
-    name: "Finance Foundation",
-    bestFor: "Clean books, payroll, AP/AR, and monthly reporting.",
-    features: ["Bookkeeping", "Payroll", "AP/AR", "Monthly reporting"],
-    cta: "Talk through this model",
-    intent: "Bookkeeping",
-  },
-  {
-    name: "Controller-Led Operations",
-    bestFor: "Close ownership, controls, cash flow, and multi-entity reporting.",
+    name: "Controller-led operations",
+    bestFor: "Operators that need reliable monthly close, reporting, controls, and day-to-day finance execution.",
     features: [
       "Monthly close",
       "Multi-entity reporting",
       "Cash flow management",
+      "AP/AR and payroll coordination",
       "Financial controls",
     ],
-    featured: true,
     cta: "Discuss controller support",
     intent: "Controller support",
   },
   {
-    name: "CFO Partnership",
-    bestFor: "Forecasting, board support, strategic finance, and audit readiness.",
+    name: "CFO partnership",
+    bestFor: "Leadership teams that need senior finance guidance, forecasting, board support, and decision-ready reporting.",
     features: [
       "Fractional CFO leadership",
-      "Forecasting",
+      "Forecasting and scenario planning",
       "Board and investor packages",
+      "Capital and lender strategy",
       "Audit and diligence support",
     ],
+    featured: true,
     cta: "Discuss CFO support",
     intent: "CFO support",
+  },
+  {
+    name: "Project and deal support",
+    bestFor: "Businesses that need finance support around transactions, diligence, cleanups, audits, lender requests, or special projects.",
+    features: [
+      "M&A support",
+      "Diligence support",
+      "Audit and tax support",
+      "Reporting cleanups",
+      "Lender and investor requests",
+    ],
+    cta: "Discuss project support",
+    intent: "Project support",
   },
 ];
 

@@ -5,8 +5,8 @@ import { SectionHeader } from "./SectionHeader";
 const items = [
   {
     icon: BarChart3,
-    title: "Multi-location reporting gets messy",
-    body: "Unit, regional, and entity numbers stop rolling up cleanly.",
+    title: "Franchisee visibility becomes harder",
+    body: "AUVs, same-store sales, unit economics, and franchisee reporting stop rolling up cleanly as the system grows.",
   },
   {
     icon: LineChart,
@@ -15,8 +15,8 @@ const items = [
   },
   {
     icon: ShieldCheck,
-    title: "Clean books are not enough",
-    body: "Lenders and auditors expect documented process — not just reconciliations.",
+    title: "FDD-ready books are not enough",
+    body: "Franchisors need financials, documentation, tax support, and audit support that hold up under review.",
   },
 ];
 
