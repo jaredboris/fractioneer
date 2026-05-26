@@ -75,7 +75,7 @@ export function SocialProof() {
         Client and portfolio experience across franchise brands, PE firms, and founder-owned operators.
       </p>
 
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 items-center gap-x-2 gap-y-4">
+      <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 items-center gap-x-2 gap-y-4">
         {heroLogos.map((l) => (
           <LogoCell key={l.name} logo={l} size="lg" />
         ))}
