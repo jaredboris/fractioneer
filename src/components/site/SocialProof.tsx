@@ -25,9 +25,6 @@ const heroLogos: Logo[] = [
 const selectedLogos: Logo[] = [
   { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/", invert: true },
   { name: "Pretium", src: pretium, href: "https://pretium.com/" },
-  { name: "Frenchies", src: frenchies, href: "https://frenchiesnails.com/" },
-  { name: "Bishops", src: bishops, href: "https://bishops.co/" },
-  { name: "Weaver Materiel", src: weaver, href: "https://wmsinc.com/" },
   { name: "Ged Lawyers", src: gedLawyers, href: "https://www.gedlawyers.com/" },
 ];
 
