@@ -81,7 +81,7 @@ export function SocialProof() {
         ))}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-center gap-x-2 gap-y-3 rounded-xl bg-muted/40 border border-border px-4 py-5">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 items-center gap-x-2 gap-y-3 rounded-xl bg-muted/40 border border-border px-4 py-5">
         {selectedLogos.map((l) => (
           <LogoCell key={l.name} logo={l} size="sm" />
         ))}
