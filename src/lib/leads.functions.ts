@@ -70,5 +70,6 @@ export const submitLead = createServerFn({ method: "POST" })
       console.error("Failed to insert lead:", error);
       throw new Error("Unable to submit your request. Please try again.");
     }
+    console.info(`New lead submitted; notify ${LEAD_NOTIFICATION_EMAIL}`);
     return { ok: true as const };
   });
