@@ -71,13 +71,11 @@ const platforms: Platform[] = [
     parentSrc: homefront,
     parentHref: "https://homefrontbrands.com/",
     subBrands: [
-      { name: "PatchMaster", src: patchmaster },
-      { name: "Frenchies", src: frenchies },
-      { name: "Bishops", src: bishops },
-      { name: "The Lash Lounge", src: lashLounge },
-      { name: "Weaver Materiel", src: weaver },
-      { name: "Costa Oil", src: costaOil },
-      { name: "FranDevCo", src: frandevco },
+      { name: "Roof Scientist", src: roofScientist },
+      { name: "The Designery", src: theDesignery },
+      { name: "Toprail Fence", src: toprailFence },
+      { name: "TWS", src: tws },
+      { name: "Window Hero", src: windowHero },
     ],
   },
 ];
