@@ -6,7 +6,7 @@ const audiences = [
   {
     icon: Building2,
     title: "Franchise systems",
-    body: "Clean reporting, payroll, royalties, and scalable finance ops.",
+    body: "Franchisors, franchise platforms, and multi-unit operators that need franchisee oversight, royalty and fee collections, unit economic analysis, FDD support, and scalable finance operations.",
     chips: ["Franchisors", "Multi-unit", "Platforms"],
   },
   {

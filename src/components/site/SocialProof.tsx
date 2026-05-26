@@ -84,10 +84,10 @@ const platforms: Platform[] = [
 ];
 
 const proofPoints = [
-  { stat: "100+", label: "Client engagements" },
-  { stat: "15+ yrs", label: "Fractional finance experience" },
-  { stat: "$10B+", label: "AUM client experience" },
-  { stat: "Full team", label: "CFO, controller, accounting, payroll, AP/AR" },
+  { stat: "$100M", label: "Annual client revenue supported" },
+  { stat: "4 yrs", label: "Average client engagement length" },
+  { stat: "15+", label: "M&A and diligence processes supported" },
+  { stat: "17", label: "Full-time finance team", description: "CFO, controller, accounting, payroll, and AP/AR support" },
 ];
 
 function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
@@ -208,6 +208,9 @@ export function SocialProof() {
               {p.stat}
             </div>
             <div className="mt-2 text-sm text-muted-foreground leading-snug">{p.label}</div>
+            {p.description && (
+              <div className="mt-1 text-xs text-muted-foreground/70 leading-snug">{p.description}</div>
+            )}
           </div>
         ))}
       </div>

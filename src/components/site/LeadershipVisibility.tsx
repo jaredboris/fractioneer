@@ -11,10 +11,10 @@ import { SectionHeader } from "./SectionHeader";
 const items = [
   {
     icon: CalendarCheck,
-    title: "Monthly close status",
+    title: "Monthly close",
     body: "On track, delayed, or ready.",
-    status: "Live",
-    tone: "accent" as const,
+    status: "Monthly",
+    tone: "muted" as const,
   },
   {
     icon: Wallet,
@@ -34,15 +34,15 @@ const items = [
     icon: Receipt,
     title: "Royalty and fee tracking",
     body: "Collected, pending, past-due.",
-    status: "Live",
-    tone: "accent" as const,
+    status: "Monthly",
+    tone: "muted" as const,
   },
   {
     icon: ShieldCheck,
     title: "Audit readiness",
     body: "Docs ready for audits and diligence.",
     status: "Always-on",
-    tone: "muted" as const,
+    tone: "accent" as const,
   },
 ];
 
