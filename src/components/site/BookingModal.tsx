@@ -22,10 +22,27 @@ export function BookingModal({
   intent?: string;
 }) {
   const [view, setView] = useState<BookingView>(initialView);
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
 
   useEffect(() => {
     if (open) setView(initialView);
   }, [open, initialView]);
+
+  useEffect(() => {
+    if (open && view === "calendar" && !scriptRef.current) {
+      const script = document.createElement("script");
+      script.src = "https://assets.calendly.com/assets/external/widget.js";
+      script.async = true;
+      document.body.appendChild(script);
+      scriptRef.current = script;
+    }
+    return () => {
+      if (scriptRef.current) {
+        scriptRef.current.remove();
+        scriptRef.current = null;
+      }
+    };
+  }, [open, view]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
