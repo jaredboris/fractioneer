@@ -4,7 +4,7 @@ import jonPaulPhoto from "@/assets/team/jon-paul-mcgahan.jpeg";
 import markPhoto from "@/assets/team/mark-carman.jpeg";
 import keriPhoto from "@/assets/team/keri-chang.jpeg";
 
-type Person = {
+type Leader = {
   name: string;
   role: string;
   chips: string[];
@@ -12,19 +12,26 @@ type Person = {
   photo?: string;
 };
 
-const leaders: Person[] = [
+type Member = {
+  name: string;
+  role: string;
+  tags: string[];
+  photo?: string;
+};
+
+const leaders: Leader[] = [
   {
     name: "Jon Paul McGahan",
     role: "Chief Executive Officer / Founder",
-    chips: ["15+ years", "100+ clients", "$10B+ AUM client experience"],
-    bio: "JP has led fractional finance work for 100+ clients, from private funds to founder-owned businesses.",
+    chips: ["15+ years", "$10B+ AUM client experience"],
+    bio: "JP leads fractional finance work across private funds, franchise systems, and founder-owned businesses.",
     photo: jonPaulPhoto,
   },
   {
     name: "Mark Carman",
     role: "Chief Operating Officer",
     chips: ["PE / VC", "Franchising", "Controller operations"],
-    bio: "Mark brings PE, VC, franchising, modeling, and controller experience to client finance operations.",
+    bio: "Mark brings PE, VC, franchising, and controller experience to client finance operations.",
     photo: markPhoto,
   },
   {
@@ -33,57 +40,49 @@ const leaders: Person[] = [
     chips: ["PE / VC", "Forecasting", "Growth stage"],
     bio: "Lindsey helps growing companies build finance infrastructure, forecasting, and investor reporting.",
   },
+];
+
+const team: Member[] = [
   {
     name: "Sona Banker",
     role: "Fractional CFO",
-    chips: ["Franchising", "Multi-unit", "Finance strategy"],
-    bio: "Sona guides franchise and multi-unit operators through strategic finance, cash flow, and scaling decisions.",
+    tags: ["Franchising", "Multi-unit", "Strategy"],
   },
   {
     name: "Jason Cohen",
     role: "Technical Accountant",
-    chips: ["Technical accounting", "Audit", "Controls"],
-    bio: "Jason supports clients on technical accounting matters, audit readiness, and internal control design.",
+    tags: ["Technical accounting", "Audit", "Controls"],
   },
-];
-
-const execution: Person[] = [
   {
     name: "Keri Chang",
     role: "Senior Staff Accountant",
-    chips: ["25 years", "Bookkeeping", "Franchising"],
-    bio: "Keri manages bookkeeping, reconciliations, reporting, and day-to-day accounting accuracy.",
+    tags: ["25 yrs", "Bookkeeping", "Franchising"],
     photo: keriPhoto,
   },
   {
     name: "Theresa Laietta",
     role: "Senior Payroll Supervisor",
-    chips: ["25+ years", "Payroll", "HR compliance"],
-    bio: "Theresa supports payroll, benefits, PEO systems, compliance, onboarding, and deductions.",
+    tags: ["Payroll", "Benefits", "HR compliance"],
   },
   {
     name: "Angie Serrano",
     role: "Senior Staff Accountant",
-    chips: ["10+ years", "AP/AR", "Audit support"],
-    bio: "Angie supports bookkeeping, invoicing, AP, AR, audit support, and accounting accuracy.",
+    tags: ["AP / AR", "Audit support", "Bookkeeping"],
   },
   {
     name: "Katie Ramirez",
     role: "Senior Staff Accountant",
-    chips: ["Bookkeeping", "Reconciliations", "Reporting"],
-    bio: "Katie handles bookkeeping, reconciliations, financial reporting, and day-to-day accounting accuracy.",
+    tags: ["Bookkeeping", "Reconciliations", "Reporting"],
   },
   {
     name: "Ivy Hije",
     role: "Senior Staff Accountant",
-    chips: ["AP/AR", "Invoicing", "Accounting"],
-    bio: "Ivy supports AP, AR, invoicing, bookkeeping, and maintaining accurate financial records.",
+    tags: ["AP / AR", "Invoicing", "Bookkeeping"],
   },
   {
     name: "Law Pidlaoan",
     role: "Senior Staff Accountant",
-    chips: ["Bookkeeping", "Reporting", "Accuracy"],
-    bio: "Law manages bookkeeping, reporting, reconciliations, and ensures accounting accuracy across clients.",
+    tags: ["Bookkeeping", "Reporting", "Reconciliations"],
   },
 ];
 
@@ -96,26 +95,20 @@ function initials(name: string) {
     .join("");
 }
 
-function PersonCard({ p, prominent = false }: { p: Person; prominent?: boolean }) {
-  const avatarSize = prominent ? "h-16 w-16" : "h-14 w-14";
+function LeaderCard({ p }: { p: Leader }) {
   return (
-    <div
-      className={
-        "rounded-xl border border-border bg-card p-6 flex gap-4 items-start transition-colors hover:border-accent/40" +
-        (prominent ? " shadow-sm" : "")
-      }
-    >
+    <div className="rounded-xl border border-border bg-card p-6 flex gap-4 items-start shadow-sm">
       {p.photo ? (
         <img
           src={p.photo}
           alt={p.name}
           loading="lazy"
-          className={`${avatarSize} shrink-0 rounded-lg object-cover border border-border`}
+          className="h-16 w-16 shrink-0 rounded-lg object-cover border border-border"
         />
       ) : (
         <div
           aria-hidden
-          className={`flex ${avatarSize} shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-base font-semibold`}
+          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-base font-semibold"
         >
           {initials(p.name)}
         </div>
@@ -142,22 +135,70 @@ function PersonCard({ p, prominent = false }: { p: Person; prominent?: boolean }
   );
 }
 
+function MemberCard({ p }: { p: Member }) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-4 flex items-center gap-3">
+      {p.photo ? (
+        <img
+          src={p.photo}
+          alt={p.name}
+          loading="lazy"
+          className="h-11 w-11 shrink-0 rounded-md object-cover border border-border"
+        />
+      ) : (
+        <div
+          aria-hidden
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-muted text-foreground text-xs font-semibold"
+        >
+          {initials(p.name)}
+        </div>
+      )}
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-semibold text-foreground truncate">
+          {p.name}
+        </div>
+        <div className="text-[11px] font-medium uppercase tracking-wider text-accent mt-0.5 truncate">
+          {p.role}
+        </div>
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {p.tags.map((t) => (
+            <span
+              key={t}
+              className="inline-flex items-center rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function TeamGrid() {
   return (
     <Section id="team" muted>
       <SectionHeader
         eyebrow="Team"
         title="The finance team behind your finance function."
-        description="Senior finance leadership, controller support, bookkeeping, payroll, and AP/AR execution under one coordinated team."
+        description="Senior finance leadership backed by a full bench of controller, bookkeeping, payroll, and AP/AR execution."
       />
+
+      <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Leadership
+      </div>
       <div className="grid gap-5 md:grid-cols-3">
         {leaders.map((p) => (
-          <PersonCard key={p.name} p={p} prominent />
+          <LeaderCard key={p.name} p={p} />
         ))}
       </div>
-      <div className="mt-5 grid gap-5 md:grid-cols-3">
-        {execution.map((p) => (
-          <PersonCard key={p.name} p={p} />
+
+      <div className="mt-10 mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        Finance operations team
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {team.map((p) => (
+          <MemberCard key={p.name} p={p} />
         ))}
       </div>
     </Section>

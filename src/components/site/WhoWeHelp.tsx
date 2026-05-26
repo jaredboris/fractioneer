@@ -28,8 +28,8 @@ export function WhoWeHelp() {
     <Section id="who-we-help">
       <SectionHeader
         eyebrow="Who we help"
-        title="Built for franchise systems, PE-backed operators, and founder-owned businesses."
-        description="Franchise-focused, with deep support for PE-backed operators and founder-owned businesses."
+        title="Built for franchise systems, PE-backed operators, and small / founder-owned businesses."
+        description="Franchise-first support, with finance operations for PE-backed and small / founder-owned companies."
       />
       <div className="grid gap-5 md:grid-cols-3">
         {audiences.map((a) => (
