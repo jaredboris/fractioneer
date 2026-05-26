@@ -20,6 +20,12 @@ import theDesignery from "@/assets/logos/the-designery.webp";
 import toprailFence from "@/assets/logos/toprail-fence.svg";
 import tws from "@/assets/logos/tws.webp";
 import windowHero from "@/assets/logos/window-hero.webp";
+import stonework from "@/assets/logos/stonework.png";
+import phoenix from "@/assets/logos/phoenix.svg";
+import crashOverride from "@/assets/logos/crash-override.svg";
+import subcontain from "@/assets/logos/subcontain.webp";
+import mfs from "@/assets/logos/mfs.svg";
+import patriotFleet from "@/assets/logos/patriot-fleet.avif";
 
 type Logo = {
   name: string;
@@ -34,11 +40,12 @@ const mainLogos: Logo[] = [
   { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/", invert: true },
   { name: "Pretium", src: pretium, href: "https://pretium.com/" },
   { name: "Abaco", src: abaco, href: "https://abaco.co/" },
-  { name: "Patriot Fleet", wordmark: "Patriot Fleet" },
-  { name: "Meridian", wordmark: "Meridian" },
-  { name: "Crash Override", wordmark: "Crash Override" },
-  { name: "Phoenix Recovery", wordmark: "Phoenix Recovery" },
-  { name: "Stone Works", wordmark: "Stone Works" },
+  { name: "Patriot Fleet", src: patriotFleet },
+  { name: "Meridian Fleet Services", src: mfs, invert: true },
+  { name: "Crash Override", src: crashOverride },
+  { name: "Phoenix Recovery", src: phoenix, invert: true },
+  { name: "Stonework Tile + Stone", src: stonework },
+  { name: "Subcontain", src: subcontain },
   { name: "Ged Lawyers", src: gedLawyers, href: "https://www.gedlawyers.com/" },
   { name: "Young Chefs Academy", src: youngChefs, href: "https://franchise.youngchefsacademy.com/" },
 ];
