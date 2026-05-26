@@ -6,7 +6,7 @@ const audiences = [
   {
     icon: Building2,
     title: "Franchise systems",
-    body: "Franchisors, franchise platforms, and multi-unit operators that need franchisee oversight, royalty and fee collections, unit economic analysis, FDD support, and scalable finance operations.",
+    body: "For franchisors, franchise platforms, and multi-unit operators that need franchisee visibility, royalty and fee tracking, unit economics, FDD-ready reporting, and franchisor support.",
     chips: ["Franchisors", "Multi-unit", "Platforms"],
   },
   {
