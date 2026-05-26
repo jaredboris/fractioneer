@@ -61,16 +61,11 @@ export function BookingModal({
             </div>
 
             <div className="px-6 pb-6 sm:px-8 sm:pb-7 mt-5 space-y-5">
-              {/* BOOKING_EMBED_SLOT — replace this block with the real embed */}
               <div
-                id="booking-embed-slot"
-                className="flex min-h-[260px] items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 px-6 text-center"
-              >
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  Calendar embed goes here. Replace with Calendly, HubSpot
-                  Meetings, or Cal.com embed code.
-                </p>
-              </div>
+                className="calendly-inline-widget"
+                data-url="https://calendly.com/fractioneer/fractioneer-intro-call"
+                style={{ minWidth: 320, height: 700 }}
+              />
 
               <div className="rounded-xl border border-border bg-muted/30 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
                 <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
