@@ -16,8 +16,8 @@ export function DashboardVisual() {
               Sample franchise finance snapshot
             </span>
           </div>
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            Illustrative
+          <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
+            Preview
           </span>
         </div>
 
