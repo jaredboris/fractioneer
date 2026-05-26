@@ -42,6 +42,10 @@ const leadSchema = z.object({
   message: z.string().trim().max(1000).optional().or(z.literal("")),
 });
 
+// Recipient for new lead notifications. Wire this into email sending
+// once a verified email domain is configured for the project.
+const LEAD_NOTIFICATION_EMAIL = "info@fractioneer.co";
+
 export const submitLead = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => leadSchema.parse(input))
   .handler(async ({ data }) => {
