@@ -1,7 +1,6 @@
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
 import jonPaulPhoto from "@/assets/team/jon-paul-mcgahan.jpeg";
-import blakePhoto from "@/assets/team/blake-folsom.jpeg";
 import markPhoto from "@/assets/team/mark-carman.jpeg";
 import keriPhoto from "@/assets/team/keri-chang.jpeg";
 
@@ -29,11 +28,22 @@ const leaders: Person[] = [
     photo: markPhoto,
   },
   {
-    name: "Blake Folsom, CPA",
+    name: "Lindsey Lacy",
     role: "Fractional CFO",
-    chips: ["CPA", "M&A", "Internal controls"],
-    bio: "Blake helps growing companies improve cash flow, controls, reporting, and finance strategy.",
-    photo: blakePhoto,
+    chips: ["PE / VC", "Forecasting", "Growth stage"],
+    bio: "Lindsey helps growing companies build finance infrastructure, forecasting, and investor reporting.",
+  },
+  {
+    name: "Sona Banker",
+    role: "Fractional CFO",
+    chips: ["Franchising", "Multi-unit", "Finance strategy"],
+    bio: "Sona guides franchise and multi-unit operators through strategic finance, cash flow, and scaling decisions.",
+  },
+  {
+    name: "Jason Cohen",
+    role: "Technical Accountant",
+    chips: ["Technical accounting", "Audit", "Controls"],
+    bio: "Jason supports clients on technical accounting matters, audit readiness, and internal control design.",
   },
 ];
 
@@ -56,6 +66,24 @@ const execution: Person[] = [
     role: "Senior Staff Accountant",
     chips: ["10+ years", "AP/AR", "Audit support"],
     bio: "Angie supports bookkeeping, invoicing, AP, AR, audit support, and accounting accuracy.",
+  },
+  {
+    name: "Katie Ramirez",
+    role: "Senior Staff Accountant",
+    chips: ["Bookkeeping", "Reconciliations", "Reporting"],
+    bio: "Katie handles bookkeeping, reconciliations, financial reporting, and day-to-day accounting accuracy.",
+  },
+  {
+    name: "Ivy Hije",
+    role: "Senior Staff Accountant",
+    chips: ["AP/AR", "Invoicing", "Accounting"],
+    bio: "Ivy supports AP, AR, invoicing, bookkeeping, and maintaining accurate financial records.",
+  },
+  {
+    name: "Law Pidlaoan",
+    role: "Senior Staff Accountant",
+    chips: ["Bookkeeping", "Reporting", "Accuracy"],
+    bio: "Law manages bookkeeping, reporting, reconciliations, and ensures accounting accuracy across clients.",
   },
 ];
 
