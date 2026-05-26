@@ -157,7 +157,7 @@ function MemberCard({ p }: { p: Member }) {
         <div className="text-sm font-semibold text-foreground truncate">
           {p.name}
         </div>
-        <div className="text-[11px] font-medium uppercase tracking-wider text-accent mt-0.5 truncate">
+        <div className="text-[11px] font-medium uppercase tracking-wider text-accent mt-0.5">
           {p.role}
         </div>
         <div className="mt-1.5 flex flex-wrap gap-1">
