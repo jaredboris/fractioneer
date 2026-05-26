@@ -40,10 +40,10 @@ export function DashboardVisual() {
             </div>
             <ul className="mt-4 space-y-2.5">
               {[
-                { name: "Northeast — 12 units", v: "$612k", pct: 88 },
-                { name: "Midwest — 9 units", v: "$548k", pct: 78 },
-                { name: "Southeast — 8 units", v: "$489k", pct: 70 },
-                { name: "West — 7 units", v: "$421k", pct: 60 },
+                { name: "Northeast (12 units)", v: "$612k", pct: 88 },
+                { name: "Midwest (9 units)", v: "$548k", pct: 78 },
+                { name: "Southeast (8 units)", v: "$489k", pct: 70 },
+                { name: "West (7 units)", v: "$421k", pct: 60 },
               ].map((row) => (
                 <li key={row.name} className="text-xs">
                   <div className="flex items-center justify-between">
@@ -84,7 +84,7 @@ export function DashboardVisual() {
             <div className="mt-4 pt-3 border-t border-border">
               <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
                 <Wallet className="h-3 w-3 text-accent" />
-                Cash forecast — 90 days
+                Cash forecast (90 days)
               </div>
               <div className="mt-1 text-sm font-semibold text-foreground">
                 Positive

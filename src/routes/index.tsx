@@ -19,13 +19,13 @@ import { HowItWorks } from "@/components/site/HowItWorks";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Fractioneer — Finance operations for franchise growth" },
+      { title: "Fractioneer | Finance operations for franchise growth" },
       {
         name: "description",
         content:
           "Fractioneer runs the CFO, controller, bookkeeping, payroll, AP/AR, cash flow, and audit support functions that franchisors, franchise platforms, and multi-unit operators need to scale.",
       },
-      { property: "og:title", content: "Fractioneer — Finance operations for franchise growth" },
+      { property: "og:title", content: "Fractioneer | Finance operations for franchise growth" },
       {
         property: "og:description",
         content:
@@ -51,7 +51,7 @@ function Index() {
           <ServicesFranchise />
           <InlineCTA
             title="Need help running these finance functions?"
-            subtext="Talk through your current setup and see where Fractioneer can help. No pressure — we'll point you in the right direction."
+            subtext="Talk through your current setup and see where Fractioneer can help. No pressure. We'll point you in the right direction."
             primaryLabel="Talk through your setup"
           />
           <LeadershipVisibility />
