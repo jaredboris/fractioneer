@@ -28,7 +28,7 @@ export function WhoWeHelp() {
     <Section id="who-we-help">
       <SectionHeader
         eyebrow="Who we help"
-        title="Built for franchise systems and the operators around them."
+        title="Built for franchise systems, PE-backed operators, and founder-owned businesses."
         description="Franchise-focused, with deep support for PE-backed operators and founder-owned businesses."
       />
       <div className="grid gap-5 md:grid-cols-3">
