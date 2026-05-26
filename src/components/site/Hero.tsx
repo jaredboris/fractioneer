@@ -53,7 +53,7 @@ export function Hero() {
                   &ldquo;Fractioneer has run financial operations for my companies for over 6 years. I would trust them with anything.&rdquo;
                 </blockquote>
                 <figcaption className="mt-1.5 text-[11px] text-muted-foreground">
-                  <span className="font-medium text-foreground/90">Michael C. Abdy</span> — Founder / General Partner, Abaco
+                  <span className="font-medium text-foreground/90">Michael C. Abdy</span>, Founder / General Partner, Abaco
                 </figcaption>
               </div>
             </figure>
