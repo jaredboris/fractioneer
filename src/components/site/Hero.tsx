@@ -25,9 +25,8 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground">
-              Fractioneer runs CFO, controller, bookkeeping, payroll, AP/AR,
-              cash flow, and audit support for franchisors, multi-unit
-              operators, PE-backed brands, and founder-owned companies.
+              Fractional CFO, controller, and back-office finance built around
+              the way franchise and multi-unit operators actually run.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">

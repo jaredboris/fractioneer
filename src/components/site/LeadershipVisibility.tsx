@@ -51,7 +51,7 @@ export function LeadershipVisibility() {
     <Section id="visibility">
       <SectionHeader
         eyebrow="Leadership visibility"
-        title="What leadership can see clearly."
+        title="What leadership gets every month."
         description="Scattered finance activity turned into reporting leadership can actually use."
       />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">

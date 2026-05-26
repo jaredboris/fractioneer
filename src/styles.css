@@ -129,6 +129,12 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  /* Offset anchor scroll for sticky 4rem (h-16) nav so sections aren't clipped */
+  section[id] {
+    scroll-margin-top: 5.5rem;
   }
 
   body {

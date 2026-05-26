@@ -157,7 +157,7 @@ function MemberCard({ p }: { p: Member }) {
         <div className="text-sm font-semibold text-foreground truncate">
           {p.name}
         </div>
-        <div className="text-[11px] font-medium uppercase tracking-wider text-accent mt-0.5 truncate">
+        <div className="text-[11px] font-medium uppercase tracking-wider text-accent mt-0.5">
           {p.role}
         </div>
         <div className="mt-1.5 flex flex-wrap gap-1">
@@ -180,8 +180,8 @@ export function TeamGrid() {
     <Section id="team" muted>
       <SectionHeader
         eyebrow="Team"
-        title="The finance team behind your finance function."
-        description="Senior finance leadership backed by a full bench of controller, bookkeeping, payroll, and AP/AR execution."
+        title="A 17-person finance bench behind every engagement."
+        description="Senior finance leadership backed by controller, accounting, payroll, and AP/AR execution — the same team across CFO, controller, and back-office work."
       />
 
       <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
