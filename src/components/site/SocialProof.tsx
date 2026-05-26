@@ -84,10 +84,10 @@ const platforms: Platform[] = [
 ];
 
 const proofPoints = [
-  { stat: "$100M", label: "Annual client revenue supported" },
-  { stat: "4 yrs", label: "Average client engagement length" },
-  { stat: "15+", label: "M&A and diligence processes supported" },
-  { stat: "17", label: "Person finance team", description: "CFO, controller, accounting, payroll, AP/AR, and reporting support" },
+  { stat: "17", label: "Person finance bench", description: "CFO, controller, accounting, payroll, AP/AR, and reporting." },
+  { stat: "$100M+", label: "Client revenue supported", description: "Across franchise systems and growing operators." },
+  { stat: "4 yrs", label: "Average engagement", description: "Long-term finance operations support." },
+  { stat: "15+", label: "M&A and diligence processes", description: "Diligence, audits, and transaction support." },
 ];
 
 function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
