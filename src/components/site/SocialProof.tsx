@@ -178,19 +178,29 @@ export function SocialProof() {
       <SectionHeader
         eyebrow="Clients"
         title="Client and portfolio experience"
-        description="Fractioneer supports franchise systems, PE-backed operators, and small / founder-owned businesses with finance operations that scale."
+        description="Fractioneer supports franchise systems, multi-unit operators, and PE-backed and founder-owned companies with finance operations that scale."
       />
 
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-3">
-        {mainLogos.map((l) => (
-          <LogoCell key={l.name} logo={l} />
+      {/* Proof points — surface the 17-person bench early */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
+        {proofPoints.map((p) => (
+          <div key={p.label} className="bg-card p-6">
+            <div className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
+              {p.stat}
+            </div>
+            <div className="mt-2 text-sm font-medium text-foreground/90 leading-snug">{p.label}</div>
+            {p.description && (
+              <div className="mt-1 text-xs text-muted-foreground leading-snug">{p.description}</div>
+            )}
+          </div>
         ))}
       </div>
 
+      {/* Platform relationships — strongest franchise proof, surfaced first */}
       <div className="mt-10">
         <div className="flex items-baseline justify-between mb-4">
           <h3 className="text-base md:text-lg font-semibold tracking-tight text-foreground">
-            Platform relationships
+            Franchise platform relationships
           </h3>
           <span className="text-xs text-muted-foreground hidden sm:inline">
             Parent companies and their franchise brands
@@ -203,18 +213,17 @@ export function SocialProof() {
         </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
-        {proofPoints.map((p) => (
-          <div key={p.label} className="bg-card p-6">
-            <div className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
-              {p.stat}
-            </div>
-            <div className="mt-2 text-sm text-muted-foreground leading-snug">{p.label}</div>
-            {p.description && (
-              <div className="mt-1 text-xs text-muted-foreground/70 leading-snug">{p.description}</div>
-            )}
-          </div>
-        ))}
+      <div className="mt-10">
+        <div className="flex items-baseline justify-between mb-4">
+          <h3 className="text-base md:text-lg font-semibold tracking-tight text-foreground">
+            PE sponsors, operators, and franchise clients
+          </h3>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-3">
+          {mainLogos.map((l) => (
+            <LogoCell key={l.name} logo={l} />
+          ))}
+        </div>
       </div>
     </Section>
   );
