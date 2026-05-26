@@ -4,14 +4,14 @@ import { SectionHeader } from "./SectionHeader";
 
 const items = [
   {
-    icon: BarChart3,
-    title: "Franchisee visibility becomes harder",
-    body: "AUVs, same-store sales, unit economics, and franchisee reporting stop rolling up cleanly as the system grows.",
-  },
-  {
     icon: LineChart,
     title: "Franchisee visibility becomes harder",
     body: "Franchisee unit economics, AUVs, same-store sales, royalties, and fees become harder to track as the system grows.",
+  },
+  {
+    icon: BarChart3,
+    title: "Multi-entity finance multiplies",
+    body: "Close, payroll, vendors, and reporting across entities and locations stop rolling up cleanly without a real finance function behind them.",
   },
   {
     icon: ShieldCheck,
