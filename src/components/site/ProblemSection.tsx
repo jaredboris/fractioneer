@@ -10,13 +10,13 @@ const items = [
   },
   {
     icon: LineChart,
-    title: "Cash visibility becomes harder",
-    body: "Royalties, payroll, and vendor timing blur the weekly cash picture.",
+    title: "Franchisee visibility becomes harder",
+    body: "Franchisee unit economics, AUVs, same-store sales, royalties, and fees become harder to track as the system grows.",
   },
   {
     icon: ShieldCheck,
-    title: "FDD-ready books are not enough",
-    body: "Franchisors need financials, documentation, tax support, and audit support that hold up under review.",
+    title: "FDD-ready reporting takes more than clean books",
+    body: "Franchisors need reporting, documentation, and financial processes that can support FDD updates, audits, lenders, investors, and growth decisions.",
   },
 ];
 
