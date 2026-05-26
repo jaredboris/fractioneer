@@ -1,6 +1,4 @@
 import { BarChart3, LineChart, ShieldCheck } from "lucide-react";
-import { Section } from "./Section";
-import { SectionHeader } from "./SectionHeader";
 
 const items = [
   {
