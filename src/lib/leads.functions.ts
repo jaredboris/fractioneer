@@ -27,7 +27,7 @@ const helpOptions = [
   "AP/AR",
   "Cash flow",
   "Reporting",
-  "Franchise audits",
+  "Tax and audit support",
   "Audit support",
   "Not sure yet",
 ] as const;
@@ -41,6 +41,10 @@ const leadSchema = z.object({
   num_locations: z.enum(locationOptions).optional(),
   message: z.string().trim().max(1000).optional().or(z.literal("")),
 });
+
+// Recipient for new lead notifications. Wire this into email sending
+// once a verified email domain is configured for the project.
+const LEAD_NOTIFICATION_EMAIL = "info@fractioneer.co";
 
 export const submitLead = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => leadSchema.parse(input))
@@ -66,5 +70,6 @@ export const submitLead = createServerFn({ method: "POST" })
       console.error("Failed to insert lead:", error);
       throw new Error("Unable to submit your request. Please try again.");
     }
+    console.info(`New lead submitted; notify ${LEAD_NOTIFICATION_EMAIL}`);
     return { ok: true as const };
   });

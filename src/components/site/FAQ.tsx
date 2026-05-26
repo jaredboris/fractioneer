@@ -10,11 +10,11 @@ import {
 const faqs = [
   {
     q: "Who does Fractioneer work best with?",
-    a: "Fractioneer works best with franchisors, franchise platforms, multi-unit operators, PE-backed franchise brands, and founder-owned businesses that need a stronger finance function without building a full in-house team.",
+    a: "Fractioneer is built around franchise and multi-unit finance complexity, but also supports PE-backed operators and founder-owned businesses that need CFO, controller, accounting, payroll, AP/AR, reporting, cash flow, tax, and audit support.",
   },
   {
     q: "Do you only work with franchise companies?",
-    a: "No. Fractioneer has experience across franchise systems, private funds, PE-backed companies, and founder-owned businesses. The current focus is franchise and multi-location finance because those businesses often need clean reporting across entities, locations, payroll, royalties, and audits.",
+    a: "No. Fractioneer is franchise-first, with deep experience supporting PE-backed operators and founder-owned businesses. The franchise focus exists because those systems need clean reporting across entities, locations, payroll, royalties, and audits.",
   },
   {
     q: "Can you support multi-location or multi-entity businesses?",
@@ -26,7 +26,7 @@ const faqs = [
   },
   {
     q: "What finance functions can you run?",
-    a: "Fractioneer can support CFO leadership, controllership, bookkeeping, payroll, AP/AR, vendor coordination, cash flow, reporting, audit support, and franchise audit support for franchisors.",
+    a: "CFO leadership, controllership, accounting, bookkeeping, payroll, AP/AR, vendor coordination, cash flow, reporting, tax coordination, and audit support, including FDD-ready reporting for franchisors.",
   },
   {
     q: "How does onboarding work?",
@@ -34,11 +34,11 @@ const faqs = [
   },
   {
     q: "Do you work with PE-backed companies?",
-    a: "Yes. Fractioneer has experience supporting PE and VC-backed companies, portfolio companies, franchise platforms, and businesses that need lender, investor, board, or diligence-ready reporting.",
+    a: "Yes. Fractioneer supports PE-backed operators, portfolio companies, franchise platforms, and businesses that need lender, investor, board, or diligence-ready reporting.",
   },
   {
-    q: "Can you help with franchise audits?",
-    a: "Yes. Fractioneer can support franchisors with franchise audit preparation, documentation, reporting coordination, and finance process support. The exact scope is confirmed with the team during onboarding.",
+    q: "Can you help with FDD-ready reporting and audits?",
+    a: "Yes. Fractioneer supports franchisors with FDD-ready reporting, tax coordination, audit preparation, documentation, and finance processes built to hold up under review.",
   },
 ];
 

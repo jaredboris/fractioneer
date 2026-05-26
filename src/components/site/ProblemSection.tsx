@@ -4,19 +4,19 @@ import { SectionHeader } from "./SectionHeader";
 
 const items = [
   {
-    icon: BarChart3,
+    icon: LineChart,
     title: "Franchisee visibility becomes harder",
-    body: "AUVs, same-store sales, unit economics, and franchisee reporting stop rolling up cleanly as the system grows.",
+    body: "Franchisee unit economics, AUVs, same-store sales, royalties, and fees become harder to track as the system grows.",
   },
   {
-    icon: LineChart,
-    title: "Cash visibility becomes harder",
-    body: "Royalties, payroll, and vendor timing blur the weekly cash picture.",
+    icon: BarChart3,
+    title: "Multi-entity finance multiplies",
+    body: "Close, payroll, vendors, and reporting across entities and locations stop rolling up cleanly without a real finance function behind them.",
   },
   {
     icon: ShieldCheck,
-    title: "FDD-ready books are not enough",
-    body: "Franchisors need financials, documentation, tax support, and audit support that hold up under review.",
+    title: "FDD-ready reporting takes more than clean books",
+    body: "Franchisors need reporting, documentation, and financial processes that can support FDD updates, audits, lenders, investors, and growth decisions.",
   },
 ];
 

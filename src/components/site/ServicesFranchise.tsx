@@ -50,8 +50,8 @@ const layers: Layer[] = [
       },
       {
         icon: ShieldCheck,
-        title: "Franchise audits for franchisors",
-        body: "Documentation, reporting coordination, and franchise location review.",
+        title: "Tax and audit support",
+        body: "Support for tax coordination, audit preparation, documentation, and finance processes that hold up under review.",
       },
     ],
   },
