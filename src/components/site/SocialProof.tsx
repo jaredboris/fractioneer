@@ -15,13 +15,11 @@ import body20 from "@/assets/logos/body20.webp";
 import iflex from "@/assets/logos/iflex.webp";
 import pilatesAddiction from "@/assets/logos/pilates-addiction.webp";
 import ultimateLongevity from "@/assets/logos/ultimate-longevity.svg";
-import patchmaster from "@/assets/logos/patchmaster.png";
-import frenchies from "@/assets/logos/frenchies.png";
-import bishops from "@/assets/logos/bishops.png";
-import lashLounge from "@/assets/logos/lash-lounge.webp";
-import weaver from "@/assets/logos/weaver-materiel.webp";
-import costaOil from "@/assets/logos/costa-oil.webp";
-import frandevco from "@/assets/logos/frandevco.png";
+import roofScientist from "@/assets/logos/roof-scientist.webp";
+import theDesignery from "@/assets/logos/the-designery.webp";
+import toprailFence from "@/assets/logos/toprail-fence.svg";
+import tws from "@/assets/logos/tws.webp";
+import windowHero from "@/assets/logos/window-hero.webp";
 
 type Logo = {
   name: string;
@@ -71,13 +69,11 @@ const platforms: Platform[] = [
     parentSrc: homefront,
     parentHref: "https://homefrontbrands.com/",
     subBrands: [
-      { name: "PatchMaster", src: patchmaster },
-      { name: "Frenchies", src: frenchies },
-      { name: "Bishops", src: bishops },
-      { name: "The Lash Lounge", src: lashLounge },
-      { name: "Weaver Materiel", src: weaver },
-      { name: "Costa Oil", src: costaOil },
-      { name: "FranDevCo", src: frandevco },
+      { name: "Roof Scientist", src: roofScientist },
+      { name: "The Designery", src: theDesignery },
+      { name: "Toprail Fence", src: toprailFence },
+      { name: "TWS", src: tws },
+      { name: "Window Hero", src: windowHero },
     ],
   },
 ];
