@@ -96,7 +96,7 @@ function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
       src={logo.src}
       alt={logo.name}
       style={logo.invert ? { filter: "invert(1) brightness(0.5)" } : undefined}
-      className="h-9 md:h-10 max-w-[140px] w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+      className="max-h-9 max-w-[120px] w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity"
       loading="lazy"
     />
   ) : (
@@ -109,9 +109,11 @@ function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
     </span>
   );
 
-  const className = `group flex items-center justify-center px-3 py-2 rounded-md border border-transparent ${
-    dark ? "hover:border-white/15" : "hover:border-border"
-  } hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`;
+  const className = `group flex h-16 items-center justify-center px-4 rounded-md border ${
+    dark
+      ? "border-white/10 bg-white/5 hover:border-white/25"
+      : "border-border bg-card hover:border-accent/40"
+  } transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`;
 
   if (logo.href) {
     return (
@@ -136,7 +138,7 @@ function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
 
 function PlatformCard({ platform }: { platform: Platform }) {
   return (
-    <div className="rounded-xl bg-primary text-primary-foreground border border-border p-6 md:p-7 flex flex-col h-full">
+    <div className="rounded-xl bg-primary text-primary-foreground border border-border p-5 md:p-6 flex flex-col h-full">
       <div>
         <div className="text-[11px] uppercase tracking-[0.14em] text-white/50 font-medium">
           Platform relationship
@@ -158,9 +160,9 @@ function PlatformCard({ platform }: { platform: Platform }) {
         </a>
       </div>
 
-      <div className="mt-6 pt-5 border-t border-white/10 flex-1">
+      <div className="mt-5 pt-4 border-t border-white/10 flex-1">
         <div className="text-xs text-white/60 mb-3">Related franchise brands</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {platform.subBrands.map((l) => (
             <LogoCell key={l.name} logo={l} dark />
           ))}
@@ -172,21 +174,21 @@ function PlatformCard({ platform }: { platform: Platform }) {
 
 export function SocialProof() {
   return (
-    <Section id="clients" className="py-14 md:py-20">
+    <Section id="clients">
       <SectionHeader
         eyebrow="Clients"
         title="Client and portfolio experience"
-        description="Fractioneer supports franchise systems, PE-backed operators, and founder-owned businesses with finance operations that scale."
+        description="Fractioneer supports franchise systems, PE-backed operators, and small / founder-owned businesses with finance operations that scale."
       />
 
-      <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-center gap-x-2 gap-y-4">
+      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-stretch gap-3">
         {mainLogos.map((l) => (
           <LogoCell key={l.name} logo={l} />
         ))}
       </div>
 
-      <div className="mt-14">
-        <div className="flex items-baseline justify-between mb-5">
+      <div className="mt-10">
+        <div className="flex items-baseline justify-between mb-4">
           <h3 className="text-base md:text-lg font-semibold tracking-tight text-foreground">
             Platform relationships
           </h3>
@@ -194,14 +196,14 @@ export function SocialProof() {
             Parent companies and their franchise brands
           </span>
         </div>
-        <div className="grid md:grid-cols-2 gap-5">
+        <div className="grid md:grid-cols-2 gap-4">
           {platforms.map((p) => (
             <PlatformCard key={p.name} platform={p} />
           ))}
         </div>
       </div>
 
-      <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
+      <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
         {proofPoints.map((p) => (
           <div key={p.label} className="bg-card p-6">
             <div className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
