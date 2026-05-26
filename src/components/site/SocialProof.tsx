@@ -1,31 +1,85 @@
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Section } from "./Section";
+import { SectionHeader } from "./SectionHeader";
 import abaco from "@/assets/logos/abaco.png";
-import homefront from "@/assets/logos/homefront-brands.png";
-import youngChefs from "@/assets/logos/young-chefs-academy.png";
-import gedLawyers from "@/assets/logos/ged-lawyers.jpg";
-import pretium from "@/assets/logos/pretium.webp";
 import mpk from "@/assets/logos/mpk-equity.png";
+import pretium from "@/assets/logos/pretium.webp";
 import riverside from "@/assets/logos/riverside.gif";
+import gedLawyers from "@/assets/logos/ged-lawyers.jpg";
+import youngChefs from "@/assets/logos/young-chefs-academy.png";
+import homefront from "@/assets/logos/homefront-brands.png";
+import sequelBrands from "@/assets/logos/sequel-brands.webp";
+import beem from "@/assets/logos/beem.svg";
+import body20 from "@/assets/logos/body20.webp";
+import iflex from "@/assets/logos/iflex.webp";
+import pilatesAddiction from "@/assets/logos/pilates-addiction.webp";
+import ultimateLongevity from "@/assets/logos/ultimate-longevity.svg";
+import patchmaster from "@/assets/logos/patchmaster.png";
+import frenchies from "@/assets/logos/frenchies.png";
+import bishops from "@/assets/logos/bishops.png";
+import lashLounge from "@/assets/logos/lash-lounge.webp";
+import weaver from "@/assets/logos/weaver-materiel.webp";
+import costaOil from "@/assets/logos/costa-oil.webp";
+import frandevco from "@/assets/logos/frandevco.png";
 
 type Logo = {
   name: string;
   src?: string;
   wordmark?: string;
-  href: string;
+  href?: string;
   invert?: boolean;
 };
 
-const heroLogos: Logo[] = [
-  { name: "Abaco", src: abaco, href: "https://abaco.co/" },
+const mainLogos: Logo[] = [
   { name: "Riverside", src: riverside, href: "https://www.riversidecompany.com/" },
-  { name: "HomeFront Brands", src: homefront, href: "https://homefrontbrands.com/" },
+  { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/", invert: true },
+  { name: "Pretium", src: pretium, href: "https://pretium.com/" },
+  { name: "Abaco", src: abaco, href: "https://abaco.co/" },
+  { name: "Patriot Fleet", wordmark: "Patriot Fleet" },
+  { name: "Meridian", wordmark: "Meridian" },
+  { name: "Crash Override", wordmark: "Crash Override" },
+  { name: "Phoenix Recovery", wordmark: "Phoenix Recovery" },
+  { name: "Stone Works", wordmark: "Stone Works" },
+  { name: "Ged Lawyers", src: gedLawyers, href: "https://www.gedlawyers.com/" },
   { name: "Young Chefs Academy", src: youngChefs, href: "https://franchise.youngchefsacademy.com/" },
 ];
 
-const selectedLogos: Logo[] = [
-  { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/", invert: true },
-  { name: "Pretium", src: pretium, href: "https://pretium.com/" },
-  { name: "Ged Lawyers", src: gedLawyers, href: "https://www.gedlawyers.com/" },
+type Platform = {
+  name: string;
+  parentSrc: string;
+  parentHref: string;
+  parentInvert?: boolean;
+  subBrands: Logo[];
+};
+
+const platforms: Platform[] = [
+  {
+    name: "Sequel Brands",
+    parentSrc: sequelBrands,
+    parentHref: "https://sequelbrands.com/",
+    subBrands: [
+      { name: "BODY20", src: body20 },
+      { name: "iFlex Stretch Studios", src: iflex, href: "https://iflexstretchstudios.com/" },
+      { name: "Pilates Addiction", src: pilatesAddiction },
+      { name: "Ultimate Longevity Center", src: ultimateLongevity },
+      { name: "Beem", src: beem },
+    ],
+  },
+  {
+    name: "HomeFront Brands",
+    parentSrc: homefront,
+    parentHref: "https://homefrontbrands.com/",
+    subBrands: [
+      { name: "PatchMaster", src: patchmaster },
+      { name: "Frenchies", src: frenchies },
+      { name: "Bishops", src: bishops },
+      { name: "The Lash Lounge", src: lashLounge },
+      { name: "Weaver Materiel", src: weaver },
+      { name: "Costa Oil", src: costaOil },
+      { name: "FranDevCo", src: frandevco },
+    ],
+  },
 ];
 
 const proofPoints = [
@@ -35,67 +89,145 @@ const proofPoints = [
   { stat: "Full team", label: "CFO, controller, accounting, payroll, AP/AR" },
 ];
 
-function LogoCell({ logo, size = "lg" }: { logo: Logo; size?: "lg" | "sm" }) {
-  const h = size === "lg" ? "h-10 md:h-12" : "h-8 md:h-9";
-  const maxW = size === "lg" ? "max-w-[160px]" : "max-w-[140px]";
-  return (
-    <a
-      href={logo.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Visit ${logo.name} website`}
-      title={logo.name}
-      className="group flex items-center justify-center px-3 py-2 rounded-md border border-transparent hover:border-border hover:-translate-y-0.5 hover:shadow-[0_4px_14px_-8px_rgba(10,31,68,0.25)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
+  const content = logo.src ? (
+    <img
+      src={logo.src}
+      alt={logo.name}
+      style={logo.invert ? { filter: "invert(1) brightness(0.5)" } : undefined}
+      className="h-9 md:h-10 max-w-[140px] w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+      loading="lazy"
+    />
+  ) : (
+    <span
+      className={`text-sm md:text-[15px] font-semibold tracking-tight text-center ${
+        dark ? "text-white/70 group-hover:text-white" : "text-foreground/70 group-hover:text-foreground"
+      } transition-colors`}
     >
-      {logo.src ? (
-        <img
-          src={logo.src}
-          alt={logo.name}
-          style={logo.invert ? { filter: "invert(1) brightness(0.5)" } : undefined}
-          className={`${h} ${maxW} w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity`}
-          loading="lazy"
-        />
-      ) : (
-        <span
-          className={`${
-            size === "lg" ? "text-sm md:text-[15px]" : "text-xs md:text-sm"
-          } font-semibold tracking-tight text-foreground/70 group-hover:text-foreground transition-colors text-center`}
-        >
-          {logo.wordmark}
-        </span>
-      )}
-    </a>
+      {logo.wordmark}
+    </span>
+  );
+
+  const className = `group flex items-center justify-center px-3 py-2 rounded-md border border-transparent ${
+    dark ? "hover:border-white/15" : "hover:border-border"
+  } hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2`;
+
+  if (logo.href) {
+    return (
+      <a
+        href={logo.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Visit ${logo.name} website`}
+        title={logo.name}
+        className={className}
+      >
+        {content}
+      </a>
+    );
+  }
+  return (
+    <div title={logo.name} className={className}>
+      {content}
+    </div>
+  );
+}
+
+function PlatformCard({ platform }: { platform: Platform }) {
+  const [expanded, setExpanded] = useState(false);
+  const initialCount = 4;
+  const hasMore = platform.subBrands.length > initialCount;
+  const visible = expanded ? platform.subBrands : platform.subBrands.slice(0, initialCount);
+
+  return (
+    <div className="rounded-xl bg-primary text-primary-foreground border border-border p-6 md:p-7">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-[11px] uppercase tracking-[0.14em] text-white/50 font-medium">
+            Platform relationship
+          </div>
+          <a
+            href={platform.parentHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Visit ${platform.name} website`}
+            className="mt-3 inline-flex items-center"
+          >
+            <img
+              src={platform.parentSrc}
+              alt={platform.name}
+              style={platform.parentInvert ? { filter: "invert(1) brightness(2)" } : undefined}
+              className="h-8 md:h-9 w-auto object-contain"
+              loading="lazy"
+            />
+          </a>
+        </div>
+      </div>
+
+      <div className="mt-6 pt-5 border-t border-white/10">
+        <div className="text-xs text-white/60 mb-3">Related franchise brands</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {visible.map((l) => (
+            <LogoCell key={l.name} logo={l} dark />
+          ))}
+        </div>
+
+        {hasMore && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 -mx-2"
+          >
+            {expanded ? "Show less" : `View all ${platform.subBrands.length} brands`}
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
+            />
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
 export function SocialProof() {
   return (
-    <Section id="clients" className="py-10 md:py-12">
-      <p className="text-center text-sm md:text-base font-medium text-muted-foreground max-w-3xl mx-auto">
-        Client and portfolio experience across franchise brands, PE firms, and founder-owned operators.
-      </p>
+    <Section id="clients" className="py-14 md:py-20">
+      <SectionHeader
+        eyebrow="Clients"
+        title="Client and portfolio experience"
+        description="Fractioneer supports franchise systems, PE-backed operators, and founder-owned businesses with finance operations that scale."
+      />
 
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 items-center gap-x-2 gap-y-4">
-        {heroLogos.map((l) => (
-          <LogoCell key={l.name} logo={l} size="lg" />
+      <div className="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 items-center gap-x-2 gap-y-4">
+        {mainLogos.map((l) => (
+          <LogoCell key={l.name} logo={l} />
         ))}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 items-center gap-x-2 gap-y-3 rounded-xl bg-muted/40 border border-border px-4 py-5">
-        {selectedLogos.map((l) => (
-          <LogoCell key={l.name} logo={l} size="sm" />
-        ))}
+      <div className="mt-14">
+        <div className="flex items-baseline justify-between mb-5">
+          <h3 className="text-base md:text-lg font-semibold tracking-tight text-foreground">
+            Platform relationships
+          </h3>
+          <span className="text-xs text-muted-foreground hidden sm:inline">
+            Parent companies and their franchise brands
+          </span>
+        </div>
+        <div className="grid md:grid-cols-2 gap-5">
+          {platforms.map((p) => (
+            <PlatformCard key={p.name} platform={p} />
+          ))}
+        </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
+      <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-px bg-border rounded-xl overflow-hidden border border-border">
         {proofPoints.map((p) => (
           <div key={p.label} className="bg-card p-6">
             <div className="text-2xl md:text-3xl font-semibold text-foreground tracking-tight">
               {p.stat}
             </div>
-            <div className="mt-2 text-sm text-muted-foreground leading-snug">
-              {p.label}
-            </div>
+            <div className="mt-2 text-sm text-muted-foreground leading-snug">{p.label}</div>
           </div>
         ))}
       </div>
