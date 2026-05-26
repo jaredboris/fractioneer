@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
 import abaco from "@/assets/logos/abaco.png";
