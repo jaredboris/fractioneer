@@ -1,18 +1,11 @@
 import { Section } from "./Section";
 import abaco from "@/assets/logos/abaco.png";
-import frandevco from "@/assets/logos/frandevco.png";
 import homefront from "@/assets/logos/homefront-brands.png";
-import patchmaster from "@/assets/logos/patchmaster.png";
-import costaOil from "@/assets/logos/costa-oil.webp";
-import frenchies from "@/assets/logos/frenchies.png";
-import bishops from "@/assets/logos/bishops.png";
+import youngChefs from "@/assets/logos/young-chefs-academy.png";
 import gedLawyers from "@/assets/logos/ged-lawyers.jpg";
 import pretium from "@/assets/logos/pretium.webp";
 import mpk from "@/assets/logos/mpk-equity.png";
 import riverside from "@/assets/logos/riverside.gif";
-import lashLounge from "@/assets/logos/lash-lounge.webp";
-import youngChefs from "@/assets/logos/young-chefs-academy.png";
-import weaver from "@/assets/logos/weaver-materiel.webp";
 
 type Logo = {
   name: string;
@@ -25,20 +18,13 @@ type Logo = {
 const heroLogos: Logo[] = [
   { name: "Abaco", src: abaco, href: "https://abaco.co/" },
   { name: "Riverside", src: riverside, href: "https://www.riversidecompany.com/" },
-  { name: "FranDevCo", src: frandevco, href: "https://www.frandev.co/" },
   { name: "HomeFront Brands", src: homefront, href: "https://homefrontbrands.com/" },
-  { name: "PatchMaster", src: patchmaster, href: "https://patchmaster.com/" },
-  { name: "The Lash Lounge", src: lashLounge, href: "https://franchise.thelashlounge.com/" },
   { name: "Young Chefs Academy", src: youngChefs, href: "https://franchise.youngchefsacademy.com/" },
-  { name: "Costa Oil", src: costaOil, href: "https://costaoils.com/" },
 ];
 
 const selectedLogos: Logo[] = [
   { name: "MPK Equity Partners", src: mpk, href: "https://mpkequitypartners.com/", invert: true },
   { name: "Pretium", src: pretium, href: "https://pretium.com/" },
-  { name: "Frenchies", src: frenchies, href: "https://frenchiesnails.com/" },
-  { name: "Bishops", src: bishops, href: "https://bishops.co/" },
-  { name: "Weaver Materiel", src: weaver, href: "https://wmsinc.com/" },
   { name: "Ged Lawyers", src: gedLawyers, href: "https://www.gedlawyers.com/" },
 ];
 
@@ -89,13 +75,13 @@ export function SocialProof() {
         Client and portfolio experience across franchise brands, PE firms, and founder-owned operators.
       </p>
 
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 items-center gap-x-2 gap-y-4">
+      <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 items-center gap-x-2 gap-y-4">
         {heroLogos.map((l) => (
           <LogoCell key={l.name} logo={l} size="lg" />
         ))}
       </div>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 items-center gap-x-2 gap-y-3 rounded-xl bg-muted/40 border border-border px-4 py-5">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 items-center gap-x-2 gap-y-3 rounded-xl bg-muted/40 border border-border px-4 py-5">
         {selectedLogos.map((l) => (
           <LogoCell key={l.name} logo={l} size="sm" />
         ))}
