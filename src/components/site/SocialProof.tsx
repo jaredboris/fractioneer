@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
 import abaco from "@/assets/logos/abaco.png";
@@ -137,57 +135,36 @@ function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
 }
 
 function PlatformCard({ platform }: { platform: Platform }) {
-  const [expanded, setExpanded] = useState(false);
-  const initialCount = 4;
-  const hasMore = platform.subBrands.length > initialCount;
-  const visible = expanded ? platform.subBrands : platform.subBrands.slice(0, initialCount);
-
   return (
-    <div className="rounded-xl bg-primary text-primary-foreground border border-border p-6 md:p-7">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <div className="text-[11px] uppercase tracking-[0.14em] text-white/50 font-medium">
-            Platform relationship
-          </div>
-          <a
-            href={platform.parentHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Visit ${platform.name} website`}
-            className="mt-3 inline-flex items-center"
-          >
-            <img
-              src={platform.parentSrc}
-              alt={platform.name}
-              style={platform.parentInvert ? { filter: "invert(1) brightness(2)" } : undefined}
-              className="h-8 md:h-9 w-auto object-contain"
-              loading="lazy"
-            />
-          </a>
+    <div className="rounded-xl bg-primary text-primary-foreground border border-border p-6 md:p-7 flex flex-col h-full">
+      <div>
+        <div className="text-[11px] uppercase tracking-[0.14em] text-white/50 font-medium">
+          Platform relationship
         </div>
+        <a
+          href={platform.parentHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Visit ${platform.name} website`}
+          className="mt-3 inline-flex items-center"
+        >
+          <img
+            src={platform.parentSrc}
+            alt={platform.name}
+            style={platform.parentInvert ? { filter: "invert(1) brightness(2)" } : undefined}
+            className="h-8 md:h-9 w-auto object-contain"
+            loading="lazy"
+          />
+        </a>
       </div>
 
-      <div className="mt-6 pt-5 border-t border-white/10">
+      <div className="mt-6 pt-5 border-t border-white/10 flex-1">
         <div className="text-xs text-white/60 mb-3">Related franchise brands</div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {visible.map((l) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {platform.subBrands.map((l) => (
             <LogoCell key={l.name} logo={l} dark />
           ))}
         </div>
-
-        {hasMore && (
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            aria-expanded={expanded}
-            className="mt-4 inline-flex items-center gap-1.5 text-xs font-medium text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded px-2 py-1 -mx-2"
-          >
-            {expanded ? "Show less" : `View all ${platform.subBrands.length} brands`}
-            <ChevronDown
-              className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`}
-            />
-          </button>
-        )}
       </div>
     </div>
   );
