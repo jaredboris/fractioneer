@@ -1,18 +1,11 @@
 import { Section } from "./Section";
 import abaco from "@/assets/logos/abaco.png";
-import frandevco from "@/assets/logos/frandevco.png";
 import homefront from "@/assets/logos/homefront-brands.png";
-import patchmaster from "@/assets/logos/patchmaster.png";
-import costaOil from "@/assets/logos/costa-oil.webp";
-import frenchies from "@/assets/logos/frenchies.png";
-import bishops from "@/assets/logos/bishops.png";
+import youngChefs from "@/assets/logos/young-chefs-academy.png";
 import gedLawyers from "@/assets/logos/ged-lawyers.jpg";
 import pretium from "@/assets/logos/pretium.webp";
 import mpk from "@/assets/logos/mpk-equity.png";
 import riverside from "@/assets/logos/riverside.gif";
-import lashLounge from "@/assets/logos/lash-lounge.webp";
-import youngChefs from "@/assets/logos/young-chefs-academy.png";
-import weaver from "@/assets/logos/weaver-materiel.webp";
 
 type Logo = {
   name: string;
