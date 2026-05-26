@@ -27,7 +27,7 @@ const helpOptions = [
   "AP/AR",
   "Cash flow",
   "Reporting",
-  "Franchise audits",
+  "Tax and audit support",
   "Audit support",
   "Not sure yet",
 ] as const;
