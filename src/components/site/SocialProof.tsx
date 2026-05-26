@@ -18,12 +18,8 @@ type Logo = {
 const heroLogos: Logo[] = [
   { name: "Abaco", src: abaco, href: "https://abaco.co/" },
   { name: "Riverside", src: riverside, href: "https://www.riversidecompany.com/" },
-  { name: "FranDevCo", src: frandevco, href: "https://www.frandev.co/" },
   { name: "HomeFront Brands", src: homefront, href: "https://homefrontbrands.com/" },
-  { name: "PatchMaster", src: patchmaster, href: "https://patchmaster.com/" },
-  { name: "The Lash Lounge", src: lashLounge, href: "https://franchise.thelashlounge.com/" },
   { name: "Young Chefs Academy", src: youngChefs, href: "https://franchise.youngchefsacademy.com/" },
-  { name: "Costa Oil", src: costaOil, href: "https://costaoils.com/" },
 ];
 
 const selectedLogos: Logo[] = [
