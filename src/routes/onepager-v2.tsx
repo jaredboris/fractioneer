@@ -201,8 +201,7 @@ function OnePager() {
           {/* Footer */}
           <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[9.5px] text-muted-foreground">
             <div>info@fractioneer.co</div>
-            <div className="font-medium text-foreground">Book a call: fractioneer.co/book</div>
-            <div>fractioneer.co</div>
+            <div className="font-medium text-foreground">fractioneer.co</div>
           </div>
         </div>
       </div>
