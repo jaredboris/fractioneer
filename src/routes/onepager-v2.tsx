@@ -122,7 +122,7 @@ function OnePager() {
           {/* What we run */}
           <div className="mt-4">
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">What we run</div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {services.map((s) => (
                 <div key={s.title} className="rounded-md border border-border bg-card p-2.5">
                   <div className="text-[10.5px] font-semibold text-foreground leading-tight">{s.title}</div>
