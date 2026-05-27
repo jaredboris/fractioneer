@@ -21,31 +21,31 @@ export const Route = createFileRoute("/onepager-v2")({
 
 const services = [
   { title: "CFO leadership", desc: "Forecasting, capital planning, board-ready reporting." },
-  { title: "Controller & monthly close", desc: "Reliable close across entities and locations." },
+  { title: "Controller & monthly close", desc: "Reliable close across entities, projects, and locations." },
   { title: "Bookkeeping & reconciliations", desc: "Clean, current books built for real reporting." },
   { title: "AP/AR & vendor coordination", desc: "Vendor payments, customer invoicing, steady cadence." },
-  { title: "Tax & audit support", desc: "Daily bookkeeping built to hold up under audit and diligence." },
-  { title: "Transaction & buyout support", desc: "Financial diligence, books cleanup, and finance department buildouts for ownership transitions, partner buyouts, and M&A." },
+  { title: "Payroll & cash flow", desc: "Multi-entity payroll and disciplined cash management." },
+  { title: "Tax & audit support", desc: "Books built to hold up under audit, lender review, and diligence." },
 ];
 
 const engagements = [
-  { title: "Controller-Led Operations", desc: "Day-to-day finance ownership, close, reporting, cash flow, controls." },
-  { title: "CFO Partnership", desc: "Strategic finance leadership, forecasting, board support, capital strategy." },
-  { title: "Project & Deal Support", desc: "M&A, partner buyouts, finance cleanups, and finance department buildouts, billed by engagement." },
+  { title: "Controller-led operations", desc: "Day-to-day finance ownership: close, reporting, cash flow, and controls." },
+  { title: "CFO partnership", desc: "Strategic finance leadership, forecasting, board support, and capital strategy." },
+  { title: "Project & deal support", desc: "Partner buyouts, transactions, diligence, cleanups, audits, lender requests, and finance department buildouts." },
 ];
 
 const whyUs = [
-  { title: "Boutique by design.", desc: "We work with a short list of clients and deliver white\u2011glove service across every engagement." },
-  { title: "Senior-led.", desc: "Every client engagement is owned by experienced finance leaders, not junior staff." },
+  { title: "Boutique by design.", desc: "A short list of clients and white\u2011glove service across every engagement." },
+  { title: "Senior-led.", desc: "Every engagement is owned by experienced finance leaders, not junior staff." },
   { title: "Built for complexity.", desc: "We run finance for businesses with multi-entity, multi-project, multi-location, and multi-stakeholder structures." },
-  { title: "Independent and transparent.", desc: "Our engagements are designed to give ownership clear visibility into the numbers, the process, and the reporting." },
+  { title: "Independent and transparent.", desc: "Engagements designed to give ownership clear visibility into the numbers, the process, and the reporting." },
 ];
 
 const metrics = [
   { stat: "$100M", label: "Annual client revenue serviced" },
-  { stat: "4 yrs", label: "Average client engagement length" },
+  { stat: "4 yrs", label: "Average client engagement" },
   { stat: "15+", label: "M&A transactions supported" },
-  { stat: "17", label: "Full-time staff across finance functions" },
+  { stat: "17", label: "Full-time finance staff" },
 ];
 
 const logos = [
@@ -77,7 +77,6 @@ function OnePager() {
           padding: 0.4in 0.5in;
           color: var(--color-foreground);
         }
-        .logo-grayscale { filter: grayscale(100%); }
       `}</style>
 
       <div className="min-h-screen bg-muted/40 py-6">
@@ -91,7 +90,7 @@ function OnePager() {
 
         <div className="onepager-sheet">
           {/* Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-border">
+          <div className="flex items-center justify-between pb-3 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
             <div className="text-[8.5px] font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
               Capability overview
@@ -99,20 +98,30 @@ function OnePager() {
           </div>
 
           {/* Hero */}
-          <div className="mt-4">
-            <h1 className="text-[20px] leading-[1.15] font-semibold text-foreground tracking-tight">
-              Fractional finance leadership and operations for growing operators.
+          <div className="mt-5">
+            <h1 className="text-[26px] leading-[1.1] font-semibold text-foreground tracking-tight max-w-[7.2in]">
+              Finance support for complex operator-owned businesses.
             </h1>
-            <p className="mt-2 text-[11px] leading-snug text-muted-foreground max-w-[7in]">
-              CFO, controller, bookkeeping, payroll, AP/AR, cash flow, and audit support, delivered by a senior finance team built for businesses that need real financial structure without a full in-house department.
+            <p className="mt-2.5 text-[11.5px] leading-snug text-muted-foreground max-w-[6.8in]">
+              Fractioneer helps leadership teams clean up financial operations, support transactions, and build reliable finance functions across entities, projects, and locations.
             </p>
           </div>
 
+          {/* Metrics */}
+          <div className="mt-5 grid grid-cols-4 gap-px bg-border rounded-md overflow-hidden border border-border">
+            {metrics.map((m) => (
+              <div key={m.label} className="bg-card px-2 py-3 text-center">
+                <div className="text-[22px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
+                <div className="mt-1.5 text-[8.5px] leading-snug text-muted-foreground">{m.label}</div>
+              </div>
+            ))}
+          </div>
+
           {/* Who we serve */}
-          <div className="mt-4">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Who we serve</div>
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10.5px] text-foreground/85">
-              <li>• Construction, fleet, fitness, recovery, and other operator-heavy businesses with multi-entity, multi-stakeholder ownership structures</li>
+          <div className="mt-5">
+            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">Who we serve</div>
+            <ul className="grid grid-cols-2 gap-x-5 gap-y-1 text-[10.5px] text-foreground/85">
+              <li>• Construction, fleet, fitness, recovery, franchise, and other operator-heavy businesses with multi-entity, multi-project, multi-location, or multi-stakeholder ownership structures</li>
               <li>• Multi-unit operators and growth-stage businesses</li>
               <li>• PE-backed brands and founder-owned companies</li>
               <li>• Franchisors and franchise platforms</li>
@@ -120,8 +129,8 @@ function OnePager() {
           </div>
 
           {/* What we run */}
-          <div className="mt-4">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">What we run</div>
+          <div className="mt-5">
+            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">What we run</div>
             <div className="grid grid-cols-3 gap-2">
               {services.map((s) => (
                 <div key={s.title} className="rounded-md border border-border bg-card p-2.5">
@@ -130,11 +139,22 @@ function OnePager() {
                 </div>
               ))}
             </div>
+
+            {/* Transaction & buyout callout */}
+            <div className="mt-2 rounded-md border border-accent/40 bg-accent/[0.06] p-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <div className="text-[10.5px] font-semibold text-foreground leading-tight">Transaction &amp; buyout support</div>
+                <div className="text-[8px] font-medium uppercase tracking-[0.14em] text-accent">Featured capability</div>
+              </div>
+              <div className="mt-1 text-[10px] leading-snug text-foreground/80">
+                Support for partner buyouts, ownership transitions, financial diligence, books cleanup, and finance department buildouts.
+              </div>
+            </div>
           </div>
 
           {/* How we engage */}
-          <div className="mt-4">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">How we engage</div>
+          <div className="mt-5">
+            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">How we engage</div>
             <div className="grid grid-cols-3 gap-2">
               {engagements.map((e) => (
                 <div key={e.title} className="rounded-md border border-border bg-card p-2.5">
@@ -146,8 +166,8 @@ function OnePager() {
           </div>
 
           {/* Why Fractioneer */}
-          <div className="mt-4">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Why Fractioneer</div>
+          <div className="mt-5">
+            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">Why Fractioneer</div>
             <div className="grid grid-cols-2 gap-x-5 gap-y-2">
               {whyUs.map((w) => (
                 <div key={w.title} className="text-[10px] leading-snug">
@@ -156,16 +176,9 @@ function OnePager() {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Metrics */}
-          <div className="mt-4 grid grid-cols-4 gap-px bg-border rounded-md overflow-hidden border border-border">
-            {metrics.map((m) => (
-              <div key={m.label} className="bg-card p-2.5 text-center">
-                <div className="text-[20px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
-                <div className="mt-1 text-[8.5px] leading-snug text-muted-foreground">{m.label}</div>
-              </div>
-            ))}
+            <div className="mt-2.5 text-[10px] italic text-foreground/75 leading-snug">
+              Built for situations where ownership needs cleaner books, stronger controls, and clearer visibility before making major business decisions.
+            </div>
           </div>
 
           {/* Logos */}
@@ -181,7 +194,7 @@ function OnePager() {
                       filter: l.invert
                         ? "grayscale(100%) invert(1) brightness(0.45) contrast(1.1)"
                         : "grayscale(100%) brightness(0.55) contrast(1.1)",
-                      opacity: 0.75,
+                      opacity: 0.7,
                     }}
                   />
                 </div>
@@ -199,10 +212,21 @@ function OnePager() {
             </div>
           </div>
 
+          {/* CTA */}
+          <div className="mt-4 rounded-md bg-primary text-primary-foreground p-3 flex items-center justify-between">
+            <div>
+              <div className="text-[11px] font-semibold leading-tight">Next step</div>
+              <div className="text-[10px] text-primary-foreground/80 leading-snug mt-0.5">
+                A 30-minute call with Mark to walk through your situation and where Fractioneer can help.
+              </div>
+            </div>
+            <div className="text-[10.5px] font-medium whitespace-nowrap">info@fractioneer.co</div>
+          </div>
+
           {/* Footer */}
-          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[9.5px] text-muted-foreground">
+          <div className="mt-3 pt-2 border-t border-border flex items-center justify-between text-[9px] text-muted-foreground">
             <div>info@fractioneer.co</div>
-            <div className="font-medium text-foreground">fractioneer.co</div>
+            <div className="font-medium text-foreground/80">fractioneer.co</div>
           </div>
         </div>
       </div>
