@@ -137,7 +137,7 @@ function OnePager() {
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">How we engage</div>
             <div className="grid grid-cols-3 gap-2">
               {engagements.map((e) => (
-                <div key={e.title} className="rounded-md border border-border bg-card p-2.5 border-l-2 border-l-accent">
+                <div key={e.title} className="rounded-md border border-border bg-card p-2.5">
                   <div className="text-[10.5px] font-semibold text-foreground leading-tight">{e.title}</div>
                   <div className="mt-1 text-[9.5px] leading-snug text-muted-foreground">{e.desc}</div>
                 </div>
