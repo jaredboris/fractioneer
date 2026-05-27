@@ -91,10 +91,10 @@ function OnePager() {
 
         <div className="onepager-sheet">
           {/* Header */}
-          <div className="flex items-start justify-between pb-4 border-b border-border">
+          <div className="flex items-center justify-between pb-4 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
-            <div className="text-[11px] font-medium text-muted-foreground tracking-tight pt-1">
-              Fractional finance for growing operators.
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
+              Capability overview
             </div>
           </div>
 
