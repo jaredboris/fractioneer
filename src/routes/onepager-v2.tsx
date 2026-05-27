@@ -19,6 +19,20 @@ export const Route = createFileRoute("/onepager-v2")({
   component: OnePager,
 });
 
+const triggers = [
+  "The books are not trusted enough for major ownership decisions.",
+  "A partner buyout, transaction, or diligence process is underway.",
+  "Finance operations need cleanup, controls, and clear reporting.",
+  "Leadership needs a finance function that can run without rebuilding everything in-house.",
+];
+
+const serveBullets = [
+  "Multi-entity, multi-project, and multi-location structures",
+  "Multi-stakeholder ownership and partner transitions",
+  "Finance cleanup, controls, and reporting overhauls",
+  "Operator-heavy businesses that need real financial structure",
+];
+
 const services = [
   { title: "CFO leadership", desc: "Forecasting, capital planning, board-ready reporting." },
   { title: "Controller & monthly close", desc: "Reliable close across entities, projects, and locations." },
@@ -31,7 +45,7 @@ const services = [
 const engagements = [
   { title: "Controller-led operations", desc: "Day-to-day finance ownership: close, reporting, cash flow, and controls." },
   { title: "CFO partnership", desc: "Strategic finance leadership, forecasting, board support, and capital strategy." },
-  { title: "Project & deal support", desc: "Partner buyouts, transactions, diligence, cleanups, audits, lender requests, and finance department buildouts." },
+  { title: "Project & deal support", desc: "Partner buyouts, transactions, diligence, cleanups, audits, and finance department buildouts." },
 ];
 
 const whyUs = [
@@ -60,6 +74,10 @@ const logos = [
   { name: "Crash Override", src: crashOverride, invert: false, h: 22 },
 ];
 
+// Quiet, uniform section eyebrow — visually subordinate to body content.
+const eyebrow =
+  "text-[8.5px] font-medium uppercase tracking-[0.18em] text-muted-foreground/70 mb-2";
+
 function OnePager() {
   return (
     <>
@@ -76,7 +94,7 @@ function OnePager() {
           margin: 0.5in auto;
           background: white;
           box-shadow: 0 10px 40px rgba(10, 31, 68, 0.15);
-          padding: 0.4in 0.5in;
+          padding: 0.45in 0.55in;
           color: var(--color-foreground);
         }
       `}</style>
@@ -99,67 +117,82 @@ function OnePager() {
             </div>
           </div>
 
-          {/* Hero */}
-          <div className="mt-5">
-            <h1 className="text-[26px] leading-[1.1] font-semibold text-foreground tracking-tight max-w-[7.2in]">
+          {/* Hero — dominant focal point */}
+          <div className="mt-6">
+            <h1 className="text-[28px] leading-[1.08] font-semibold text-foreground tracking-tight max-w-[7in]">
               Finance support for complex operator-owned businesses.
             </h1>
-            <p className="mt-2.5 text-[11.5px] leading-snug text-muted-foreground max-w-[6.8in]">
+            <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground max-w-[6.6in]">
               Fractioneer helps leadership teams clean up financial operations, support transactions, and build reliable finance functions across entities, projects, and locations.
             </p>
           </div>
 
-          {/* Metrics */}
-          <div className="mt-5 grid grid-cols-4 gap-px bg-border rounded-md overflow-hidden border border-border">
+          {/* Metrics — second focal point, credibility anchor */}
+          <div className="mt-6 grid grid-cols-4 gap-px bg-border rounded-md overflow-hidden border border-border">
             {metrics.map((m) => (
-              <div key={m.label} className="bg-card px-2 py-3 text-center">
-                <div className="text-[22px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
+              <div key={m.label} className="bg-card px-2 py-3.5 text-center">
+                <div className="text-[24px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
                 <div className="mt-1.5 text-[8.5px] leading-snug text-muted-foreground">{m.label}</div>
               </div>
             ))}
           </div>
 
-          {/* Who we serve */}
-          <div className="mt-5">
-            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">Who we serve</div>
-            <ul className="grid grid-cols-2 gap-x-5 gap-y-1 text-[10.5px] text-foreground/85">
-              <li>• Construction, fleet, fitness, recovery, franchise, and other operator-heavy businesses with multi-entity, multi-project, multi-location, or multi-stakeholder ownership structures</li>
-              <li>• Multi-unit operators and growth-stage businesses</li>
-              <li>• PE-backed brands and founder-owned companies</li>
-              <li>• Franchisors and franchise platforms</li>
+          {/* When leadership calls Fractioneer */}
+          <div className="mt-6">
+            <div className={eyebrow}>When leadership calls Fractioneer</div>
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-1 text-[10.5px] leading-snug text-foreground/85">
+              {triggers.map((t) => (
+                <li key={t} className="flex gap-1.5">
+                  <span className="text-accent">—</span>
+                  <span>{t}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* What we run */}
+          {/* Who we serve */}
+          <div className="mt-6">
+            <div className={eyebrow}>Who we serve</div>
+            <p className="text-[11px] leading-snug text-foreground/85 max-w-[7in]">
+              Operator-owned businesses with complex finance needs &mdash; including construction, fleet, franchise, fitness, recovery, PE-backed, and founder-owned companies.
+            </p>
+            <ul className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] text-muted-foreground">
+              {serveBullets.map((b) => (
+                <li key={b}>&middot; {b}</li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Featured capability — Transaction & buyout support */}
+          <div className="mt-6 rounded-md border-2 border-accent/50 bg-accent/[0.07] p-3.5">
+            <div className="flex items-baseline justify-between gap-3">
+              <div className="text-[12px] font-semibold text-foreground leading-tight">Transaction &amp; buyout support</div>
+              <div className="text-[8px] font-semibold uppercase tracking-[0.16em] text-accent">Featured capability</div>
+            </div>
+            <div className="mt-1.5 text-[10.5px] leading-snug text-foreground/85">
+              Support for partner buyouts, ownership transitions, financial diligence, books cleanup, and finance department buildouts &mdash; with senior staffing alongside ownership and counsel through close.
+            </div>
+          </div>
+
+          {/* What we run — supporting services, lighter */}
           <div className="mt-5">
-            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">What we run</div>
+            <div className={eyebrow}>What we run</div>
             <div className="grid grid-cols-3 gap-2">
               {services.map((s) => (
-                <div key={s.title} className="rounded-md border border-border bg-card p-2.5">
+                <div key={s.title} className="rounded-md border border-border/70 bg-card p-2.5">
                   <div className="text-[10.5px] font-semibold text-foreground leading-tight">{s.title}</div>
                   <div className="mt-1 text-[9.5px] leading-snug text-muted-foreground">{s.desc}</div>
                 </div>
               ))}
             </div>
-
-            {/* Transaction & buyout callout */}
-            <div className="mt-2 rounded-md border border-accent/40 bg-accent/[0.06] p-3">
-              <div className="flex items-baseline justify-between gap-3">
-                <div className="text-[10.5px] font-semibold text-foreground leading-tight">Transaction &amp; buyout support</div>
-                <div className="text-[8px] font-medium uppercase tracking-[0.14em] text-accent">Featured capability</div>
-              </div>
-              <div className="mt-1 text-[10px] leading-snug text-foreground/80">
-                Support for partner buyouts, ownership transitions, financial diligence, books cleanup, and finance department buildouts.
-              </div>
-            </div>
           </div>
 
           {/* How we engage */}
           <div className="mt-5">
-            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">How we engage</div>
+            <div className={eyebrow}>How we engage</div>
             <div className="grid grid-cols-3 gap-2">
               {engagements.map((e) => (
-                <div key={e.title} className="rounded-md border border-border bg-card p-2.5">
+                <div key={e.title} className="rounded-md border border-border/70 bg-card p-2.5">
                   <div className="text-[10.5px] font-semibold text-foreground leading-tight">{e.title}</div>
                   <div className="mt-1 text-[9.5px] leading-snug text-muted-foreground">{e.desc}</div>
                 </div>
@@ -168,23 +201,23 @@ function OnePager() {
           </div>
 
           {/* Why Fractioneer */}
-          <div className="mt-5">
-            <div className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-foreground mb-2">Why Fractioneer</div>
-            <div className="grid grid-cols-2 gap-x-5 gap-y-2">
+          <div className="mt-6">
+            <div className={eyebrow}>Why Fractioneer</div>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2">
               {whyUs.map((w) => (
                 <div key={w.title} className="text-[10px] leading-snug">
-                  <div className="font-semibold text-foreground">{w.title}</div>
-                  <div className="text-muted-foreground mt-0.5">{w.desc}</div>
+                  <span className="font-semibold text-foreground">{w.title}</span>{" "}
+                  <span className="text-muted-foreground">{w.desc}</span>
                 </div>
               ))}
             </div>
-            <div className="mt-2.5 text-[10px] italic text-foreground/75 leading-snug">
-              Built for situations where ownership needs cleaner books, stronger controls, and clearer visibility before making major business decisions.
-            </div>
           </div>
 
-          {/* Logos */}
-          <div className="mt-4">
+          {/* Logos — credibility band, intentionally quiet */}
+          <div className="mt-6">
+            <div className="text-[8px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60 mb-2 text-center">
+              Trusted by operators, sponsors, and founders
+            </div>
             <div className="grid grid-cols-7 gap-4 items-center">
               {logos.map((l) => (
                 <div key={l.name} className="flex items-center justify-center h-8">
@@ -197,7 +230,7 @@ function OnePager() {
                       filter: l.invert
                         ? "grayscale(100%) invert(1) brightness(0.45) contrast(1.1)"
                         : "grayscale(100%) brightness(0.55) contrast(1.1)",
-                      opacity: 0.75,
+                      opacity: 0.7,
                     }}
                   />
                 </div>
@@ -206,30 +239,27 @@ function OnePager() {
           </div>
 
           {/* Testimonial */}
-          <div className="mt-4 rounded-md bg-muted/60 border border-border p-3">
-            <p className="text-[10.5px] italic leading-snug text-foreground/90">
-              "Fractioneer has run financial operations for my companies for over 6 years. I would trust them with anything."
+          <div className="mt-5 border-l-2 border-accent/60 pl-3.5">
+            <p className="text-[11px] italic leading-snug text-foreground/90">
+              &ldquo;Fractioneer has run financial operations for my companies for over 6 years. I would trust them with anything.&rdquo;
             </p>
             <div className="mt-1.5 text-[9.5px] text-muted-foreground">
-              — Michael C. Abdy, Founder / General Partner, Abaco
+              &mdash; Michael C. Abdy, Founder / General Partner, Abaco
             </div>
           </div>
 
           {/* CTA */}
-          <div className="mt-4 rounded-md bg-primary text-primary-foreground p-3 flex items-center justify-between">
+          <div className="mt-5 rounded-md bg-primary text-primary-foreground p-3.5 flex items-center justify-between gap-4">
             <div>
-              <div className="text-[11px] font-semibold leading-tight">Next step</div>
+              <div className="text-[11.5px] font-semibold leading-tight">Worth a 30-minute call with Mark.</div>
               <div className="text-[10px] text-primary-foreground/80 leading-snug mt-0.5">
-                A 30-minute call with Mark to walk through your situation and where Fractioneer can help.
+                A direct conversation about your situation and where Fractioneer can help. No prep required.
               </div>
             </div>
-            <div className="text-[10.5px] font-medium whitespace-nowrap">info@fractioneer.co</div>
-          </div>
-
-          {/* Footer */}
-          <div className="mt-3 pt-2 border-t border-border flex items-center justify-between text-[9px] text-muted-foreground">
-            <div>info@fractioneer.co</div>
-            <div className="font-medium text-foreground/80">fractioneer.co</div>
+            <div className="text-right text-[10.5px] font-medium whitespace-nowrap">
+              <div>info@fractioneer.co</div>
+              <div className="text-primary-foreground/75 text-[9.5px] mt-0.5">fractioneer.co</div>
+            </div>
           </div>
         </div>
       </div>
