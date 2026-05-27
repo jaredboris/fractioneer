@@ -13,11 +13,11 @@ export function DashboardVisual() {
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-accent" />
             <span className="text-xs font-medium text-foreground/70">
-              Sample franchise finance snapshot
+              Example monthly finance package
             </span>
           </div>
           <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
-            Preview
+            Illustrative
           </span>
         </div>
 
