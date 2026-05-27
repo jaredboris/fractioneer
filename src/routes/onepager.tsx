@@ -7,7 +7,7 @@ import pretium from "@/assets/logos/pretium.webp";
 import riverside from "@/assets/logos/riverside.gif";
 import sequelBrands from "@/assets/logos/sequel-brands.webp";
 import homefront from "@/assets/logos/homefront-brands.png";
-import body20 from "@/assets/logos/body20.webp";
+import crashOverride from "@/assets/logos/crash-override.svg";
 
 export const Route = createFileRoute("/onepager")({
   head: () => ({
@@ -35,14 +35,14 @@ const engagements = [
 ];
 
 const whyUs = [
-  { title: "Boutique by design.", desc: "We work with a short list of clients and deliver white-glove service across every engagement." },
+  { title: "Boutique by design.", desc: "We work with a short list of clients and deliver white\u2011glove service across every engagement." },
   { title: "Senior-led.", desc: "Every client engagement is owned by experienced finance leaders, not junior staff." },
   { title: "Built for complexity.", desc: "We run finance for businesses with multi-entity, multi-location, and multi-state operations." },
   { title: "Long-term partners.", desc: "Our average client relationship runs 4+ years." },
 ];
 
 const metrics = [
-  { stat: "$100M+", label: "Annual client revenue serviced" },
+  { stat: "$100M", label: "Annual client revenue serviced" },
   { stat: "4 yrs", label: "Average client engagement length" },
   { stat: "1,500+", label: "Franchisees overseen" },
   { stat: "17", label: "Full-time staff across finance functions" },
@@ -55,7 +55,7 @@ const logos = [
   { name: "Abaco", src: abaco, invert: false },
   { name: "Sequel Brands", src: sequelBrands, invert: false },
   { name: "HomeFront Brands", src: homefront, invert: false },
-  { name: "BODY20", src: body20, invert: false },
+  { name: "Crash Override", src: crashOverride, invert: false },
 ];
 
 function OnePager() {
@@ -91,10 +91,10 @@ function OnePager() {
 
         <div className="onepager-sheet">
           {/* Header */}
-          <div className="flex items-start justify-between pb-4 border-b border-border">
+          <div className="flex items-center justify-between pb-4 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
-            <div className="text-[11px] font-medium text-muted-foreground tracking-tight pt-1">
-              Fractional finance for growing operators.
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
+              Capability overview
             </div>
           </div>
 
@@ -137,9 +137,9 @@ function OnePager() {
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">How we engage</div>
             <div className="grid grid-cols-3 gap-2">
               {engagements.map((e) => (
-                <div key={e.title} className="rounded-md bg-primary text-primary-foreground p-2.5">
-                  <div className="text-[10.5px] font-semibold leading-tight">{e.title}</div>
-                  <div className="mt-1 text-[9.5px] leading-snug text-primary-foreground/80">{e.desc}</div>
+                <div key={e.title} className="rounded-md border border-border bg-card p-2.5 border-l-2 border-l-accent">
+                  <div className="text-[10.5px] font-semibold text-foreground leading-tight">{e.title}</div>
+                  <div className="mt-1 text-[9.5px] leading-snug text-muted-foreground">{e.desc}</div>
                 </div>
               ))}
             </div>
@@ -148,11 +148,11 @@ function OnePager() {
           {/* Why Fractioneer */}
           <div className="mt-5">
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Why Fractioneer</div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-2.5">
               {whyUs.map((w) => (
                 <div key={w.title} className="text-[10px] leading-snug">
-                  <span className="font-semibold text-foreground">{w.title}</span>{" "}
-                  <span className="text-muted-foreground">{w.desc}</span>
+                  <div className="font-semibold text-foreground">{w.title}</div>
+                  <div className="text-muted-foreground mt-0.5">{w.desc}</div>
                 </div>
               ))}
             </div>
@@ -170,15 +170,20 @@ function OnePager() {
 
           {/* Logos */}
           <div className="mt-5">
-            <div className="flex items-center justify-between gap-3">
+            <div className="grid grid-cols-7 gap-3 items-center">
               {logos.map((l) => (
-                <img
-                  key={l.name}
-                  src={l.src}
-                  alt={l.name}
-                  className="logo-grayscale h-6 w-auto max-w-[0.9in] object-contain opacity-70"
-                  style={l.invert ? { filter: "grayscale(100%) invert(1) brightness(0.5)" } : undefined}
-                />
+                <div key={l.name} className="flex items-center justify-center h-7 overflow-hidden">
+                  <img
+                    src={l.src}
+                    alt={l.name}
+                    className="max-h-6 max-w-full w-auto object-contain opacity-60"
+                    style={{
+                      filter: l.invert
+                        ? "grayscale(100%) invert(1) brightness(0.4) contrast(1.2)"
+                        : "grayscale(100%) contrast(0.9)",
+                    }}
+                  />
+                </div>
               ))}
             </div>
           </div>
