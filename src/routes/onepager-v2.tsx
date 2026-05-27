@@ -93,7 +93,7 @@ function OnePager() {
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
+            <div className="text-[8.5px] font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
               Capability overview
             </div>
           </div>
