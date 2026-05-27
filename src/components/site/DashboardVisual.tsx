@@ -36,7 +36,7 @@ export function DashboardVisual() {
                 <Building2 className="h-3.5 w-3.5 text-accent" />
                 Location-level P&amp;L
               </div>
-              <span className="text-[9px] text-muted-foreground/50">Preview</span>
+              <span className="text-[9px] text-muted-foreground/50">Illustrative</span>
             </div>
             <ul className="mt-4 space-y-2.5">
               {[
