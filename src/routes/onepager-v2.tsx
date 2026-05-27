@@ -93,7 +93,7 @@ function OnePager() {
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
+            <div className="text-[8.5px] font-medium uppercase tracking-[0.18em] text-muted-foreground/70">
               Capability overview
             </div>
           </div>
@@ -137,7 +137,7 @@ function OnePager() {
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">How we engage</div>
             <div className="grid grid-cols-3 gap-2">
               {engagements.map((e) => (
-                <div key={e.title} className="rounded-md border border-border bg-card p-2.5 border-l-2 border-l-accent">
+                <div key={e.title} className="rounded-md border border-border bg-card p-2.5">
                   <div className="text-[10.5px] font-semibold text-foreground leading-tight">{e.title}</div>
                   <div className="mt-1 text-[9.5px] leading-snug text-muted-foreground">{e.desc}</div>
                 </div>
@@ -162,7 +162,7 @@ function OnePager() {
           <div className="mt-4 grid grid-cols-4 gap-px bg-border rounded-md overflow-hidden border border-border">
             {metrics.map((m) => (
               <div key={m.label} className="bg-card p-2.5 text-center">
-                <div className="text-[16px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
+                <div className="text-[20px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
                 <div className="mt-1 text-[8.5px] leading-snug text-muted-foreground">{m.label}</div>
               </div>
             ))}
@@ -172,15 +172,16 @@ function OnePager() {
           <div className="mt-4">
             <div className="grid grid-cols-7 gap-3 items-center">
               {logos.map((l) => (
-                <div key={l.name} className="flex items-center justify-center h-7 overflow-hidden">
+                <div key={l.name} className="flex items-center justify-center h-6">
                   <img
                     src={l.src}
                     alt={l.name}
-                    className="max-h-6 max-w-full w-auto object-contain opacity-60"
+                    className="h-5 w-auto max-w-full"
                     style={{
                       filter: l.invert
-                        ? "grayscale(100%) invert(1) brightness(0.4) contrast(1.2)"
-                        : "grayscale(100%) contrast(0.9)",
+                        ? "grayscale(100%) invert(1) brightness(0.45) contrast(1.1)"
+                        : "grayscale(100%) brightness(0.55) contrast(1.1)",
+                      opacity: 0.75,
                     }}
                   />
                 </div>
