@@ -35,7 +35,7 @@ const engagements = [
 ];
 
 const whyUs = [
-  { title: "Boutique by design.", desc: "We work with a short list of clients and deliver white-glove service across every engagement." },
+  { title: "Boutique by design.", desc: "We work with a short list of clients and deliver white\u2011glove service across every engagement." },
   { title: "Senior-led.", desc: "Every client engagement is owned by experienced finance leaders, not junior staff." },
   { title: "Built for complexity.", desc: "We run finance for businesses with multi-entity, multi-location, and multi-state operations." },
   { title: "Long-term partners.", desc: "Our average client relationship runs 4+ years." },
