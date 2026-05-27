@@ -202,7 +202,6 @@ function OnePager() {
           <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[9.5px] text-muted-foreground">
             <div>info@fractioneer.co</div>
             <div className="font-medium text-foreground">fractioneer.co</div>
-            <div>fractioneer.co</div>
           </div>
         </div>
       </div>
