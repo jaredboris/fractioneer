@@ -107,8 +107,8 @@ export function DashboardVisual() {
           <CircleDollarSign className="h-3.5 w-3.5" />
         </span>
         <div className="text-[11px] leading-tight">
-          <div className="font-medium text-foreground">Monthly close</div>
-          <div className="text-muted-foreground">Day 10 target</div>
+          <div className="font-medium text-foreground">What leadership gets each month</div>
+          <div className="text-muted-foreground">Close, cash, P&L, royalties, audit-ready</div>
         </div>
       </div>
     </div>
