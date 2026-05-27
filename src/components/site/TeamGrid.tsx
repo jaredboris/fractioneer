@@ -180,9 +180,26 @@ export function TeamGrid() {
     <Section id="team" muted>
       <SectionHeader
         eyebrow="Team"
-        title="A 17-person finance bench behind every engagement."
+        title="A 17-person finance bench across CFO, controller, accounting, payroll, AP/AR, and reporting."
         description="Senior finance leadership backed by controller, accounting, payroll, and AP/AR execution — the same team across CFO, controller, and back-office work."
       />
+
+      <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { count: "3", label: "Senior finance leaders" },
+          { count: "5", label: "Accounting & controller specialists" },
+          { count: "4", label: "Payroll & AP/AR operators" },
+          { count: "5", label: "Reporting, audit & support" },
+        ].map((b) => (
+          <div
+            key={b.label}
+            className="rounded-lg border border-border bg-card px-4 py-3 flex items-baseline gap-3"
+          >
+            <span className="text-2xl font-semibold text-accent leading-none">{b.count}</span>
+            <span className="text-[12px] leading-snug text-muted-foreground">{b.label}</span>
+          </div>
+        ))}
+      </div>
 
       <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Leadership
