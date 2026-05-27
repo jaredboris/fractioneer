@@ -29,8 +29,8 @@ export function WhoWeHelp() {
     <Section id="who-we-help">
       <SectionHeader
         eyebrow="Who we help"
-        title="Built for franchise systems and the operators behind them."
-        description="Fractioneer supports franchisors, multi-unit operators, PE-backed platforms, and founder-owned companies with finance operations that scale."
+        title="Built for franchise systems and multi-unit operators."
+        description="Fractioneer supports franchisors, franchisees, platform operators, and growing founder-owned companies with finance operations that scale."
       />
       <div className="grid gap-5 md:grid-cols-3">
         {audiences.map((a) => (

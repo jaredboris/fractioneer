@@ -13,11 +13,11 @@ export function DashboardVisual() {
           <div className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-accent" />
             <span className="text-xs font-medium text-foreground/70">
-              Sample franchise finance snapshot
+              Example monthly finance package
             </span>
           </div>
           <span className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/50">
-            Preview
+            Illustrative
           </span>
         </div>
 
@@ -36,7 +36,7 @@ export function DashboardVisual() {
                 <Building2 className="h-3.5 w-3.5 text-accent" />
                 Location-level P&amp;L
               </div>
-              <span className="text-[9px] text-muted-foreground/50">Preview</span>
+              <span className="text-[9px] text-muted-foreground/50">Illustrative</span>
             </div>
             <ul className="mt-4 space-y-2.5">
               {[
@@ -107,8 +107,8 @@ export function DashboardVisual() {
           <CircleDollarSign className="h-3.5 w-3.5" />
         </span>
         <div className="text-[11px] leading-tight">
-          <div className="font-medium text-foreground">Monthly close</div>
-          <div className="text-muted-foreground">Day 10 target</div>
+          <div className="font-medium text-foreground">What leadership gets each month</div>
+          <div className="text-muted-foreground">Close, cash, P&L, royalties, audit-ready</div>
         </div>
       </div>
     </div>
