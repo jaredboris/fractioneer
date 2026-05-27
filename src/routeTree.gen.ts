@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OnepagerV2RouteImport } from './routes/onepager-v2'
 import { Route as OnepagerRouteImport } from './routes/onepager'
 import { Route as IndexRouteImport } from './routes/index'
 
+const OnepagerV2Route = OnepagerV2RouteImport.update({
+  id: '/onepager-v2',
+  path: '/onepager-v2',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnepagerRoute = OnepagerRouteImport.update({
   id: '/onepager',
   path: '/onepager',
@@ -26,31 +32,42 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/onepager': typeof OnepagerRoute
+  '/onepager-v2': typeof OnepagerV2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onepager': typeof OnepagerRoute
+  '/onepager-v2': typeof OnepagerV2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/onepager': typeof OnepagerRoute
+  '/onepager-v2': typeof OnepagerV2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/onepager'
+  fullPaths: '/' | '/onepager' | '/onepager-v2'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onepager'
-  id: '__root__' | '/' | '/onepager'
+  to: '/' | '/onepager' | '/onepager-v2'
+  id: '__root__' | '/' | '/onepager' | '/onepager-v2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OnepagerRoute: typeof OnepagerRoute
+  OnepagerV2Route: typeof OnepagerV2Route
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/onepager-v2': {
+      id: '/onepager-v2'
+      path: '/onepager-v2'
+      fullPath: '/onepager-v2'
+      preLoaderRoute: typeof OnepagerV2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onepager': {
       id: '/onepager'
       path: '/onepager'
@@ -71,6 +88,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OnepagerRoute: OnepagerRoute,
+  OnepagerV2Route: OnepagerV2Route,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
