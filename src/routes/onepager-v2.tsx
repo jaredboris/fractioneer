@@ -23,7 +23,6 @@ const services = [
   { title: "CFO leadership", desc: "Forecasting, capital planning, board-ready reporting." },
   { title: "Controller & monthly close", desc: "Reliable close across entities and locations." },
   { title: "Bookkeeping & reconciliations", desc: "Clean, current books built for real reporting." },
-  { title: "Payroll & benefits", desc: "Multi-state payroll and benefits administration." },
   { title: "AP/AR & vendor coordination", desc: "Vendor payments, customer invoicing, steady cadence." },
   { title: "Tax & audit support", desc: "Daily bookkeeping built to hold up under audit and diligence." },
   { title: "Transaction & buyout support", desc: "Financial diligence, books cleanup, and finance department buildouts for ownership transitions, partner buyouts, and M&A." },
@@ -38,15 +37,14 @@ const engagements = [
 const whyUs = [
   { title: "Boutique by design.", desc: "We work with a short list of clients and deliver white\u2011glove service across every engagement." },
   { title: "Senior-led.", desc: "Every client engagement is owned by experienced finance leaders, not junior staff." },
-  { title: "Built for complexity.", desc: "We run finance for businesses with multi-entity, multi-project, and multi-stakeholder structures." },
-  { title: "Long-term partners.", desc: "Our average client relationship runs 4+ years." },
+  { title: "Built for complexity.", desc: "We run finance for businesses with multi-entity, multi-project, multi-location, and multi-stakeholder structures." },
   { title: "Independent and transparent.", desc: "Our engagements are designed to give ownership clear visibility into the numbers, the process, and the reporting." },
 ];
 
 const metrics = [
   { stat: "$100M", label: "Annual client revenue serviced" },
   { stat: "4 yrs", label: "Average client engagement length" },
-  { stat: "1,500+", label: "Franchisees overseen" },
+  { stat: "300+", label: "Operating entities serviced" },
   { stat: "17", label: "Full-time staff across finance functions" },
 ];
 
@@ -55,7 +53,7 @@ const logos = [
   { name: "MPK Equity Partners", src: mpk, invert: true },
   { name: "Pretium", src: pretium, invert: false },
   { name: "Abaco", src: abaco, invert: false },
-  { name: "Sequel Brands", src: sequelBrands, invert: false },
+  { name: "Sequel Brands", src: sequelBrands, invert: true },
   { name: "HomeFront Brands", src: homefront, invert: false },
   { name: "Crash Override", src: crashOverride, invert: false },
 ];
@@ -124,7 +122,7 @@ function OnePager() {
           {/* What we run */}
           <div className="mt-4">
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">What we run</div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               {services.map((s) => (
                 <div key={s.title} className="rounded-md border border-border bg-card p-2.5">
                   <div className="text-[10.5px] font-semibold text-foreground leading-tight">{s.title}</div>
@@ -150,7 +148,7 @@ function OnePager() {
           {/* Why Fractioneer */}
           <div className="mt-4">
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Why Fractioneer</div>
-            <div className="grid grid-cols-3 gap-x-5 gap-y-2">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-2">
               {whyUs.map((w) => (
                 <div key={w.title} className="text-[10px] leading-snug">
                   <div className="font-semibold text-foreground">{w.title}</div>
