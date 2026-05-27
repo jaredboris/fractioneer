@@ -162,7 +162,7 @@ function OnePager() {
           <div className="mt-4 grid grid-cols-4 gap-px bg-border rounded-md overflow-hidden border border-border">
             {metrics.map((m) => (
               <div key={m.label} className="bg-card p-2.5 text-center">
-                <div className="text-[16px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
+                <div className="text-[20px] font-semibold text-foreground tracking-tight leading-none">{m.stat}</div>
                 <div className="mt-1 text-[8.5px] leading-snug text-muted-foreground">{m.label}</div>
               </div>
             ))}
