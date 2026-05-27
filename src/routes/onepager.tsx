@@ -170,15 +170,20 @@ function OnePager() {
 
           {/* Logos */}
           <div className="mt-5">
-            <div className="flex items-center justify-between gap-3">
+            <div className="grid grid-cols-7 gap-3 items-center">
               {logos.map((l) => (
-                <img
-                  key={l.name}
-                  src={l.src}
-                  alt={l.name}
-                  className="logo-grayscale h-6 w-auto max-w-[0.9in] object-contain opacity-70"
-                  style={l.invert ? { filter: "grayscale(100%) invert(1) brightness(0.5)" } : undefined}
-                />
+                <div key={l.name} className="flex items-center justify-center h-7 overflow-hidden">
+                  <img
+                    src={l.src}
+                    alt={l.name}
+                    className="max-h-6 max-w-full w-auto object-contain opacity-60"
+                    style={{
+                      filter: l.invert
+                        ? "grayscale(100%) invert(1) brightness(0.4) contrast(1.2)"
+                        : "grayscale(100%) contrast(0.9)",
+                    }}
+                  />
+                </div>
               ))}
             </div>
           </div>
