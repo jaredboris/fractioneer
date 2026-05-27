@@ -48,14 +48,16 @@ const metrics = [
   { stat: "17", label: "Full-time finance staff" },
 ];
 
+// Per-logo height tuning so wide wordmarks (MPK, HomeFront) read at the same
+// visual weight as compact marks (Abaco, Pretium). Values are px max-height.
 const logos = [
-  { name: "Riverside", src: riverside, invert: true },
-  { name: "MPK Equity Partners", src: mpk, invert: true },
-  { name: "Pretium", src: pretium, invert: false },
-  { name: "Abaco", src: abaco, invert: false },
-  { name: "Sequel Brands", src: sequelBrands, invert: true },
-  { name: "HomeFront Brands", src: homefront, invert: false },
-  { name: "Crash Override", src: crashOverride, invert: false },
+  { name: "Riverside", src: riverside, invert: true, h: 22 },
+  { name: "MPK Equity Partners", src: mpk, invert: true, h: 26 },
+  { name: "Pretium", src: pretium, invert: false, h: 18 },
+  { name: "Abaco", src: abaco, invert: false, h: 20 },
+  { name: "Sequel Brands", src: sequelBrands, invert: true, h: 24 },
+  { name: "HomeFront Brands", src: homefront, invert: false, h: 28 },
+  { name: "Crash Override", src: crashOverride, invert: false, h: 22 },
 ];
 
 function OnePager() {
@@ -183,18 +185,19 @@ function OnePager() {
 
           {/* Logos */}
           <div className="mt-4">
-            <div className="grid grid-cols-7 gap-3 items-center">
+            <div className="grid grid-cols-7 gap-4 items-center">
               {logos.map((l) => (
-                <div key={l.name} className="flex items-center justify-center h-6">
+                <div key={l.name} className="flex items-center justify-center h-8">
                   <img
                     src={l.src}
                     alt={l.name}
-                    className="h-5 w-auto max-w-full"
+                    className="w-auto max-w-full object-contain"
                     style={{
+                      maxHeight: `${l.h}px`,
                       filter: l.invert
                         ? "grayscale(100%) invert(1) brightness(0.45) contrast(1.1)"
                         : "grayscale(100%) brightness(0.55) contrast(1.1)",
-                      opacity: 0.7,
+                      opacity: 0.75,
                     }}
                   />
                 </div>
