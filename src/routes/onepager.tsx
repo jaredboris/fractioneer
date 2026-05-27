@@ -7,7 +7,7 @@ import pretium from "@/assets/logos/pretium.webp";
 import riverside from "@/assets/logos/riverside.gif";
 import sequelBrands from "@/assets/logos/sequel-brands.webp";
 import homefront from "@/assets/logos/homefront-brands.png";
-import body20 from "@/assets/logos/body20.webp";
+import crashOverride from "@/assets/logos/crash-override.svg";
 
 export const Route = createFileRoute("/onepager")({
   head: () => ({
