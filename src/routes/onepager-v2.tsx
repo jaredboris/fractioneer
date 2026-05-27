@@ -44,12 +44,12 @@ const whyUs = [
 const metrics = [
   { stat: "$100M", label: "Annual client revenue serviced" },
   { stat: "4 yrs", label: "Average client engagement length" },
-  { stat: "300+", label: "Operating entities serviced" },
+  { stat: "15+", label: "M&A transactions supported" },
   { stat: "17", label: "Full-time staff across finance functions" },
 ];
 
 const logos = [
-  { name: "Riverside", src: riverside, invert: false },
+  { name: "Riverside", src: riverside, invert: true },
   { name: "MPK Equity Partners", src: mpk, invert: true },
   { name: "Pretium", src: pretium, invert: false },
   { name: "Abaco", src: abaco, invert: false },
@@ -112,10 +112,10 @@ function OnePager() {
           <div className="mt-4">
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Who we serve</div>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10.5px] text-foreground/85">
-              <li>• Franchisors and franchise platforms</li>
+              <li>• Construction, fleet, fitness, recovery, and other operator-heavy businesses with multi-entity, multi-stakeholder ownership structures</li>
               <li>• Multi-unit operators and growth-stage businesses</li>
               <li>• PE-backed brands and founder-owned companies</li>
-              <li>• Construction, fleet, fitness, recovery, and other operator-heavy businesses with multi-entity, multi-stakeholder ownership structures</li>
+              <li>• Franchisors and franchise platforms</li>
             </ul>
           </div>
 
