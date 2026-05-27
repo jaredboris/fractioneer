@@ -42,7 +42,7 @@ const whyUs = [
 ];
 
 const metrics = [
-  { stat: "$100M+", label: "Annual client revenue serviced" },
+  { stat: "$100M", label: "Annual client revenue serviced" },
   { stat: "4 yrs", label: "Average client engagement length" },
   { stat: "1,500+", label: "Franchisees overseen" },
   { stat: "17", label: "Full-time staff across finance functions" },
@@ -55,7 +55,7 @@ const logos = [
   { name: "Abaco", src: abaco, invert: false },
   { name: "Sequel Brands", src: sequelBrands, invert: false },
   { name: "HomeFront Brands", src: homefront, invert: false },
-  { name: "BODY20", src: body20, invert: false },
+  { name: "Crash Override", src: crashOverride, invert: false },
 ];
 
 function OnePager() {
