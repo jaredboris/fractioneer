@@ -148,7 +148,7 @@ function OnePager() {
           {/* Why Fractioneer */}
           <div className="mt-4">
             <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Why Fractioneer</div>
-            <div className="grid grid-cols-3 gap-x-5 gap-y-2">
+            <div className="grid grid-cols-2 gap-x-5 gap-y-2">
               {whyUs.map((w) => (
                 <div key={w.title} className="text-[10px] leading-snug">
                   <div className="font-semibold text-foreground">{w.title}</div>
