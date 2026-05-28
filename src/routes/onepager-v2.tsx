@@ -178,17 +178,17 @@ function OnePager() {
             </div>
           </div>
 
-          {/* Why Fractioneer */}
+          {/* Why Fractioneer — compact inline list */}
           <div className="mt-6">
             <div className={eyebrow}>Why Fractioneer</div>
-            <div className="grid grid-cols-4 gap-4">
+            <ul className="space-y-1.5">
               {whyUs.map((w) => (
-                <div key={w.title}>
-                  <div className="text-[10.5px] font-semibold text-foreground leading-tight">{w.title}</div>
-                  <div className="mt-1 text-[9px] leading-snug text-muted-foreground">{w.desc}</div>
-                </div>
+                <li key={w.title} className="text-[10px] leading-snug">
+                  <span className="font-semibold text-foreground">{w.title}.</span>{" "}
+                  <span className="text-muted-foreground">{w.desc}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* Logos + testimonial — proof band */}
