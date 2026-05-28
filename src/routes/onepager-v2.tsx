@@ -21,29 +21,29 @@ export const Route = createFileRoute("/onepager-v2")({
 
 const triggers = [
   "The books are not trusted enough for ownership decisions.",
-  "A partner buyout, transaction, or diligence process is underway.",
-  "Finance operations need cleanup, controls, and clear reporting.",
-  "Leadership needs a finance function that can run without rebuilding everything in-house.",
+  "A partner buyout or transaction is underway.",
+  "The finance function needs structure leadership can rely on.",
+  "Reporting is late, inconsistent, or hard to act on.",
 ];
 
 const featuredBullets = [
-  "Financial cleanup and reporting support",
   "Diligence-ready books and documentation",
-  "Senior finance support alongside ownership and counsel",
+  "Quality-of-earnings and lender support",
+  "Senior finance alongside ownership and counsel",
 ];
 
 const capabilities = [
   {
-    title: "Finance cleanup & controls",
-    desc: "Monthly close, reconciliations, reporting structure, controls, and audit-ready documentation.",
+    title: "Monthly close & controls",
+    desc: "Close, reconciliations, controls, and audit-ready documentation across entities.",
   },
   {
-    title: "CFO & transaction support",
-    desc: "Forecasting, capital planning, board-ready reporting, lender requests, diligence, and ownership transition support.",
+    title: "CFO & reporting",
+    desc: "Forecasting, capital planning, board and lender reporting, cash visibility.",
   },
   {
-    title: "Back-office finance operations",
-    desc: "Bookkeeping, AP/AR, payroll coordination, vendor payments, invoicing, and cash flow visibility.",
+    title: "Back-office operations",
+    desc: "Bookkeeping, AP/AR, payroll coordination, vendor and invoicing workflows.",
   },
 ];
 
