@@ -50,7 +50,7 @@ const capabilities = [
 
 const whyUs = [
   { title: "Boutique by design", desc: "White-glove service and a focused client roster." },
-  { title: "Senior-led", desc: "Engagements are owned by experienced finance leaders." },
+  { title: "Senior-led", desc: "Every engagement is owned by experienced finance leaders." },
   { title: "Built for complexity", desc: "Multi-entity, multi-project, multi-location, multi-stakeholder." },
   { title: "Independent and transparent", desc: "Clear visibility into the numbers, the process, and the reporting." },
 ];
