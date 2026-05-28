@@ -229,7 +229,7 @@ function OnePager() {
           </div>
 
           {/* CTA — soft sign-off */}
-          <div className="mt-6 flex items-center justify-end border-t border-border pt-3">
+          <div className="mt-auto pt-3 flex items-center justify-end border-t border-border">
             <div className="text-right text-[10px] font-medium whitespace-nowrap">
               <div className="text-primary">info@fractioneer.co</div>
               <div className="text-muted-foreground text-[9px] mt-0.5">fractioneer.co</div>
