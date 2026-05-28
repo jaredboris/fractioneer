@@ -106,7 +106,7 @@ function OnePager() {
           Print / Save as PDF
         </button>
 
-        <div className="onepager-sheet">
+        <div className="onepager-sheet flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
@@ -126,7 +126,7 @@ function OnePager() {
           </div>
 
           {/* Metrics — bold, oversized */}
-          <div className="mt-5 grid grid-cols-4 gap-6 border-y border-border py-4">
+          <div className="mt-6 grid grid-cols-4 gap-6 border-y border-border py-4">
             {metrics.map((m) => (
               <div key={m.label}>
                 <div className="text-[28px] font-semibold text-accent tracking-tight leading-none">{m.stat}</div>
@@ -136,7 +136,7 @@ function OnePager() {
           </div>
 
           {/* When leadership calls Fractioneer — flat bordered band */}
-          <div className="mt-4 border-y border-border py-3">
+          <div className="mt-6 border-y border-border py-3">
             <div className={eyebrow}>When leadership calls Fractioneer</div>
             <ul className="grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] leading-snug text-foreground/85">
               {triggers.map((t) => (
@@ -149,7 +149,7 @@ function OnePager() {
           </div>
 
           {/* Featured capability — most visually dominant block */}
-          <div className="mt-4 rounded-md border-l-[3px] border-accent bg-primary text-primary-foreground p-3.5">
+          <div className="mt-6 rounded-md border-l-[3px] border-accent bg-primary text-primary-foreground p-3.5">
             <div className="flex items-baseline justify-between gap-3">
               <div className="text-[13px] font-semibold leading-tight tracking-tight">Transaction &amp; M&amp;A support</div>
               <div className="text-[7.5px] font-semibold uppercase tracking-[0.2em] text-accent">Featured capability</div>
@@ -168,7 +168,7 @@ function OnePager() {
           </div>
 
           {/* What Fractioneer can manage day to day — 3 condensed cards */}
-          <div className="mt-4">
+          <div className="mt-6">
             <div className={eyebrow}>What Fractioneer can manage day to day</div>
             <div className="grid grid-cols-3 gap-3">
               {capabilities.map((c) => (
@@ -181,7 +181,7 @@ function OnePager() {
           </div>
 
           {/* Why Fractioneer — compact inline list */}
-          <div className="mt-4">
+          <div className="mt-6">
             <div className={eyebrow}>Why Fractioneer</div>
             <ul className="space-y-1">
               {whyUs.map((w) => (
@@ -194,7 +194,7 @@ function OnePager() {
           </div>
 
           {/* Logos + testimonial — proof band */}
-          <div className="mt-4 rounded-md bg-muted/50 px-4 py-3">
+          <div className="mt-6 rounded-md bg-muted/50 px-4 py-3">
             <div className="text-[7.5px] font-medium uppercase tracking-[0.2em] text-muted-foreground/70 mb-2 text-center">
               Trusted by operators, sponsors, and founders
             </div>
@@ -229,7 +229,7 @@ function OnePager() {
           </div>
 
           {/* CTA — soft sign-off */}
-          <div className="mt-4 flex items-center justify-end border-t border-border pt-3">
+          <div className="mt-auto pt-3 flex items-center justify-end border-t border-border">
             <div className="text-right text-[10px] font-medium whitespace-nowrap">
               <div className="text-primary">info@fractioneer.co</div>
               <div className="text-muted-foreground text-[9px] mt-0.5">fractioneer.co</div>
