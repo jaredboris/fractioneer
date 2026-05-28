@@ -85,7 +85,7 @@ const platforms: Platform[] = [
 
 const proofPoints = [
   { stat: "17", label: "person finance bench", description: "CFO, controller, accounting, payroll, AP/AR, and reporting." },
-  { stat: "$100M+", label: "revenue across supported clients", description: "Franchise systems, multi-unit operators, and growing companies." },
+  { stat: "$100M+", label: "revenue across supported clients", description: "Franchise systems, small business operators, and PE sponsors." },
   { stat: "4 yrs", label: "Average engagement", description: "Long-term finance operations support." },
   { stat: "15+", label: "M&A and diligence processes", description: "Diligence, audits, and transaction support." },
 ];
