@@ -28,14 +28,14 @@ const card1Bullets = [
 const card2Bullets = [
   "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
   "Brown University (Jan 2026): 500+ PE-acquired autism centers, 80% of 2018–2022 cohort approaching exit",
-  "Phoenix Recovery already on the roster",
+  "Phoenix Recovery already on the roster as our first behavioral health client",
 ];
 
 const card3Bullets = [
-  "35,000–39,000 independent agencies in the US (IA Magazine)",
-  "72% of insurance distribution M&A is PE-driven (OPTIS Partners, Q1 2026)",
-  "~45 institutional buyers actively consolidating",
-  "Principals check their own email, less saturated than tech industries",
+  "9 of top 11 chains are PE-backed; KinderCare bought 47-site chain across 14 states (Tyton Partners, 2024)",
+  "Education industry cold email response rates of 12–15% (Reachoutly, 2026), highest of any vertical tracked",
+  "270,000+ childcare providers nationwide, 95% independent (ChildcareCenter.us)",
+  "Rich personalization data: licensing, capacity, accreditation, tuition publicly available via Winnie and state databases",
 ];
 
 const sectionEyebrow =
