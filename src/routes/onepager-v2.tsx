@@ -21,15 +21,16 @@ export const Route = createFileRoute("/onepager-v2")({
 
 const triggers = [
   "The books are not trusted enough for ownership decisions.",
-  "A partner buyout or transaction is underway.",
+  "An M&A transaction or recapitalization is underway.",
   "The finance function needs structure leadership can rely on.",
   "Reporting is late, inconsistent, or hard to act on.",
 ];
 
 const featuredBullets = [
   "Diligence-ready books and documentation",
+  "Buy/sell-side M&A support",
   "Quality-of-earnings and lender support",
-  "Senior finance alongside ownership and counsel",
+  "Deal team support and transaction guidance",
 ];
 
 const capabilities = [
