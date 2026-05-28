@@ -28,14 +28,14 @@ const card1Bullets = [
 const card2Bullets = [
   "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
   "Brown University (Jan 2026): 500+ PE-acquired autism centers, 80% of 2018–2022 cohort approaching exit",
-  "Phoenix Recovery already on the roster",
+  "Phoenix Recovery already on the roster as our first behavioral health client",
 ];
 
 const card3Bullets = [
-  "35,000–39,000 independent agencies in the US (IA Magazine)",
-  "72% of insurance distribution M&A is PE-driven (OPTIS Partners, Q1 2026)",
-  "~45 institutional buyers actively consolidating",
-  "Principals check their own email, less saturated than tech industries",
+  "9 of top 11 chains are PE-backed; KinderCare bought 47-site chain across 14 states (Tyton Partners, 2024)",
+  "Education industry cold email response rates of 12–15% (Reachoutly, 2026), highest of any vertical tracked",
+  "270,000+ childcare providers nationwide, 95% independent (ChildcareCenter.us)",
+  "Rich personalization data: licensing, capacity, accreditation, tuition publicly available via Winnie and state databases",
 ];
 
 const sectionEyebrow =
@@ -164,8 +164,8 @@ function IndustriesPage() {
           {/* Section 2 */}
           <div className="mt-3">
             <SectionHeader
-              label="New territory"
-              sub="No existing client base, higher learning curve, but cleanly matches our service model."
+              label="Underweighted segment"
+              sub="One existing client, room to systematically expand into a clean fit."
             />
             <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-3 shadow-[0_1px_0_rgba(10,31,68,0.04)]">
               <CardEyebrow>Expansion opportunity</CardEyebrow>
@@ -190,23 +190,23 @@ function IndustriesPage() {
           <div className="mt-3">
             <SectionHeader
               label="Blast outreach"
-              sub="Largest list, scaled automated email pipeline, lowest per-contact effort."
+              sub="Largest list, automated email pipeline, lowest per-contact effort."
             />
             <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-accent bg-accent/[0.08] p-3">
               <CardEyebrow>Volume play</CardEyebrow>
               <div className="flex items-baseline justify-between gap-3">
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-                  Independent insurance agencies
+                  Multi-site childcare and early childhood education
                 </div>
                 <div className="text-[9px] italic text-muted-foreground">
-                  Principal-led agencies, succession-driven sales
+                  Independent multi-location operators outside the major chains
                 </div>
               </div>
               <ul className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1">
                 {card3Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
               </ul>
               <div className="mt-2 pt-1.5 border-t border-primary/15 text-[9.5px] font-semibold text-primary leading-snug">
-                Big list, urgent consolidation, less competition for finance services.
+                Best-in-class cold email response rates, massive list, active PE consolidation. Cleanest blast fit we've found.
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@ function IndustriesPage() {
           {/* Footer */}
           <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-3">
             <div className="text-[12px] font-semibold text-white leading-snug">
-              Lead with specialty trades. Build behavioral health second. Run insurance as the blast pipeline.
+              Lead with specialty trades. Build behavioral health second. Run multi-site childcare as the blast pipeline.
             </div>
             <div className="mt-1 text-[9.5px] italic text-white/70">
               Built for pushback. Happy to walk through any of it.
