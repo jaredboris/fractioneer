@@ -87,12 +87,13 @@ function OnePager() {
         }
         .onepager-sheet {
           width: 8.5in;
-          min-height: 11in;
+          height: 11in;
           margin: 0.5in auto;
           background: white;
           box-shadow: 0 10px 40px rgba(10, 31, 68, 0.15);
-          padding: 0.5in 0.6in;
+          padding: 0.4in 0.55in;
           color: var(--color-foreground);
+          overflow: hidden;
         }
       `}</style>
 
