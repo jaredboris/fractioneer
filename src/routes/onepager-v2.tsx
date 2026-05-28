@@ -64,8 +64,8 @@ const metrics = [
 
 const logos = [
   { name: "Riverside", src: riverside, invert: true, h: 22 },
-  { name: "MPK Equity Partners", src: mpk, invert: true, h: 26 },
-  { name: "Stonework Tile + Stone", src: stonework, invert: false, h: 22 },
+  { name: "MPK Equity Partners", src: mpk, invert: true, h: 32 },
+  { name: "Stonework Tile + Stone", src: stonework, invert: false, h: 30 },
   { name: "Abaco", src: abaco, invert: false, h: 20 },
   { name: "Sequel Brands", src: sequelBrands, invert: true, h: 24 },
   { name: "HomeFront Brands", src: homefront, invert: false, h: 28 },
