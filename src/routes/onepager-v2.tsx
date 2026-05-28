@@ -65,7 +65,7 @@ const metrics = [
 const logos = [
   { name: "Riverside", src: riverside, invert: true, h: 22 },
   { name: "MPK Equity Partners", src: mpk, invert: true, h: 32 },
-  { name: "Stonework Tile + Stone", src: stonework, invert: false, h: 30 },
+  { name: "Stonework Tile + Stone", src: stonework, invert: false, h: 38, boost: true },
   { name: "Abaco", src: abaco, invert: false, h: 20 },
   { name: "Sequel Brands", src: sequelBrands, invert: true, h: 24 },
   { name: "HomeFront Brands", src: homefront, invert: false, h: 28 },
@@ -199,7 +199,7 @@ function OnePager() {
             </div>
             <div className="grid grid-cols-7 gap-4 items-center">
               {logos.map((l) => (
-                <div key={l.name} className="flex items-center justify-center h-10">
+                <div key={l.name} className="flex items-center justify-center h-11">
                   <img
                     src={l.src}
                     alt={l.name}
@@ -208,8 +208,10 @@ function OnePager() {
                       maxHeight: `${l.h}px`,
                       filter: l.invert
                         ? "grayscale(100%) invert(1) brightness(0.45) contrast(1.1)"
-                        : "grayscale(100%) brightness(0.55) contrast(1.1)",
-                      opacity: 0.7,
+                        : l.boost
+                          ? "grayscale(100%) brightness(0.25) contrast(1.4)"
+                          : "grayscale(100%) brightness(0.55) contrast(1.1)",
+                      opacity: l.boost ? 0.95 : 0.7,
                     }}
                   />
                 </div>
