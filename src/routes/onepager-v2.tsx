@@ -82,12 +82,14 @@ function OnePager() {
         @page { size: letter portrait; margin: 0; }
         @media print {
           .no-print { display: none !important; }
-          .onepager-sheet { box-shadow: none !important; margin: 0 !important; }
-          body { background: white !important; }
+          html, body { margin: 0 !important; padding: 0 !important; background: white !important; }
+          .onepager-page { min-height: 0 !important; padding: 0 !important; background: white !important; }
+          .onepager-sheet { box-shadow: none !important; margin: 0 !important; height: 10.88in !important; }
         }
         .onepager-sheet {
           width: 8.5in;
           height: 11in;
+          box-sizing: border-box;
           margin: 0.5in auto;
           background: white;
           box-shadow: 0 10px 40px rgba(10, 31, 68, 0.15);
@@ -97,7 +99,7 @@ function OnePager() {
         }
       `}</style>
 
-      <div className="min-h-screen bg-muted/40 py-6">
+      <div className="onepager-page min-h-screen bg-muted/40 py-6">
         <button
           onClick={() => window.print()}
           className="no-print fixed top-4 right-4 z-50 inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium shadow-lg hover:bg-primary/90"
