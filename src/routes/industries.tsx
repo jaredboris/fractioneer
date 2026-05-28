@@ -20,26 +20,26 @@ const criteria = [
 ];
 
 const card1Bullets = [
-  "562 construction M&A deals in 2025, PE buyers drove 54.3% of activity",
-  "PE paying 10.6x EBITDA vs 7.5x for strategics (Transjovan Capital, 2026)",
-  "Already serve Roof Scientist, Top Rail Fence, Window Hero, TWS, Stonework, Patriot Fleet, Meridian",
+  "562 construction M&A deals in 2025, PE buyers drove 54.3% of activity (Capstone Partners, 2026)",
+  "Subcontractor M&A up 38.6% YoY in 2025 (Transjovan Capital)",
+  "Already serve Roof Scientist, Top Rail Fence, Window Hero, Temporary Wall Systems, The Designery, Stonework, Patriot Fleet, Meridian Fleet",
 ];
 
 const card2Bullets = [
   "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
-  "ABA platforms commanding mid-to-high teens EBITDA multiples (FOCUS Investment Banking)",
+  "Brown University (Jan 2026): 500+ PE-acquired autism centers, 80% of 2018–2022 cohort approaching exit",
   "Phoenix Recovery already on the roster",
 ];
 
 const card3Bullets = [
-  "40,000–50,000 MSPs operating in the US (ChannelE2E)",
-  "169 MSP M&A deals in 2025, 200+ annually (Channel Futures)",
-  "Founders are technical, respond to cold outreach",
-  "Top 50 MSPs hold small share, extreme fragmentation",
+  "35,000–39,000 independent agencies in the US (IA Magazine)",
+  "72% of insurance distribution M&A is PE-driven (OPTIS Partners, Q1 2026)",
+  "~45 institutional buyers actively consolidating",
+  "Principals check their own email, less saturated than tech industries",
 ];
 
 const sectionEyebrow =
-  "text-[9px] font-semibold uppercase tracking-[0.24em] text-accent";
+  "text-[9px] font-semibold uppercase tracking-[0.24em] text-primary";
 
 const cardCaption =
   "text-[7.5px] font-semibold uppercase tracking-[0.22em] text-accent mb-1.5 flex items-center gap-1.5";
@@ -53,12 +53,24 @@ function CardEyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Bullet({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+function Bullet({ children }: { children: React.ReactNode }) {
   return (
-    <li className={`flex gap-2 text-[9.5px] leading-snug ${light ? "text-white/90" : "text-foreground/85"}`}>
+    <li className="flex gap-2 text-[9.5px] leading-snug text-foreground/85">
       <span className="text-accent font-bold leading-none mt-[2px]">•</span>
       <span>{children}</span>
     </li>
+  );
+}
+
+function SectionHeader({ label, sub }: { label: string; sub: string }) {
+  return (
+    <div>
+      <div className="flex items-baseline gap-3">
+        <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+        <div className={sectionEyebrow}>{label}</div>
+      </div>
+      <p className="mt-1 ml-5 text-[9px] italic text-muted-foreground">{sub}</p>
+    </div>
   );
 }
 
@@ -97,7 +109,7 @@ function IndustriesPage() {
 
         <div className="onepager-sheet flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div className="flex items-center justify-between pb-2.5 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
             <div className="text-[7.5px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
               Internal · Industry analysis
@@ -105,114 +117,104 @@ function IndustriesPage() {
           </div>
 
           {/* Hero */}
-          <div className="mt-4">
+          <div className="mt-3">
             <h1 className="text-[26px] leading-[1.05] font-semibold text-primary tracking-tight">
-              Secondary industry targets.
+              Industries to target.
             </h1>
-            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground max-w-[6.6in]">
-              Three industries that match where Fractioneer wins, mapped to two outreach approaches.
+            <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground max-w-[7in]">
+              Three plays across three risk profiles, ranked from where we have the most leverage to where we have the cleanest blast opportunity.
             </p>
           </div>
 
           {/* Criteria strip */}
-          <div className="mt-3 rounded-md bg-muted/60 px-4 py-2 flex items-center justify-between">
+          <div className="mt-2.5 rounded-md bg-muted/60 px-4 py-1.5 flex items-center justify-between">
             {criteria.map((c, i) => (
               <div key={c} className="flex items-center gap-4 flex-1 justify-center first:justify-start last:justify-end">
                 <span className="text-[9px] font-medium text-foreground/80 tracking-wide">{c}</span>
-                {i < criteria.length - 1 && (
-                  <span className="text-border text-[10px]">|</span>
-                )}
+                {i < criteria.length - 1 && <span className="text-border text-[10px]">|</span>}
               </div>
             ))}
           </div>
 
-          {/* Section 1: Targeted outreach */}
-          <div className="mt-4">
-            <div className="flex items-baseline gap-3">
-              <span className="inline-block h-2 w-2 rounded-full bg-accent" />
-              <div className={sectionEyebrow}>Targeted outreach</div>
-            </div>
-            <p className="mt-1 ml-5 text-[9px] italic text-muted-foreground">
-              Researched, personalized, Loom-driven. Smaller list, higher conversion.
-            </p>
-
-            <div className="mt-2.5 grid grid-cols-2 gap-3">
-              {/* Card 1 */}
-              <div className="rounded-md border border-primary/15 bg-white p-3.5 flex flex-col shadow-[0_1px_0_rgba(10,31,68,0.04)]">
-                <CardEyebrow>Target profile</CardEyebrow>
+          {/* Section 1 */}
+          <div className="mt-3">
+            <SectionHeader
+              label="Expand what we already do"
+              sub="Existing client base, lowest risk, targeted high-touch outreach."
+            />
+            <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-3 shadow-[0_1px_0_rgba(10,31,68,0.04)]">
+              <CardEyebrow>Existing expertise</CardEyebrow>
+              <div className="flex items-baseline justify-between gap-3">
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
                   Specialty trade contractors
                 </div>
-                <div className="text-[9px] italic text-muted-foreground mt-0.5">
-                  Roofing, fencing, electrical, mechanical, exterior services, fleet
-                </div>
-                <ul className="mt-2.5 space-y-1">
-                  {card1Bullets.map((b) => (
-                    <Bullet key={b}>{b}</Bullet>
-                  ))}
-                </ul>
-                <div className="mt-auto pt-2.5 border-t border-border/60 text-[9.5px] font-semibold text-primary leading-snug">
-                  The cleanup moment hits when PE diligence exposes their books.
+                <div className="text-[9px] italic text-muted-foreground">
+                  Roofing, fencing, exterior services, fleet, containment, kitchen/bath
                 </div>
               </div>
+              <ul className="mt-2 space-y-1">
+                {card1Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
+              </ul>
+              <div className="mt-2 pt-1.5 border-t border-border/60 text-[9.5px] font-semibold text-primary leading-snug">
+                Strongest leverage. We already speak this language and have credibility in the space.
+              </div>
+            </div>
+          </div>
 
-              {/* Card 2 */}
-              <div className="rounded-md border border-primary/15 bg-white p-3.5 flex flex-col shadow-[0_1px_0_rgba(10,31,68,0.04)]">
-                <CardEyebrow>Target profile</CardEyebrow>
+          {/* Section 2 */}
+          <div className="mt-3">
+            <SectionHeader
+              label="New territory"
+              sub="No existing client base, higher learning curve, but cleanly matches our service model."
+            />
+            <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-3 shadow-[0_1px_0_rgba(10,31,68,0.04)]">
+              <CardEyebrow>Expansion opportunity</CardEyebrow>
+              <div className="flex items-baseline justify-between gap-3">
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
                   Behavioral health and specialty healthcare
                 </div>
-                <div className="text-[9px] italic text-muted-foreground mt-0.5">
+                <div className="text-[9px] italic text-muted-foreground">
                   ABA, mental health, addiction treatment, pediatric therapy
                 </div>
-                <ul className="mt-2.5 space-y-1">
-                  {card2Bullets.map((b) => (
-                    <Bullet key={b}>{b}</Bullet>
-                  ))}
-                </ul>
-                <div className="mt-auto pt-2.5 border-t border-border/60 text-[9.5px] font-semibold text-primary leading-snug">
-                  Founders are clinicians, not finance people. Books are usually a mess.
-                </div>
+              </div>
+              <ul className="mt-2 space-y-1">
+                {card2Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
+              </ul>
+              <div className="mt-2 pt-1.5 border-t border-border/60 text-[9.5px] font-semibold text-primary leading-snug">
+                Founders are clinicians, not finance people. Books are usually a mess.
               </div>
             </div>
           </div>
 
-          {/* Section 2: Blast outreach */}
-          <div className="mt-4">
-            <div className="flex items-baseline gap-3">
-              <span className="inline-block h-2 w-2 rounded-full bg-accent" />
-              <div className={sectionEyebrow}>Blast outreach</div>
-            </div>
-            <p className="mt-1 ml-5 text-[9px] italic text-muted-foreground">
-              Automated email pipeline. Larger list, lower per-contact conversion, scaled reach.
-            </p>
-
-            {/* Card 3 — tinted background */}
-            <div className="mt-2.5 rounded-md border-l-[3px] border-accent border border-primary/15 bg-accent/[0.07] p-3.5">
-              <CardEyebrow>Volume track</CardEyebrow>
+          {/* Section 3 */}
+          <div className="mt-3">
+            <SectionHeader
+              label="Blast outreach"
+              sub="Largest list, scaled automated email pipeline, lowest per-contact effort."
+            />
+            <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-accent bg-accent/[0.08] p-3">
+              <CardEyebrow>Volume play</CardEyebrow>
               <div className="flex items-baseline justify-between gap-3">
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-                  Managed IT service providers
+                  Independent insurance agencies
                 </div>
                 <div className="text-[9px] italic text-muted-foreground">
-                  Founder-led $5M–$30M revenue operators
+                  Principal-led agencies, succession-driven sales
                 </div>
               </div>
-              <ul className="mt-2.5 grid grid-cols-2 gap-x-5 gap-y-1">
-                {card3Bullets.map((b) => (
-                  <Bullet key={b}>{b}</Bullet>
-                ))}
+              <ul className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1">
+                {card3Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
               </ul>
-              <div className="mt-2.5 pt-2 border-t border-primary/15 text-[9.5px] font-semibold text-primary leading-snug">
-                The one industry on this list where blast email actually works.
+              <div className="mt-2 pt-1.5 border-t border-primary/15 text-[9.5px] font-semibold text-primary leading-snug">
+                Big list, urgent consolidation, less competition for finance services.
               </div>
             </div>
           </div>
 
-          {/* Recommendation footer — dark navy band, full bleed */}
+          {/* Footer */}
           <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-3">
             <div className="text-[12px] font-semibold text-white leading-snug">
-              Lead with two targeted tracks. Build MSPs as the scaled pipeline.
+              Lead with specialty trades. Build behavioral health second. Run insurance as the blast pipeline.
             </div>
             <div className="mt-1 text-[9.5px] italic text-white/70">
               Built for pushback. Happy to walk through any of it.
