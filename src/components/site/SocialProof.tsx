@@ -178,7 +178,7 @@ export function SocialProof() {
       <SectionHeader
         eyebrow="Clients"
         title="Client and portfolio experience"
-        description="Fractioneer supports franchise systems, multi-unit operators, and PE-backed and founder-owned companies with finance operations that scale."
+        description="Fractioneer supports franchise systems, small business operators, PE sponsors, and other operators with finance operations that scale."
       />
 
       {/* Proof points — surface the 17-person bench early */}
