@@ -1,66 +1,59 @@
-# Plan: Reduce text density in the middle of the page
 
-Targeted edits to four sections. No new sections beyond what's specified. No booking modal, proof, pricing, or extra CTA changes.
+# Refine `/onepager-v2`
 
-## 1. `ServicesFranchise.tsx` — Layered "finance operating system"
+Scope: edit only `src/routes/onepager-v2.tsx`. Pure content + visual hierarchy pass. No new components, no routing changes, no business logic.
 
-Replace the 7-card uniform grid with **3 stacked horizontal layers**, each labeled as a tier of the finance stack.
+## 1. Soften the CTA
 
-Structure:
-```text
-┌─ Layer 01 · Strategic finance ──────────────────────────┐
-│  [icon] CFO leadership          [icon] Cash flow & reporting │
-└──────────────────────────────────────────────────────────┘
-┌─ Layer 02 · Controls & close ───────────────────────────┐
-│  [icon] Controller & monthly close   [icon] Franchise audits │
-└──────────────────────────────────────────────────────────┘
-┌─ Layer 03 · Daily finance operations ───────────────────┐
-│  [icon] Bookkeeping  [icon] Payroll  [icon] AP/AR        │
-└──────────────────────────────────────────────────────────┘
-```
+Replace the "Worth a 30-minute call with Mark." block with a quieter warm-referral footer:
 
-- Each layer = a horizontal band (card with subtle border) with a small layer label/eyebrow on the left (e.g. "01 · Strategic finance") and the services as inline icon+title+one-line items inside.
-- Each service: icon (left), bold title, one-line description below. No paragraph copy.
-- Use the exact copy provided in the request (one line per service).
-- Headline: "What Fractioneer runs for growing operators."
-- Subhead: "A complete finance function across strategy, controls, close, reporting, and day-to-day execution."
-- Responsive: layers stack full-width; inside each layer the services switch from row → 2-col → 1-col on small screens.
-- Keep `muted` background. Keep section id `services`.
+- Headline: **"Mark can walk through where Fractioneer may be able to help."**
+- Sub: one short line — "A direct conversation about your finance setup. No prep required."
+- Right side: `info@fractioneer.co` / `fractioneer.co` (unchanged).
+- Reduce visual weight: drop the `border-t-2 border-accent` to a single `border-t border-border`, smaller headline (`text-[12px]` instead of `14px`). The CTA should feel like a sign-off, not a pitch.
 
-## 2. `LeadershipVisibility.tsx` — Compact output tiles
+## 2. De-duplicate copy
 
-Already close, but tighten:
-- Reduce padding (p-5 → p-4), tighter typography.
-- Shorten body lines to ≤6 words each (e.g. "On track, delayed, or ready", "Cash across the business", "By location, region, or entity", "Collected, pending, past-due", "Docs ready for audits/diligence").
-- Keep 5-column layout on lg, 2-col on sm.
-- Keep status chip (Live / Weekly / Monthly / Live / Always-on).
-- Add a subtle "Outputs" eyebrow framing — already handled by SectionHeader eyebrow "Leadership visibility".
+Audit pass — current page repeats "cleanup", "controls", "AP/AR", "reporting", "buyout", "ownership transition" across triggers, featured block, capability cards, and why-us. Tighten so each idea lands once in its strongest spot:
 
-## 3. `HowItWorks.tsx` — Already exists; refine copy + visual
+- **Triggers** (callout): keep all four, but rewrite to be about *situations* (messy books, transition underway, finance function gaps, reporting leadership can't trust) — strip operational nouns.
+- **Featured block**: own "transaction, buyout, diligence, ownership transition" exclusively. Remove "cleanup" from its supporting bullets (move to capability card).
+- **Capability cards**: own the operational vocabulary (cleanup, controls, AP/AR, payroll, close). Drop "transaction support" from the CFO card since the featured block owns it. Rewrite the three cards so titles + descriptions don't echo trigger language:
+  - "Monthly close & controls"
+  - "CFO & reporting"
+  - "Back-office operations"
+- **Why Fractioneer**: keep as differentiators only (boutique, senior-led, complexity, transparency). Don't re-list services.
 
-Section already added after LeadershipVisibility, before EngagementModels. Update copy to match request exactly:
-- Subhead: "A simple path from scattered finance activity to a finance function leadership can rely on."
-- Steps simplify to **Assess / Build / Run** as the bold titles (currently "Assess the current setup" etc.) with the longer descriptions kept as supporting text.
-- Horizontal stepper on desktop (already implemented), stacked on mobile (already implemented). Keep current numbered circle + icon. No animation changes.
+## 3. Sharpen hierarchy
 
-## 4. `EngagementModels.tsx` — Tighter comparison
+The page currently has ~6 blocks of roughly equal weight. Re-tier them:
 
-Current structure is close. Tighten:
-- Trim "What it includes" to **3–4 short label-style items** (no full sentences). Use exact copy from request:
-  - Finance Foundation: Bookkeeping · Payroll · AP/AR · Monthly reporting
-  - Controller-Led: Monthly close · Multi-entity reporting · Cash flow management · Financial controls
-  - CFO Partnership: Fractional CFO leadership · Forecasting · Board & investor packages · Audit & diligence support
-- Keep "Best for" line as-is (already added).
-- Keep current CTAs.
-- Reduce card padding slightly (p-8 → p-7) and feature list line-height for denser comparison.
+- **Tier 1 (dominant)**: Hero headline + metrics row. Metrics already at 30px — keep. Add a touch more vertical space above metrics so they breathe.
+- **Tier 2 (featured)**: Transaction & buyout block. Keep navy `bg-primary` treatment; this is the single strongest visual moment after the metrics.
+- **Tier 3 (supporting)**: Triggers callout, capability cards, why-us. Flatten these visually so they read as supporting content, not competing features:
+  - Triggers: remove the `bg-muted/60` fill, render as a clean bordered band (`border-y border-border py-3`) — lighter than the featured block.
+  - Capability cards: keep the `border-t-2 border-primary/80` accent.
+  - Why-us: drop to a single-line row with bold label + inline description (`text-[10px]`) to compress vertical space and reduce card-count fatigue.
+- **Tier 4 (proof)**: Logo strip + testimonial — current `bg-muted/50` band stays, slightly tighter padding.
+- **Tier 5 (sign-off)**: CTA as described above.
 
-## Files touched
+## 4. Section order (unchanged but re-justified)
 
-- `src/components/site/ServicesFranchise.tsx` — restructure to 3 layered bands
-- `src/components/site/LeadershipVisibility.tsx` — shorten copy, tighten padding
-- `src/components/site/HowItWorks.tsx` — copy refinement (subhead + step titles)
-- `src/components/site/EngagementModels.tsx` — shorten includes to label-style items
+1. Header
+2. Hero
+3. Metrics
+4. Triggers ("When leadership calls Fractioneer")
+5. Featured: Transaction & buyout
+6. Capability cards ("What Fractioneer can run")
+7. Why Fractioneer
+8. Proof: logos + testimonial
+9. CTA
 
-## Out of scope
+## 5. Constraints
 
-No changes to: Hero, SocialProof, WhoWeHelp, ProblemSection, InlineCTA, Testimonials, TeamGrid, FAQ, FinalCTA, Footer, Navbar, BookingModal, routes, or any data/logic.
+- Must still fit 8.5"×11" single page. After flattening why-us and tightening CTA, vertical budget should improve, not worsen.
+- No new claims, no fake dashboards, no prospect name.
+- Construction/multi-entity stays subtle — only the existing "multi-entity, multi-project, multi-location" line in Why Fractioneer carries it.
+- Logo strip untouched (already tuned in prior turns).
+
+Deliverable: one edit to `src/routes/onepager-v2.tsx`.
