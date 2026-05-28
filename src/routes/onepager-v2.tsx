@@ -120,7 +120,7 @@ function OnePager() {
               Finance support for complex operator-owned businesses.
             </h1>
             <p className="mt-3.5 text-[12px] leading-relaxed text-muted-foreground max-w-[6.6in]">
-              Fractioneer helps leadership teams clean up financial operations, support ownership transitions, and build reliable finance functions across entities, projects, and locations.
+              Fractioneer helps leadership teams clean up financial operations, support M&amp;A transactions and recapitalizations, and build reliable finance functions across all aspects of the business.
             </p>
           </div>
 
