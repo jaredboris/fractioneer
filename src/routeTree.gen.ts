@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OnepagerV2RouteImport } from './routes/onepager-v2'
 import { Route as OnepagerRouteImport } from './routes/onepager'
+import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as IndexRouteImport } from './routes/index'
 
 const OnepagerV2Route = OnepagerV2RouteImport.update({
@@ -23,6 +24,11 @@ const OnepagerRoute = OnepagerRouteImport.update({
   path: '/onepager',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IndustriesRoute = IndustriesRouteImport.update({
+  id: '/industries',
+  path: '/industries',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -31,30 +37,34 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/onepager' | '/onepager-v2'
+  fullPaths: '/' | '/industries' | '/onepager' | '/onepager-v2'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/onepager' | '/onepager-v2'
-  id: '__root__' | '/' | '/onepager' | '/onepager-v2'
+  to: '/' | '/industries' | '/onepager' | '/onepager-v2'
+  id: '__root__' | '/' | '/industries' | '/onepager' | '/onepager-v2'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  IndustriesRoute: typeof IndustriesRoute
   OnepagerRoute: typeof OnepagerRoute
   OnepagerV2Route: typeof OnepagerV2Route
 }
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnepagerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/industries': {
+      id: '/industries'
+      path: '/industries'
+      fullPath: '/industries'
+      preLoaderRoute: typeof IndustriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  IndustriesRoute: IndustriesRoute,
   OnepagerRoute: OnepagerRoute,
   OnepagerV2Route: OnepagerV2Route,
 }
