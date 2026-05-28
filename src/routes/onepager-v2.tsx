@@ -133,8 +133,8 @@ function OnePager() {
             ))}
           </div>
 
-          {/* When leadership calls Fractioneer — light gray callout */}
-          <div className="mt-6 rounded-md bg-muted/60 px-4 py-3.5">
+          {/* When leadership calls Fractioneer — flat bordered band */}
+          <div className="mt-6 border-y border-border py-3.5">
             <div className={eyebrow}>When leadership calls Fractioneer</div>
             <ul className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[10.5px] leading-snug text-foreground/85">
               {triggers.map((t) => (
