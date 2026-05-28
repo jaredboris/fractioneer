@@ -44,6 +44,11 @@ const leaders: Leader[] = [
 
 const team: Member[] = [
   {
+    name: "Lindsey Lacy",
+    role: "Fractional CFO",
+    tags: ["PE / VC", "Forecasting", "Growth stage"],
+  },
+  {
     name: "Sona Banker",
     role: "Fractional CFO",
     tags: ["Franchising", "Multi-unit", "Strategy"],
@@ -180,8 +185,8 @@ export function TeamGrid() {
     <Section id="team" muted>
       <SectionHeader
         eyebrow="Team"
-        title="A 17-person finance bench across CFO, controller, accounting, payroll, AP/AR, and reporting."
-        description="Senior finance leadership backed by controller, accounting, payroll, and AP/AR execution — the same team across CFO, controller, and back-office work."
+        title="A finance team across CFO, controller, accounting, payroll, AP/AR, and reporting."
+        description="An experienced finance team across CFO, controller, accounting, payroll, AP/AR, and reporting — the same team across leadership and back-office work."
       />
 
       <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -189,7 +194,7 @@ export function TeamGrid() {
           { count: "3", label: "Senior finance leaders" },
           { count: "5", label: "Accounting & controller specialists" },
           { count: "4", label: "Payroll & AP/AR operators" },
-          { count: "5", label: "Reporting, audit & support" },
+          { count: "5", label: "Support staff" },
         ].map((b) => (
           <div
             key={b.label}
@@ -204,8 +209,8 @@ export function TeamGrid() {
       <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         Leadership
       </div>
-      <div className="grid gap-5 md:grid-cols-3">
-        {leaders.map((p) => (
+      <div className="grid gap-5 md:grid-cols-2">
+        {leaders.slice(0, 2).map((p) => (
           <LeaderCard key={p.name} p={p} />
         ))}
       </div>

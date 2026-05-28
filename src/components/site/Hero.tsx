@@ -21,12 +21,12 @@ export function Hero() {
 
             <h1 className="mt-6 text-4xl md:text-5xl lg:text-[3.5rem] font-semibold leading-[1.05] text-foreground">
               The outsourced finance department for growing{" "}
-              <span className="text-accent">franchise systems</span>.
+              <span className="text-accent">small businesses</span>.
             </h1>
 
             <p className="mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground">
               Fractional CFO, controller, and back-office finance built around
-              the way franchise and multi-unit operators actually run.
+              the way small business operators actually run.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
@@ -35,7 +35,7 @@ export function Hero() {
                 href="#services"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
               >
-                See how we support franchise finance
+                See how we support small business finance
                 <ArrowRight className="h-4 w-4" />
               </a>
             </div>

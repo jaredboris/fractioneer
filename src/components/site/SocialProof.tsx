@@ -85,7 +85,7 @@ const platforms: Platform[] = [
 
 const proofPoints = [
   { stat: "17", label: "person finance bench", description: "CFO, controller, accounting, payroll, AP/AR, and reporting." },
-  { stat: "$100M+", label: "revenue across supported clients", description: "Franchise systems, multi-unit operators, and growing companies." },
+  { stat: "$100M+", label: "revenue across supported clients", description: "Franchise systems, small business operators, and PE sponsors." },
   { stat: "4 yrs", label: "Average engagement", description: "Long-term finance operations support." },
   { stat: "15+", label: "M&A and diligence processes", description: "Diligence, audits, and transaction support." },
 ];
@@ -178,7 +178,7 @@ export function SocialProof() {
       <SectionHeader
         eyebrow="Clients"
         title="Client and portfolio experience"
-        description="Fractioneer supports franchise systems, multi-unit operators, and PE-backed and founder-owned companies with finance operations that scale."
+        description="Fractioneer supports franchise systems, small business operators, PE sponsors, and other operators with finance operations that scale."
       />
 
       {/* Proof points — surface the 17-person bench early */}
