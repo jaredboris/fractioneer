@@ -20,33 +20,42 @@ const criteria = [
 ];
 
 const card1Bullets = [
-  "562 construction M&A deals in 2025, 54% PE-driven",
-  "WIP, retainage, multi-state payroll, bonding complexity",
-  "Current construction prospect validates fit",
+  "562 construction M&A deals in 2025, PE buyers drove 54.3% of activity",
+  "PE paying 10.6x EBITDA vs 7.5x for strategics (Transjovan Capital, 2026)",
+  "Already serve Roof Scientist, Top Rail Fence, Window Hero, TWS, Stonework, Patriot Fleet, Meridian",
 ];
 
 const card2Bullets = [
-  "Tens of thousands of clinician-led operators, mid-cycle consolidation",
-  "Multi-state licensing and entity complexity",
+  "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
+  "ABA platforms commanding mid-to-high teens EBITDA multiples (FOCUS Investment Banking)",
   "Phoenix Recovery already on the roster",
 ];
 
 const card3Bullets = [
-  "Tens of thousands of US operators",
-  "Recurring monthly revenue, predictable cash flow",
+  "40,000–50,000 MSPs operating in the US (ChannelE2E)",
+  "169 MSP M&A deals in 2025, 200+ annually (Channel Futures)",
   "Founders are technical, respond to cold outreach",
-  "Active sponsor-to-sponsor recapitalizations signal mature consolidation",
+  "Top 50 MSPs hold small share, extreme fragmentation",
 ];
 
-const eyebrowCls =
-  "text-[8px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60 mb-2";
+const sectionEyebrow =
+  "text-[9px] font-semibold uppercase tracking-[0.24em] text-accent";
 
 const cardCaption =
-  "text-[7.5px] font-semibold uppercase tracking-[0.22em] text-accent mb-1.5";
+  "text-[7.5px] font-semibold uppercase tracking-[0.22em] text-accent mb-1.5 flex items-center gap-1.5";
 
-function Bullet({ children }: { children: React.ReactNode }) {
+function CardEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <li className="flex gap-2 text-[9.5px] leading-snug text-foreground/85">
+    <div className={cardCaption}>
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+      {children}
+    </div>
+  );
+}
+
+function Bullet({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <li className={`flex gap-2 text-[9.5px] leading-snug ${light ? "text-white/90" : "text-foreground/85"}`}>
       <span className="text-accent font-bold leading-none mt-[2px]">•</span>
       <span>{children}</span>
     </li>
@@ -71,7 +80,7 @@ function IndustriesPage() {
           margin: 0.5in auto;
           background: white;
           box-shadow: 0 10px 40px rgba(10, 31, 68, 0.15);
-          padding: 0.4in 0.55in 0.35in;
+          padding: 0.4in 0.55in 0in;
           color: var(--color-foreground);
           overflow: hidden;
         }
@@ -96,20 +105,20 @@ function IndustriesPage() {
           </div>
 
           {/* Hero */}
-          <div className="mt-5">
-            <h1 className="text-[28px] leading-[1.05] font-semibold text-primary tracking-tight">
+          <div className="mt-4">
+            <h1 className="text-[26px] leading-[1.05] font-semibold text-primary tracking-tight">
               Secondary industry targets.
             </h1>
-            <p className="mt-2.5 text-[11.5px] leading-relaxed text-muted-foreground max-w-[6.6in]">
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground max-w-[6.6in]">
               Three industries that match where Fractioneer wins, mapped to two outreach approaches.
             </p>
           </div>
 
           {/* Criteria strip */}
-          <div className="mt-4 rounded-md bg-muted/60 px-4 py-2.5 flex items-center justify-between">
+          <div className="mt-3 rounded-md bg-muted/60 px-4 py-2 flex items-center justify-between">
             {criteria.map((c, i) => (
               <div key={c} className="flex items-center gap-4 flex-1 justify-center first:justify-start last:justify-end">
-                <span className="text-[9.5px] font-medium text-foreground/80 tracking-wide">{c}</span>
+                <span className="text-[9px] font-medium text-foreground/80 tracking-wide">{c}</span>
                 {i < criteria.length - 1 && (
                   <span className="text-border text-[10px]">|</span>
                 )}
@@ -118,23 +127,24 @@ function IndustriesPage() {
           </div>
 
           {/* Section 1: Targeted outreach */}
-          <div className="mt-5">
-            <div className="flex items-baseline justify-between">
-              <div className={eyebrowCls + " mb-0"}>Targeted outreach</div>
+          <div className="mt-4">
+            <div className="flex items-baseline gap-3">
+              <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+              <div className={sectionEyebrow}>Targeted outreach</div>
             </div>
-            <p className="mt-1 text-[9.5px] italic text-muted-foreground">
+            <p className="mt-1 ml-5 text-[9px] italic text-muted-foreground">
               Researched, personalized, Loom-driven. Smaller list, higher conversion.
             </p>
 
             <div className="mt-2.5 grid grid-cols-2 gap-3">
               {/* Card 1 */}
-              <div className="rounded-md border border-border bg-white p-3.5 flex flex-col">
-                <div className={cardCaption}>Target profile</div>
+              <div className="rounded-md border border-primary/15 bg-white p-3.5 flex flex-col shadow-[0_1px_0_rgba(10,31,68,0.04)]">
+                <CardEyebrow>Target profile</CardEyebrow>
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
                   Specialty trade contractors
                 </div>
-                <div className="text-[9.5px] italic text-muted-foreground mt-0.5">
-                  Commercial roofing, electrical, mechanical, fire &amp; life safety
+                <div className="text-[9px] italic text-muted-foreground mt-0.5">
+                  Roofing, fencing, electrical, mechanical, exterior services, fleet
                 </div>
                 <ul className="mt-2.5 space-y-1">
                   {card1Bullets.map((b) => (
@@ -147,13 +157,13 @@ function IndustriesPage() {
               </div>
 
               {/* Card 2 */}
-              <div className="rounded-md border border-border bg-white p-3.5 flex flex-col">
-                <div className={cardCaption}>Target profile</div>
+              <div className="rounded-md border border-primary/15 bg-white p-3.5 flex flex-col shadow-[0_1px_0_rgba(10,31,68,0.04)]">
+                <CardEyebrow>Target profile</CardEyebrow>
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
                   Behavioral health and specialty healthcare
                 </div>
-                <div className="text-[9.5px] italic text-muted-foreground mt-0.5">
-                  ABA, physical therapy, mental health, addiction treatment
+                <div className="text-[9px] italic text-muted-foreground mt-0.5">
+                  ABA, mental health, addiction treatment, pediatric therapy
                 </div>
                 <ul className="mt-2.5 space-y-1">
                   {card2Bullets.map((b) => (
@@ -168,20 +178,23 @@ function IndustriesPage() {
           </div>
 
           {/* Section 2: Blast outreach */}
-          <div className="mt-5">
-            <div className={eyebrowCls + " mb-0"}>Blast outreach</div>
-            <p className="mt-1 text-[9.5px] italic text-muted-foreground">
+          <div className="mt-4">
+            <div className="flex items-baseline gap-3">
+              <span className="inline-block h-2 w-2 rounded-full bg-accent" />
+              <div className={sectionEyebrow}>Blast outreach</div>
+            </div>
+            <p className="mt-1 ml-5 text-[9px] italic text-muted-foreground">
               Automated email pipeline. Larger list, lower per-contact conversion, scaled reach.
             </p>
 
-            {/* Card 3 — distinct treatment */}
-            <div className="mt-2.5 rounded-md border-l-[3px] border-accent bg-primary/[0.04] border border-border/60 p-3.5">
-              <div className={cardCaption}>Volume track</div>
+            {/* Card 3 — tinted background */}
+            <div className="mt-2.5 rounded-md border-l-[3px] border-accent border border-primary/15 bg-accent/[0.07] p-3.5">
+              <CardEyebrow>Volume track</CardEyebrow>
               <div className="flex items-baseline justify-between gap-3">
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
                   Managed IT service providers
                 </div>
-                <div className="text-[9.5px] italic text-muted-foreground">
+                <div className="text-[9px] italic text-muted-foreground">
                   Founder-led $5M–$30M revenue operators
                 </div>
               </div>
@@ -190,18 +203,18 @@ function IndustriesPage() {
                   <Bullet key={b}>{b}</Bullet>
                 ))}
               </ul>
-              <div className="mt-2.5 pt-2 border-t border-border/60 text-[9.5px] font-semibold text-primary leading-snug">
+              <div className="mt-2.5 pt-2 border-t border-primary/15 text-[9.5px] font-semibold text-primary leading-snug">
                 The one industry on this list where blast email actually works.
               </div>
             </div>
           </div>
 
-          {/* Recommendation footer */}
-          <div className="mt-auto pt-3 border-t border-border">
-            <div className="text-[12px] font-semibold text-primary leading-snug">
+          {/* Recommendation footer — dark navy band, full bleed */}
+          <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-3">
+            <div className="text-[12px] font-semibold text-white leading-snug">
               Lead with two targeted tracks. Build MSPs as the scaled pipeline.
             </div>
-            <div className="mt-1 text-[9.5px] italic text-muted-foreground">
+            <div className="mt-1 text-[9.5px] italic text-white/70">
               Built for pushback. Happy to walk through any of it.
             </div>
           </div>
