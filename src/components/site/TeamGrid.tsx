@@ -44,6 +44,11 @@ const leaders: Leader[] = [
 
 const team: Member[] = [
   {
+    name: "Lindsey Lacy",
+    role: "Fractional CFO",
+    tags: ["PE / VC", "Forecasting", "Growth stage"],
+  },
+  {
     name: "Sona Banker",
     role: "Fractional CFO",
     tags: ["Franchising", "Multi-unit", "Strategy"],
