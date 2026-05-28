@@ -106,7 +106,7 @@ function OnePager() {
           Print / Save as PDF
         </button>
 
-        <div className="onepager-sheet">
+        <div className="onepager-sheet flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
