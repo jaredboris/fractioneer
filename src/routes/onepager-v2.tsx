@@ -199,7 +199,7 @@ function OnePager() {
             </div>
             <div className="grid grid-cols-7 gap-4 items-center">
               {logos.map((l) => (
-                <div key={l.name} className="flex items-center justify-center h-8">
+                <div key={l.name} className="flex items-center justify-center h-10">
                   <img
                     src={l.src}
                     alt={l.name}
