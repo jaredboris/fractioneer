@@ -3,7 +3,7 @@ import { Printer } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import abaco from "@/assets/logos/abaco.png";
 import mpk from "@/assets/logos/mpk-equity.png";
-import pretium from "@/assets/logos/pretium.webp";
+import stonework from "@/assets/logos/stonework.png";
 import riverside from "@/assets/logos/riverside.gif";
 import sequelBrands from "@/assets/logos/sequel-brands.webp";
 import homefront from "@/assets/logos/homefront-brands.png";
@@ -21,15 +21,16 @@ export const Route = createFileRoute("/onepager-v2")({
 
 const triggers = [
   "The books are not trusted enough for ownership decisions.",
-  "A partner buyout or transaction is underway.",
+  "An M&A transaction or recapitalization is underway.",
   "The finance function needs structure leadership can rely on.",
   "Reporting is late, inconsistent, or hard to act on.",
 ];
 
 const featuredBullets = [
   "Diligence-ready books and documentation",
+  "Buy/sell-side M&A support",
   "Quality-of-earnings and lender support",
-  "Senior finance alongside ownership and counsel",
+  "Deal team support and transaction guidance",
 ];
 
 const capabilities = [
@@ -49,7 +50,7 @@ const capabilities = [
 
 const whyUs = [
   { title: "Boutique by design", desc: "White-glove service and a focused client roster." },
-  { title: "Senior-led", desc: "Engagements are owned by experienced finance leaders." },
+  { title: "Senior-led", desc: "Every engagement is owned by experienced finance leaders." },
   { title: "Built for complexity", desc: "Multi-entity, multi-project, multi-location, multi-stakeholder." },
   { title: "Independent and transparent", desc: "Clear visibility into the numbers, the process, and the reporting." },
 ];
@@ -64,7 +65,7 @@ const metrics = [
 const logos = [
   { name: "Riverside", src: riverside, invert: true, h: 22 },
   { name: "MPK Equity Partners", src: mpk, invert: true, h: 26 },
-  { name: "Pretium", src: pretium, invert: false, h: 18 },
+  { name: "Stonework Tile + Stone", src: stonework, invert: false, h: 22 },
   { name: "Abaco", src: abaco, invert: false, h: 20 },
   { name: "Sequel Brands", src: sequelBrands, invert: true, h: 24 },
   { name: "HomeFront Brands", src: homefront, invert: false, h: 28 },
@@ -119,7 +120,7 @@ function OnePager() {
               Finance support for complex operator-owned businesses.
             </h1>
             <p className="mt-3.5 text-[12px] leading-relaxed text-muted-foreground max-w-[6.6in]">
-              Fractioneer helps leadership teams clean up financial operations, support ownership transitions, and build reliable finance functions across entities, projects, and locations.
+              Fractioneer helps leadership teams clean up financial operations, support M&amp;A transactions and recapitalizations, and build reliable finance functions across all aspects of the business.
             </p>
           </div>
 
@@ -149,13 +150,13 @@ function OnePager() {
           {/* Featured capability — most visually dominant block */}
           <div className="mt-6 rounded-md border-l-[3px] border-accent bg-primary text-primary-foreground p-4">
             <div className="flex items-baseline justify-between gap-3">
-              <div className="text-[14px] font-semibold leading-tight tracking-tight">Transaction &amp; buyout support</div>
+              <div className="text-[14px] font-semibold leading-tight tracking-tight">Transaction &amp; M&amp;A support</div>
               <div className="text-[7.5px] font-semibold uppercase tracking-[0.2em] text-accent">Featured capability</div>
             </div>
             <p className="mt-2 text-[10.5px] leading-snug text-primary-foreground/85 max-w-[6.5in]">
-              Support for partner buyouts, ownership transitions, financial diligence, books cleanup, and finance department buildouts.
+              Support for M&amp;A transactions, recapitalizations, ownership transitions, financial diligence, books cleanup, and finance department buildouts.
             </p>
-            <ul className="mt-3 grid grid-cols-3 gap-x-4 text-[9.5px] leading-snug text-primary-foreground/90">
+            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[9.5px] leading-snug text-primary-foreground/90">
               {featuredBullets.map((b) => (
                 <li key={b} className="flex gap-1.5">
                   <span className="text-accent">•</span>
@@ -165,9 +166,9 @@ function OnePager() {
             </ul>
           </div>
 
-          {/* What Fractioneer can run — 3 condensed cards */}
+          {/* What Fractioneer can manage day to day — 3 condensed cards */}
           <div className="mt-6">
-            <div className={eyebrow}>What Fractioneer can run</div>
+            <div className={eyebrow}>What Fractioneer can manage day to day</div>
             <div className="grid grid-cols-3 gap-3">
               {capabilities.map((c) => (
                 <div key={c.title} className="border-t-2 border-primary/80 pt-2.5">
