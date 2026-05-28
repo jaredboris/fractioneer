@@ -227,9 +227,9 @@ function OnePager() {
           {/* CTA — soft sign-off */}
           <div className="mt-6 flex items-end justify-between gap-4 border-t border-border pt-4">
             <div>
-              <div className="text-[12px] font-semibold leading-tight text-primary tracking-tight">Mark can walk through where Fractioneer may be able to help.</div>
+              <div className="text-[12px] font-semibold leading-tight text-primary tracking-tight">A conversation about where Fractioneer may be able to help.</div>
               <div className="text-[10px] text-muted-foreground leading-snug mt-1 max-w-[5in]">
-                A direct conversation about your finance setup. No prep required.
+                Direct, no-pressure discussion about your finance setup.
               </div>
             </div>
             <div className="text-right text-[10.5px] font-medium whitespace-nowrap">
