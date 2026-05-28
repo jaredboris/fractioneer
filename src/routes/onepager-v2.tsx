@@ -166,9 +166,9 @@ function OnePager() {
             </ul>
           </div>
 
-          {/* What Fractioneer can run — 3 condensed cards */}
+          {/* What Fractioneer can manage day to day — 3 condensed cards */}
           <div className="mt-6">
-            <div className={eyebrow}>What Fractioneer can run</div>
+            <div className={eyebrow}>What Fractioneer can manage day to day</div>
             <div className="grid grid-cols-3 gap-3">
               {capabilities.map((c) => (
                 <div key={c.title} className="border-t-2 border-primary/80 pt-2.5">
