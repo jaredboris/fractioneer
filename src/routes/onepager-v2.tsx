@@ -136,9 +136,9 @@ function OnePager() {
           </div>
 
           {/* When leadership calls Fractioneer — flat bordered band */}
-          <div className="mt-6 border-y border-border py-3.5">
+          <div className="mt-4 border-y border-border py-3">
             <div className={eyebrow}>When leadership calls Fractioneer</div>
-            <ul className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[10.5px] leading-snug text-foreground/85">
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] leading-snug text-foreground/85">
               {triggers.map((t) => (
                 <li key={t} className="flex gap-2">
                   <span className="text-accent font-semibold">→</span>
@@ -149,15 +149,15 @@ function OnePager() {
           </div>
 
           {/* Featured capability — most visually dominant block */}
-          <div className="mt-6 rounded-md border-l-[3px] border-accent bg-primary text-primary-foreground p-4">
+          <div className="mt-4 rounded-md border-l-[3px] border-accent bg-primary text-primary-foreground p-3.5">
             <div className="flex items-baseline justify-between gap-3">
-              <div className="text-[14px] font-semibold leading-tight tracking-tight">Transaction &amp; M&amp;A support</div>
+              <div className="text-[13px] font-semibold leading-tight tracking-tight">Transaction &amp; M&amp;A support</div>
               <div className="text-[7.5px] font-semibold uppercase tracking-[0.2em] text-accent">Featured capability</div>
             </div>
-            <p className="mt-2 text-[10.5px] leading-snug text-primary-foreground/85 max-w-[6.5in]">
+            <p className="mt-1.5 text-[10px] leading-snug text-primary-foreground/85 max-w-[6.5in]">
               Support for M&amp;A transactions, recapitalizations, ownership transitions, financial diligence, books cleanup, and finance department buildouts.
             </p>
-            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[9.5px] leading-snug text-primary-foreground/90">
+            <ul className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-0.5 text-[9.5px] leading-snug text-primary-foreground/90">
               {featuredBullets.map((b) => (
                 <li key={b} className="flex gap-1.5">
                   <span className="text-accent">•</span>
@@ -168,24 +168,24 @@ function OnePager() {
           </div>
 
           {/* What Fractioneer can manage day to day — 3 condensed cards */}
-          <div className="mt-6">
+          <div className="mt-4">
             <div className={eyebrow}>What Fractioneer can manage day to day</div>
             <div className="grid grid-cols-3 gap-3">
               {capabilities.map((c) => (
-                <div key={c.title} className="border-t-2 border-primary/80 pt-2.5">
-                  <div className="text-[11px] font-semibold text-primary leading-tight">{c.title}</div>
-                  <div className="mt-1.5 text-[9.5px] leading-snug text-muted-foreground">{c.desc}</div>
+                <div key={c.title} className="border-t-2 border-primary/80 pt-2">
+                  <div className="text-[10.5px] font-semibold text-primary leading-tight">{c.title}</div>
+                  <div className="mt-1 text-[9px] leading-snug text-muted-foreground">{c.desc}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Why Fractioneer — compact inline list */}
-          <div className="mt-6">
+          <div className="mt-4">
             <div className={eyebrow}>Why Fractioneer</div>
-            <ul className="space-y-1.5">
+            <ul className="space-y-1">
               {whyUs.map((w) => (
-                <li key={w.title} className="text-[10px] leading-snug">
+                <li key={w.title} className="text-[9.5px] leading-snug">
                   <span className="font-semibold text-foreground">{w.title}.</span>{" "}
                   <span className="text-muted-foreground">{w.desc}</span>
                 </li>
@@ -194,13 +194,13 @@ function OnePager() {
           </div>
 
           {/* Logos + testimonial — proof band */}
-          <div className="mt-6 rounded-md bg-muted/50 px-4 py-4">
-            <div className="text-[7.5px] font-medium uppercase tracking-[0.2em] text-muted-foreground/70 mb-2.5 text-center">
+          <div className="mt-4 rounded-md bg-muted/50 px-4 py-3">
+            <div className="text-[7.5px] font-medium uppercase tracking-[0.2em] text-muted-foreground/70 mb-2 text-center">
               Trusted by operators, sponsors, and founders
             </div>
             <div className="grid grid-cols-7 gap-4 items-center">
               {logos.map((l) => (
-                <div key={l.name} className="flex items-center justify-center h-11">
+                <div key={l.name} className="flex items-center justify-center h-9">
                   <img
                     src={l.src}
                     alt={l.name}
@@ -218,21 +218,21 @@ function OnePager() {
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-3 border-t border-border/60 text-center">
-              <p className="text-[10.5px] italic leading-snug text-foreground/85 max-w-[6in] mx-auto">
+            <div className="mt-3 pt-2.5 border-t border-border/60 text-center">
+              <p className="text-[10px] italic leading-snug text-foreground/85 max-w-[6in] mx-auto">
                 &ldquo;Fractioneer has run financial operations for my companies for over 6 years. I would trust them with anything.&rdquo;
               </p>
-              <div className="mt-1.5 text-[9px] text-muted-foreground">
+              <div className="mt-1 text-[8.5px] text-muted-foreground">
                 Michael C. Abdy, Founder / General Partner, Abaco
               </div>
             </div>
           </div>
 
           {/* CTA — soft sign-off */}
-          <div className="mt-6 flex items-center justify-end border-t border-border pt-4">
-            <div className="text-right text-[10.5px] font-medium whitespace-nowrap">
+          <div className="mt-4 flex items-center justify-end border-t border-border pt-3">
+            <div className="text-right text-[10px] font-medium whitespace-nowrap">
               <div className="text-primary">info@fractioneer.co</div>
-              <div className="text-muted-foreground text-[9.5px] mt-0.5">fractioneer.co</div>
+              <div className="text-muted-foreground text-[9px] mt-0.5">fractioneer.co</div>
             </div>
           </div>
         </div>
