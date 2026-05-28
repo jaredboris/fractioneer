@@ -190,23 +190,23 @@ function IndustriesPage() {
           <div className="mt-3">
             <SectionHeader
               label="Blast outreach"
-              sub="Largest list, scaled automated email pipeline, lowest per-contact effort."
+              sub="Largest list, automated email pipeline, lowest per-contact effort."
             />
             <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-accent bg-accent/[0.08] p-3">
               <CardEyebrow>Volume play</CardEyebrow>
               <div className="flex items-baseline justify-between gap-3">
                 <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-                  Independent insurance agencies
+                  Multi-site childcare and early childhood education
                 </div>
                 <div className="text-[9px] italic text-muted-foreground">
-                  Principal-led agencies, succession-driven sales
+                  Independent multi-location operators outside the major chains
                 </div>
               </div>
               <ul className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1">
                 {card3Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
               </ul>
               <div className="mt-2 pt-1.5 border-t border-primary/15 text-[9.5px] font-semibold text-primary leading-snug">
-                Big list, urgent consolidation, less competition for finance services.
+                Best-in-class cold email response rates, massive list, active PE consolidation. Cleanest blast fit we've found.
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@ function IndustriesPage() {
           {/* Footer */}
           <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-3">
             <div className="text-[12px] font-semibold text-white leading-snug">
-              Lead with specialty trades. Build behavioral health second. Run insurance as the blast pipeline.
+              Lead with specialty trades. Build behavioral health second. Run multi-site childcare as the blast pipeline.
             </div>
             <div className="mt-1 text-[9.5px] italic text-white/70">
               Built for pushback. Happy to walk through any of it.
