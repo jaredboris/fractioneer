@@ -91,7 +91,7 @@ function OnePager() {
           margin: 0.5in auto;
           background: white;
           box-shadow: 0 10px 40px rgba(10, 31, 68, 0.15);
-          padding: 0.4in 0.55in;
+          padding: 0.35in 0.55in 0.3in;
           color: var(--color-foreground);
           overflow: hidden;
         }
