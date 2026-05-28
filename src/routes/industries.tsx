@@ -164,8 +164,8 @@ function IndustriesPage() {
           {/* Section 2 */}
           <div className="mt-3">
             <SectionHeader
-              label="New territory"
-              sub="No existing client base, higher learning curve, but cleanly matches our service model."
+              label="Underweighted segment"
+              sub="One existing client, room to systematically expand into a clean fit."
             />
             <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-3 shadow-[0_1px_0_rgba(10,31,68,0.04)]">
               <CardEyebrow>Expansion opportunity</CardEyebrow>
