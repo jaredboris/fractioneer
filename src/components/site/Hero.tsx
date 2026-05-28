@@ -35,7 +35,7 @@ export function Hero() {
                 href="#services"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground hover:border-accent hover:text-accent transition-colors"
               >
-                See how we support franchise finance
+                See how we support small business finance
                 <ArrowRight className="h-4 w-4" />
               </a>
             </div>
