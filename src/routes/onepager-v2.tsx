@@ -116,11 +116,11 @@ function OnePager() {
           </div>
 
           {/* Hero — dominant focal point */}
-          <div className="mt-7">
-            <h1 className="text-[30px] leading-[1.05] font-semibold text-primary tracking-tight max-w-[7in]">
+          <div className="mt-5">
+            <h1 className="text-[28px] leading-[1.05] font-semibold text-primary tracking-tight max-w-[7in]">
               Finance support for complex operator-owned businesses.
             </h1>
-            <p className="mt-3.5 text-[12px] leading-relaxed text-muted-foreground max-w-[6.6in]">
+            <p className="mt-3 text-[11.5px] leading-relaxed text-muted-foreground max-w-[6.6in]">
               Fractioneer helps leadership teams clean up financial operations, support M&amp;A transactions and recapitalizations, and build reliable finance functions across all aspects of the business.
             </p>
           </div>
