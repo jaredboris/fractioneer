@@ -150,13 +150,13 @@ function OnePager() {
           {/* Featured capability — most visually dominant block */}
           <div className="mt-6 rounded-md border-l-[3px] border-accent bg-primary text-primary-foreground p-4">
             <div className="flex items-baseline justify-between gap-3">
-              <div className="text-[14px] font-semibold leading-tight tracking-tight">Transaction &amp; buyout support</div>
+              <div className="text-[14px] font-semibold leading-tight tracking-tight">Transaction &amp; M&amp;A support</div>
               <div className="text-[7.5px] font-semibold uppercase tracking-[0.2em] text-accent">Featured capability</div>
             </div>
             <p className="mt-2 text-[10.5px] leading-snug text-primary-foreground/85 max-w-[6.5in]">
-              Support for partner buyouts, ownership transitions, financial diligence, books cleanup, and finance department buildouts.
+              Support for M&amp;A transactions, recapitalizations, ownership transitions, financial diligence, books cleanup, and finance department buildouts.
             </p>
-            <ul className="mt-3 grid grid-cols-3 gap-x-4 text-[9.5px] leading-snug text-primary-foreground/90">
+            <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-[9.5px] leading-snug text-primary-foreground/90">
               {featuredBullets.map((b) => (
                 <li key={b} className="flex gap-1.5">
                   <span className="text-accent">•</span>
