@@ -3,7 +3,7 @@ import { Printer } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import abaco from "@/assets/logos/abaco.png";
 import mpk from "@/assets/logos/mpk-equity.png";
-import pretium from "@/assets/logos/pretium.webp";
+import stonework from "@/assets/logos/stonework.png";
 import riverside from "@/assets/logos/riverside.gif";
 import sequelBrands from "@/assets/logos/sequel-brands.webp";
 import homefront from "@/assets/logos/homefront-brands.png";
