@@ -126,11 +126,11 @@ function OnePager() {
           </div>
 
           {/* Metrics — bold, oversized */}
-          <div className="mt-7 grid grid-cols-4 gap-6 border-y border-border py-5">
+          <div className="mt-5 grid grid-cols-4 gap-6 border-y border-border py-4">
             {metrics.map((m) => (
               <div key={m.label}>
-                <div className="text-[30px] font-semibold text-accent tracking-tight leading-none">{m.stat}</div>
-                <div className="mt-2 text-[9px] leading-snug text-muted-foreground uppercase tracking-wide">{m.label}</div>
+                <div className="text-[28px] font-semibold text-accent tracking-tight leading-none">{m.stat}</div>
+                <div className="mt-1.5 text-[8.5px] leading-snug text-muted-foreground uppercase tracking-wide">{m.label}</div>
               </div>
             ))}
           </div>
