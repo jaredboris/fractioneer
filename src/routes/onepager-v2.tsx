@@ -21,29 +21,29 @@ export const Route = createFileRoute("/onepager-v2")({
 
 const triggers = [
   "The books are not trusted enough for ownership decisions.",
-  "A partner buyout, transaction, or diligence process is underway.",
-  "Finance operations need cleanup, controls, and clear reporting.",
-  "Leadership needs a finance function that can run without rebuilding everything in-house.",
+  "A partner buyout or transaction is underway.",
+  "The finance function needs structure leadership can rely on.",
+  "Reporting is late, inconsistent, or hard to act on.",
 ];
 
 const featuredBullets = [
-  "Financial cleanup and reporting support",
   "Diligence-ready books and documentation",
-  "Senior finance support alongside ownership and counsel",
+  "Quality-of-earnings and lender support",
+  "Senior finance alongside ownership and counsel",
 ];
 
 const capabilities = [
   {
-    title: "Finance cleanup & controls",
-    desc: "Monthly close, reconciliations, reporting structure, controls, and audit-ready documentation.",
+    title: "Monthly close & controls",
+    desc: "Close, reconciliations, controls, and audit-ready documentation across entities.",
   },
   {
-    title: "CFO & transaction support",
-    desc: "Forecasting, capital planning, board-ready reporting, lender requests, diligence, and ownership transition support.",
+    title: "CFO & reporting",
+    desc: "Forecasting, capital planning, board and lender reporting, cash visibility.",
   },
   {
-    title: "Back-office finance operations",
-    desc: "Bookkeeping, AP/AR, payroll coordination, vendor payments, invoicing, and cash flow visibility.",
+    title: "Back-office operations",
+    desc: "Bookkeeping, AP/AR, payroll coordination, vendor and invoicing workflows.",
   },
 ];
 
@@ -133,8 +133,8 @@ function OnePager() {
             ))}
           </div>
 
-          {/* When leadership calls Fractioneer — light gray callout */}
-          <div className="mt-6 rounded-md bg-muted/60 px-4 py-3.5">
+          {/* When leadership calls Fractioneer — flat bordered band */}
+          <div className="mt-6 border-y border-border py-3.5">
             <div className={eyebrow}>When leadership calls Fractioneer</div>
             <ul className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[10.5px] leading-snug text-foreground/85">
               {triggers.map((t) => (
@@ -178,17 +178,17 @@ function OnePager() {
             </div>
           </div>
 
-          {/* Why Fractioneer */}
+          {/* Why Fractioneer — compact inline list */}
           <div className="mt-6">
             <div className={eyebrow}>Why Fractioneer</div>
-            <div className="grid grid-cols-4 gap-4">
+            <ul className="space-y-1.5">
               {whyUs.map((w) => (
-                <div key={w.title}>
-                  <div className="text-[10.5px] font-semibold text-foreground leading-tight">{w.title}</div>
-                  <div className="mt-1 text-[9px] leading-snug text-muted-foreground">{w.desc}</div>
-                </div>
+                <li key={w.title} className="text-[10px] leading-snug">
+                  <span className="font-semibold text-foreground">{w.title}.</span>{" "}
+                  <span className="text-muted-foreground">{w.desc}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* Logos + testimonial — proof band */}
@@ -224,12 +224,12 @@ function OnePager() {
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="mt-6 flex items-center justify-between gap-4 border-t-2 border-accent pt-4">
+          {/* CTA — soft sign-off */}
+          <div className="mt-6 flex items-end justify-between gap-4 border-t border-border pt-4">
             <div>
-              <div className="text-[14px] font-semibold leading-tight text-primary tracking-tight">Worth a 30-minute call with Mark.</div>
+              <div className="text-[12px] font-semibold leading-tight text-primary tracking-tight">Mark can walk through where Fractioneer may be able to help.</div>
               <div className="text-[10px] text-muted-foreground leading-snug mt-1 max-w-[5in]">
-                A direct conversation about your finance setup, ownership transition, and where Fractioneer can help. No prep required.
+                A direct conversation about your finance setup. No prep required.
               </div>
             </div>
             <div className="text-right text-[10.5px] font-medium whitespace-nowrap">
