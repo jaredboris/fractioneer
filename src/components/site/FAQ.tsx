@@ -38,7 +38,7 @@ const faqs = [
   },
   {
     q: "Do you only work with franchise companies?",
-    a: "No. While Fractioneer is franchise focused, we also work closely with family offices and high net worth individuals who hold multi-entity operating businesses. The systems we build—clean reporting across entities, locations, payroll, royalties, and audits—are just as critical for privately held platforms and complex ownership structures.",
+    a: "No. While Fractioneer is franchise focused, we also work closely with family offices and high net worth individuals who hold multi-entity operating businesses.",
   },
 ];
 
