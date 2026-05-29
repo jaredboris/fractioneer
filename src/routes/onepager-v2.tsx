@@ -212,7 +212,7 @@ function OnePager() {
                 <div key={l.name} className="flex items-center justify-center h-9">
                   <img
                     src={l.src}
-                    alt={l.name}
+                    alt={`${l.name} client logo`}
                     className="w-auto max-w-full object-contain"
                     style={{
                       maxHeight: `${l.h}px`,
