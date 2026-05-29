@@ -72,11 +72,13 @@ const team: Member[] = [
     name: "Theresa Laietta",
     role: "Senior Payroll Supervisor",
     tags: ["Payroll", "Benefits", "HR compliance"],
+    photo: theresaPhoto,
   },
   {
     name: "Angie Serrano",
     role: "Senior Staff Accountant",
     tags: ["AP / AR", "Audit support", "Bookkeeping"],
+    photo: angiePhoto,
   },
   {
     name: "Katie Ramirez",
@@ -87,11 +89,13 @@ const team: Member[] = [
     name: "Ivy Hije",
     role: "Senior Staff Accountant",
     tags: ["AP / AR", "Invoicing", "Bookkeeping"],
+    photo: ivyPhoto,
   },
   {
     name: "Law Pidlaoan",
     role: "Senior Staff Accountant",
     tags: ["Bookkeeping", "Reporting", "Reconciliations"],
+    photo: lawPhoto,
   },
 ];
 
