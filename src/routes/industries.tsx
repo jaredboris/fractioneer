@@ -5,8 +5,15 @@ import logo from "@/assets/fractioneer-logo.jpg";
 export const Route = createFileRoute("/industries")({
   head: () => ({
     meta: [
-      { title: "Fractioneer | Industry analysis" },
+      { title: "Fractioneer | Target industry analysis" },
+      { name: "description", content: "Internal ranking of target industries for Fractioneer expansion: specialty trades, behavioral health, PI law firms, property management, and youth sports." },
+      { property: "og:title", content: "Fractioneer | Target industry analysis" },
+      { property: "og:description", content: "Ranked industry targets for Fractioneer expansion beyond franchising." },
+      { property: "og:url", content: "https://fractioneer.co/industries" },
       { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://fractioneer.co/industries" },
     ],
   }),
   component: IndustriesPage,
@@ -138,9 +145,9 @@ function PriorityCard({ card }: { card: Card }) {
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
           {card.eyebrow}
         </div>
-        <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
+        <h2 className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
           {card.title}
-        </div>
+        </h2>
         <div className="text-[9px] italic text-muted-foreground mt-0.5">{card.subtitle}</div>
         <ul className={muted ? "mt-1.5 space-y-[3px]" : "mt-1.5 space-y-[3px]"}>
           {card.bullets.map((b) => (

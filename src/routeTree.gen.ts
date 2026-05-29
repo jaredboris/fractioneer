@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as OnepagerV2RouteImport } from './routes/onepager-v2'
 import { Route as OnepagerRouteImport } from './routes/onepager'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnepagerV2Route = OnepagerV2RouteImport.update({
   id: '/onepager-v2',
   path: '/onepager-v2',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,12 +70,25 @@ export interface FileRoutesById {
   '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
+  '/sitemap.xml': typeof SitemapDotxmlRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/compare' | '/industries' | '/onepager' | '/onepager-v2'
+  fullPaths:
+    | '/'
+    | '/compare'
+    | '/industries'
+    | '/onepager'
+    | '/onepager-v2'
+    | '/sitemap.xml'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/compare' | '/industries' | '/onepager' | '/onepager-v2'
+  to:
+    | '/'
+    | '/compare'
+    | '/industries'
+    | '/onepager'
+    | '/onepager-v2'
+    | '/sitemap.xml'
   id:
     | '__root__'
     | '/'
@@ -75,6 +96,7 @@ export interface FileRouteTypes {
     | '/industries'
     | '/onepager'
     | '/onepager-v2'
+    | '/sitemap.xml'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -83,10 +105,18 @@ export interface RootRouteChildren {
   IndustriesRoute: typeof IndustriesRoute
   OnepagerRoute: typeof OnepagerRoute
   OnepagerV2Route: typeof OnepagerV2Route
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onepager-v2': {
       id: '/onepager-v2'
       path: '/onepager-v2'
@@ -131,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndustriesRoute: IndustriesRoute,
   OnepagerRoute: OnepagerRoute,
   OnepagerV2Route: OnepagerV2Route,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

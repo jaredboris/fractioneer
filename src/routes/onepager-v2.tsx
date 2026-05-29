@@ -12,8 +12,15 @@ import crashOverride from "@/assets/logos/crash-override.svg";
 export const Route = createFileRoute("/onepager-v2")({
   head: () => ({
     meta: [
-      { title: "Fractioneer | One-pager" },
+      { title: "Fractioneer | Transaction support one-pager" },
+      { name: "description", content: "Printable overview of Fractioneer's M&A, recapitalization, and finance cleanup support for operator-owned businesses." },
+      { property: "og:title", content: "Fractioneer | Transaction support one-pager" },
+      { property: "og:description", content: "Printable overview of Fractioneer's M&A and transaction support services." },
+      { property: "og:url", content: "https://fractioneer.co/onepager-v2" },
       { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://fractioneer.co/onepager-v2" },
     ],
   }),
   component: OnePager,
@@ -139,7 +146,7 @@ function OnePager() {
 
           {/* When leadership calls Fractioneer — flat bordered band */}
           <div className="mt-6 border-y border-border py-3">
-            <div className={eyebrow}>When leadership calls Fractioneer</div>
+            <h2 className={eyebrow}>When leadership calls Fractioneer</h2>
             <ul className="grid grid-cols-2 gap-x-6 gap-y-1 text-[10px] leading-snug text-foreground/85">
               {triggers.map((t) => (
                 <li key={t} className="flex gap-2">
@@ -171,7 +178,7 @@ function OnePager() {
 
           {/* What Fractioneer can manage day to day — 3 condensed cards */}
           <div className="mt-6">
-            <div className={eyebrow}>What Fractioneer can manage day to day</div>
+            <h2 className={eyebrow}>What Fractioneer can manage day to day</h2>
             <div className="grid grid-cols-3 gap-3">
               {capabilities.map((c) => (
                 <div key={c.title} className="border-t-2 border-primary/80 pt-2">
@@ -184,7 +191,7 @@ function OnePager() {
 
           {/* Why Fractioneer — compact inline list */}
           <div className="mt-6">
-            <div className={eyebrow}>Why Fractioneer</div>
+            <h2 className={eyebrow}>Why Fractioneer</h2>
             <ul className="space-y-1">
               {whyUs.map((w) => (
                 <li key={w.title} className="text-[9.5px] leading-snug">
@@ -205,7 +212,7 @@ function OnePager() {
                 <div key={l.name} className="flex items-center justify-center h-9">
                   <img
                     src={l.src}
-                    alt={l.name}
+                    alt={`${l.name} client logo`}
                     className="w-auto max-w-full object-contain"
                     style={{
                       maxHeight: `${l.h}px`,

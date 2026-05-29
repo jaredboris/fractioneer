@@ -12,8 +12,15 @@ import crashOverride from "@/assets/logos/crash-override.svg";
 export const Route = createFileRoute("/onepager")({
   head: () => ({
     meta: [
-      { title: "Fractioneer | One-pager" },
+      { title: "Fractioneer | Capability one-pager" },
+      { name: "description", content: "Printable capability overview: fractional CFO, controller, bookkeeping, payroll, AP/AR, and audit support for franchise and multi-unit operators." },
+      { property: "og:title", content: "Fractioneer | Capability one-pager" },
+      { property: "og:description", content: "Printable capability overview of Fractioneer's finance operations services." },
+      { property: "og:url", content: "https://fractioneer.co/onepager" },
       { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://fractioneer.co/onepager" },
     ],
   }),
   component: OnePager,
@@ -110,7 +117,7 @@ function OnePager() {
 
           {/* Who we serve */}
           <div className="mt-5">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Who we serve</div>
+            <h2 className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Who we serve</h2>
             <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10.5px] text-foreground/85">
               <li>• Franchisors and franchise platforms</li>
               <li>• Multi-unit operators and growth-stage businesses</li>
@@ -121,7 +128,7 @@ function OnePager() {
 
           {/* What we run */}
           <div className="mt-5">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">What we run</div>
+            <h2 className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">What we run</h2>
             <div className="grid grid-cols-3 gap-2">
               {services.map((s) => (
                 <div key={s.title} className="rounded-md border border-border bg-card p-2.5">
@@ -134,7 +141,7 @@ function OnePager() {
 
           {/* How we engage */}
           <div className="mt-5">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">How we engage</div>
+            <h2 className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">How we engage</h2>
             <div className="grid grid-cols-3 gap-2">
               {engagements.map((e) => (
                 <div key={e.title} className="rounded-md border border-border bg-card p-2.5">
@@ -147,7 +154,7 @@ function OnePager() {
 
           {/* Why Fractioneer */}
           <div className="mt-5">
-            <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Why Fractioneer</div>
+            <h2 className="text-[9px] font-semibold uppercase tracking-[0.18em] text-accent mb-2">Why Fractioneer</h2>
             <div className="grid grid-cols-2 gap-x-5 gap-y-2.5">
               {whyUs.map((w) => (
                 <div key={w.title} className="text-[10px] leading-snug">
@@ -175,7 +182,7 @@ function OnePager() {
                 <div key={l.name} className="flex items-center justify-center h-6">
                   <img
                     src={l.src}
-                    alt={l.name}
+                    alt={`${l.name} client logo`}
                     className="h-5 w-auto max-w-full"
                     style={{
                       filter: l.invert

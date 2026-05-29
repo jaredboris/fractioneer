@@ -94,7 +94,7 @@ function LogoCell({ logo, dark = false }: { logo: Logo; dark?: boolean }) {
   const content = logo.src ? (
     <img
       src={logo.src}
-      alt={logo.name}
+      alt={`${logo.name} logo`}
       style={logo.invert ? { filter: "invert(1) brightness(0.5)" } : undefined}
       className="max-h-9 max-w-[120px] w-auto object-contain opacity-80 group-hover:opacity-100 transition-opacity"
       loading="lazy"
@@ -152,7 +152,7 @@ function PlatformCard({ platform }: { platform: Platform }) {
         >
           <img
             src={platform.parentSrc}
-            alt={platform.name}
+            alt={`${platform.name} logo`}
             style={platform.parentInvert ? { filter: "invert(1) brightness(2)" } : undefined}
             className="h-8 md:h-9 w-auto object-contain"
             loading="lazy"
