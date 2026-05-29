@@ -237,6 +237,16 @@ function IndustriesPage() {
             ))}
           </div>
 
+          <div className="mt-2 flex justify-end">
+            <a
+              href="/compare"
+              className="text-[9px] font-medium text-accent hover:text-primary tracking-wide underline-offset-2 hover:underline"
+            >
+              View full comparison matrix →
+            </a>
+          </div>
+
+
           {/* Closing onepager-sheet and onepager-page */}
         </div>
       </div>
