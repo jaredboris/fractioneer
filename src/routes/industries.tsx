@@ -119,7 +119,7 @@ function PriorityCard({ card }: { card: Card }) {
           : "rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-2.5 shadow-[0_1px_0_rgba(10,31,68,0.04)] flex gap-3"
       }
     >
-      <div className="flex-none w-[44px] pt-0.5">
+      <div className="flex-none w-[88px] pt-0.5 pr-2 border-r border-border/50">
         <div
           className={
             muted
@@ -129,7 +129,7 @@ function PriorityCard({ card }: { card: Card }) {
         >
           {card.rank}
         </div>
-        <div className="mt-1 inline-block rounded-sm bg-primary/10 px-1.5 py-[2px] text-[6.5px] font-semibold uppercase tracking-[0.18em] text-primary whitespace-nowrap">
+        <div className="mt-1.5 inline-block rounded-sm bg-primary/10 px-1.5 py-[2px] text-[6.5px] font-semibold uppercase tracking-[0.18em] text-primary whitespace-nowrap">
           {card.tier}
         </div>
       </div>
@@ -138,12 +138,10 @@ function PriorityCard({ card }: { card: Card }) {
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
           {card.eyebrow}
         </div>
-        <div className="flex items-baseline justify-between gap-3 flex-wrap">
-          <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-            {card.title}
-          </div>
-          <div className="text-[9px] italic text-muted-foreground">{card.subtitle}</div>
+        <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
+          {card.title}
         </div>
+        <div className="text-[9px] italic text-muted-foreground mt-0.5">{card.subtitle}</div>
         <ul className={muted ? "mt-1.5 space-y-[3px]" : "mt-1.5 space-y-[3px]"}>
           {card.bullets.map((b) => (
             <li
