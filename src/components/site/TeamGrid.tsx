@@ -2,7 +2,11 @@ import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
 import jonPaulPhoto from "@/assets/team/jon-paul-mcgahan.jpeg";
 import markPhoto from "@/assets/team/mark-carman.jpeg";
-import keriPhoto from "@/assets/team/keri-chang.jpeg";
+import keriPhoto from "@/assets/team/keri-chang.jpg";
+import angiePhoto from "@/assets/team/angie-serrano.jpg";
+import ivyPhoto from "@/assets/team/ivy-hije.jpg";
+import lawPhoto from "@/assets/team/law-pidlaoan.jpg";
+import theresaPhoto from "@/assets/team/theresa-laietta.jpg";
 
 type Leader = {
   name: string;
@@ -68,11 +72,13 @@ const team: Member[] = [
     name: "Theresa Laietta",
     role: "Senior Payroll Supervisor",
     tags: ["Payroll", "Benefits", "HR compliance"],
+    photo: theresaPhoto,
   },
   {
     name: "Angie Serrano",
     role: "Senior Staff Accountant",
     tags: ["AP / AR", "Audit support", "Bookkeeping"],
+    photo: angiePhoto,
   },
   {
     name: "Katie Ramirez",
@@ -83,11 +89,13 @@ const team: Member[] = [
     name: "Ivy Hije",
     role: "Senior Staff Accountant",
     tags: ["AP / AR", "Invoicing", "Bookkeeping"],
+    photo: ivyPhoto,
   },
   {
     name: "Law Pidlaoan",
     role: "Senior Staff Accountant",
     tags: ["Bookkeeping", "Reporting", "Reconciliations"],
+    photo: lawPhoto,
   },
 ];
 
