@@ -38,7 +38,7 @@ const faqs = [
   },
   {
     q: "Do you only work with franchise companies?",
-    a: "No. Fractioneer is franchise focused, with deep experience supporting PE-backed operators and founder-owned businesses. The franchise focus exists because those systems need clean reporting across entities, locations, payroll, royalties, and audits.",
+    a: "No. While Fractioneer is franchise focused, we also work closely with family offices and high net worth individuals who hold multi-entity operating businesses. The systems we build—clean reporting across entities, locations, payroll, royalties, and audits—are just as critical for privately held platforms and complex ownership structures.",
   },
 ];
 
