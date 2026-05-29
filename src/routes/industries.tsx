@@ -237,15 +237,7 @@ function IndustriesPage() {
             ))}
           </div>
 
-          {/* Footer */}
-          <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-2.5">
-            <div className="text-[11px] font-semibold text-white leading-snug">
-              Lead with specialty trades and fire safety. Expand into behavioral health and PI law. Keep property management and youth sports on the research bench.
-            </div>
-            <div className="mt-1 text-[9px] italic text-white/70">
-              Built for pushback. Happy to walk through any of it.
-            </div>
-          </div>
+          {/* Closing onepager-sheet and onepager-page */}
         </div>
       </div>
     </>
