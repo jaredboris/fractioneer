@@ -129,7 +129,7 @@ function PriorityCard({ card }: { card: Card }) {
         >
           {card.rank}
         </div>
-        <div className="mt-1.5 inline-block rounded-sm bg-primary/10 px-1.5 py-[2px] text-[6.5px] font-semibold uppercase tracking-[0.18em] text-primary whitespace-nowrap">
+        <div className="mt-1.5 inline-block rounded-sm bg-primary/10 px-1.5 py-[2px] text-[6.5px] font-semibold uppercase tracking-[0.18em] text-primary leading-[1.4] max-w-full break-words">
           {card.tier}
         </div>
       </div>
