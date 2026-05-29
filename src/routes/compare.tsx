@@ -395,6 +395,8 @@ function IndustryTable() {
                       criteriaLabel={c.label}
                       isActive={activeCell === cellId}
                       onClick={() => handleCell(i, c.key)}
+                      placement={i === 0 ? "bottom" : "top"}
+
                     />
                   );
                 })}
