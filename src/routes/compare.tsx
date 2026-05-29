@@ -131,12 +131,15 @@ function ScoreCell({
   criteriaLabel,
   isActive,
   onClick,
+  placement = "top",
 }: {
   score: Score;
   criteriaLabel: string;
   isActive: boolean;
   onClick: () => void;
+  placement?: "top" | "bottom";
 }) {
+
   return (
     <td
       onClick={onClick}
@@ -179,7 +182,8 @@ function ScoreCell({
         <div
           style={{
             position: "absolute",
-            bottom: "calc(100% + 8px)",
+            [placement === "top" ? "bottom" : "top"]: "calc(100% + 8px)",
+
             left: "50%",
             transform: "translateX(-50%)",
             background: "#0f172a",
@@ -391,6 +395,8 @@ function IndustryTable() {
                       criteriaLabel={c.label}
                       isActive={activeCell === cellId}
                       onClick={() => handleCell(i, c.key)}
+                      placement={i === 0 ? "bottom" : "top"}
+
                     />
                   );
                 })}
