@@ -16,7 +16,7 @@ export function Hero() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              <span className="text-foreground/80">Finance operations for franchise growth</span>
+              <span className="text-foreground/80">Finance operations for small business growth</span>
             </div>
 
             <h1 className="mt-6 text-4xl md:text-5xl lg:text-[3.5rem] font-semibold leading-[1.05] text-foreground">
