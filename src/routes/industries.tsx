@@ -31,7 +31,8 @@ const cards: Card[] = [
     title: "Specialty trades, led by fire & life safety",
     subtitle: "Fire/life safety, roofing, fencing, exterior services, fleet, containment",
     bullets: [
-      "Fire & life safety: Pye-Barker completed 57 acquisitions in 2025, 70% of fire/security M&A is PE-driven (Grant Thornton, 2026)",
+      "Pye-Barker completed 57 fire & life safety acquisitions in 2025 alone (company filing, 2026)",
+      "US security & life safety M&A hit 242 deals in 2025, up 24.1% YoY, with PE add-ons driving 45.9% (Capstone Partners, 2026)",
       "Code-mandated annual inspections create recurring, repeatable revenue, the same playbook logic as franchising",
       "Already serve Roof Scientist, Top Rail Fence, Window Hero, Temporary Wall Systems, Stonework, Patriot Fleet, Meridian Fleet",
       "Aakeem's Riverside fire safety roll-up (~25 companies in 18 months) is a warm credibility path",
@@ -46,8 +47,8 @@ const cards: Card[] = [
     title: "Behavioral health and specialty healthcare",
     subtitle: "ABA, mental health, addiction treatment, pediatric therapy",
     bullets: [
-      "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
-      "Brown University (Jan 2026): 500+ PE-acquired centers, 80% of 2018–2022 cohort approaching exit",
+      "PE has aggressively rolled up autism and ABA therapy centers over the past decade, with hundreds of sites acquired across dozens of states (JAMA Pediatrics, 2026)",
+      "Brown University (Jan 2026): a large cohort of PE-acquired centers from 2018-2022 is now approaching exit",
       "Phoenix Recovery already on the roster as our first behavioral health client",
       "Recurring patient revenue and multi-site structures are repeatable once the playbook is built",
     ],
@@ -75,7 +76,7 @@ const cards: Card[] = [
     title: "Property management",
     subtitle: "Founder-led operators managing 500–3,000 units",
     bullets: [
-      "20,000+ targetable operators, severe fragmentation, active PE roll-ups (Proper scaled to ~20,000 units in two years)",
+      "Tens of thousands of independent operators, severe fragmentation, active PE roll-ups by national consolidators",
       "Founders approaching retirement, recurring management-fee revenue",
       "Caveat: exit-urgency trigger fires less often than trades or healthcare; founders tend to hold",
     ],
