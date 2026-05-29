@@ -31,7 +31,8 @@ const cards: Card[] = [
     title: "Specialty trades, led by fire & life safety",
     subtitle: "Fire/life safety, roofing, fencing, exterior services, fleet, containment",
     bullets: [
-      "Fire & life safety: Pye-Barker completed 57 acquisitions in 2025, 70% of fire/security M&A is PE-driven (Grant Thornton, 2026)",
+      "Pye-Barker completed 57 fire & life safety acquisitions in 2025 alone (company filing, 2026)",
+      "US security & life safety M&A hit 242 deals in 2025, up 24.1% YoY, with PE add-ons driving 45.9% (Capstone Partners, 2026)",
       "Code-mandated annual inspections create recurring, repeatable revenue, the same playbook logic as franchising",
       "Already serve Roof Scientist, Top Rail Fence, Window Hero, Temporary Wall Systems, Stonework, Patriot Fleet, Meridian Fleet",
       "Aakeem's Riverside fire safety roll-up (~25 companies in 18 months) is a warm credibility path",
@@ -46,8 +47,8 @@ const cards: Card[] = [
     title: "Behavioral health and specialty healthcare",
     subtitle: "ABA, mental health, addiction treatment, pediatric therapy",
     bullets: [
-      "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
-      "Brown University (Jan 2026): 500+ PE-acquired centers, 80% of 2018–2022 cohort approaching exit",
+      "PE has aggressively rolled up autism and ABA therapy centers over the past decade, with hundreds of sites acquired across dozens of states (JAMA Pediatrics, 2026)",
+      "Brown University (Jan 2026): a large cohort of PE-acquired centers from 2018-2022 is now approaching exit",
       "Phoenix Recovery already on the roster as our first behavioral health client",
       "Recurring patient revenue and multi-site structures are repeatable once the playbook is built",
     ],
@@ -75,7 +76,7 @@ const cards: Card[] = [
     title: "Property management",
     subtitle: "Founder-led operators managing 500–3,000 units",
     bullets: [
-      "20,000+ targetable operators, severe fragmentation, active PE roll-ups (Proper scaled to ~20,000 units in two years)",
+      "Tens of thousands of independent operators, severe fragmentation, active PE roll-ups by national consolidators",
       "Founders approaching retirement, recurring management-fee revenue",
       "Caveat: exit-urgency trigger fires less often than trades or healthcare; founders tend to hold",
     ],
@@ -118,7 +119,7 @@ function PriorityCard({ card }: { card: Card }) {
           : "rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-2.5 shadow-[0_1px_0_rgba(10,31,68,0.04)] flex gap-3"
       }
     >
-      <div className="flex-none w-[44px] pt-0.5">
+      <div className="flex-none w-[88px] pt-0.5 pr-2 border-r border-border/50">
         <div
           className={
             muted
@@ -128,7 +129,7 @@ function PriorityCard({ card }: { card: Card }) {
         >
           {card.rank}
         </div>
-        <div className="mt-1 inline-block rounded-sm bg-primary/10 px-1.5 py-[2px] text-[6.5px] font-semibold uppercase tracking-[0.18em] text-primary whitespace-nowrap">
+        <div className="mt-1.5 inline-block rounded-sm bg-primary/10 px-1.5 py-[2px] text-[6.5px] font-semibold uppercase tracking-[0.18em] text-primary whitespace-nowrap">
           {card.tier}
         </div>
       </div>
@@ -137,12 +138,10 @@ function PriorityCard({ card }: { card: Card }) {
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
           {card.eyebrow}
         </div>
-        <div className="flex items-baseline justify-between gap-3 flex-wrap">
-          <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-            {card.title}
-          </div>
-          <div className="text-[9px] italic text-muted-foreground">{card.subtitle}</div>
+        <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
+          {card.title}
         </div>
+        <div className="text-[9px] italic text-muted-foreground mt-0.5">{card.subtitle}</div>
         <ul className={muted ? "mt-1.5 space-y-[3px]" : "mt-1.5 space-y-[3px]"}>
           {card.bullets.map((b) => (
             <li
