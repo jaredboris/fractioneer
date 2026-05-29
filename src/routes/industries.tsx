@@ -12,64 +12,152 @@ export const Route = createFileRoute("/industries")({
   component: IndustriesPage,
 });
 
+type Card = {
+  rank: string;
+  tier: string;
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  bullets: string[];
+  emphasis: string;
+  muted?: boolean;
+};
+
+const cards: Card[] = [
+  {
+    rank: "01",
+    tier: "LEAD",
+    eyebrow: "Existing expertise",
+    title: "Specialty trades, led by fire & life safety",
+    subtitle: "Fire/life safety, roofing, fencing, exterior services, fleet, containment",
+    bullets: [
+      "Fire & life safety: Pye-Barker completed 57 acquisitions in 2025, 70% of fire/security M&A is PE-driven (Grant Thornton, 2026)",
+      "Code-mandated annual inspections create recurring, repeatable revenue, the same playbook logic as franchising",
+      "Already serve Roof Scientist, Top Rail Fence, Window Hero, Temporary Wall Systems, Stonework, Patriot Fleet, Meridian Fleet",
+      "Aakeem's Riverside fire safety roll-up (~25 companies in 18 months) is a warm credibility path",
+    ],
+    emphasis:
+      "Strongest leverage. We already speak this language, and fire safety is consolidating fast.",
+  },
+  {
+    rank: "02",
+    tier: "EXPAND",
+    eyebrow: "Expansion opportunity",
+    title: "Behavioral health and specialty healthcare",
+    subtitle: "ABA, mental health, addiction treatment, pediatric therapy",
+    bullets: [
+      "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
+      "Brown University (Jan 2026): 500+ PE-acquired centers, 80% of 2018–2022 cohort approaching exit",
+      "Phoenix Recovery already on the roster as our first behavioral health client",
+      "Recurring patient revenue and multi-site structures are repeatable once the playbook is built",
+    ],
+    emphasis:
+      "Founders are clinicians, not finance people. Books are usually a mess when PE comes calling.",
+  },
+  {
+    rank: "03",
+    tier: "STRONG CANDIDATE",
+    eyebrow: "Regulatory tailwind",
+    title: "Law firms, personal injury focus",
+    subtitle: "PI and plaintiff firms in ABS and MSO structures",
+    bullets: [
+      "Arizona has approved 136+ alternative business structures; 59% of new 2024 licensees wholly nonlawyer-owned (Sidley Austin, 2026)",
+      "PI firms carry high upfront case-acquisition costs and succession pressure, classic cleanup-before-sale trigger",
+      "MSO model lets PE invest even in non-ABS states, widening the consolidation runway",
+      "Trust accounting and contingency-fee structures are repeatable once learned",
+    ],
+    emphasis: "A world we already know. Repeatable structure, accelerating PE interest.",
+  },
+  {
+    rank: "04",
+    tier: "RESEARCH NEXT",
+    eyebrow: "Worth a pass",
+    title: "Property management",
+    subtitle: "Founder-led operators managing 500–3,000 units",
+    bullets: [
+      "20,000+ targetable operators, severe fragmentation, active PE roll-ups (Proper scaled to ~20,000 units in two years)",
+      "Founders approaching retirement, recurring management-fee revenue",
+      "Caveat: exit-urgency trigger fires less often than trades or healthcare; founders tend to hold",
+    ],
+    emphasis:
+      "Real fragmentation and PE activity, but the urgency trigger is softer. Worth a dedicated look.",
+    muted: true,
+  },
+  {
+    rank: "05",
+    tier: "RESEARCH NEXT",
+    eyebrow: "Watch item",
+    title: "Youth sports",
+    subtitle: "Leagues, facilities, tournament operators",
+    bullets: [
+      "$40B market, heavy PE activity (Unrivaled Sports, IMG Academy $1.25B in 2025)",
+      "Caveat: the federal Let Kids Play Act (introduced May 2026) would ban PE ownership and label PE funds \u201Cvulture investors\u201D",
+      "Caveat: many small league operators are low-margin hobby businesses, not our ICP",
+    ],
+    emphasis:
+      "Exciting consolidation story, but regulatory headwind and thin operator margins give real pause.",
+    muted: true,
+  },
+];
+
 const criteria = [
   "Fragmented",
   "PE-active",
   "Operators preparing exits",
-  "Multi-entity complexity",
+  "Repeatable structure",
+  "Strong enough margins to support us",
 ];
 
-const card1Bullets = [
-  "562 construction M&A deals in 2025, PE buyers drove 54.3% of activity (Capstone Partners, 2026)",
-  "Subcontractor M&A up 38.6% YoY in 2025 (Transjovan Capital)",
-  "Already serve Roof Scientist, Top Rail Fence, Window Hero, Temporary Wall Systems, The Designery, Stonework, Patriot Fleet, Meridian Fleet",
-];
-
-const card2Bullets = [
-  "574 PE-acquired autism therapy sites across 42 states (JAMA Pediatrics, 2026)",
-  "Brown University (Jan 2026): 500+ PE-acquired autism centers, 80% of 2018–2022 cohort approaching exit",
-  "Phoenix Recovery already on the roster as our first behavioral health client",
-];
-
-const card3Bullets = [
-  "9 of top 11 chains are PE-backed; KinderCare bought 47-site chain across 14 states (Tyton Partners, 2024)",
-  "Education industry cold email response rates of 12–15% (Reachoutly, 2026), highest of any vertical tracked",
-  "270,000+ childcare providers nationwide, 95% independent (ChildcareCenter.us)",
-  "Rich personalization data: licensing, capacity, accreditation, tuition publicly available via Winnie and state databases",
-];
-
-const sectionEyebrow =
-  "text-[9px] font-semibold uppercase tracking-[0.24em] text-primary";
-
-const cardCaption =
-  "text-[7.5px] font-semibold uppercase tracking-[0.22em] text-accent mb-1.5 flex items-center gap-1.5";
-
-function CardEyebrow({ children }: { children: React.ReactNode }) {
+function PriorityCard({ card }: { card: Card }) {
+  const muted = card.muted;
   return (
-    <div className={cardCaption}>
-      <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-      {children}
-    </div>
-  );
-}
-
-function Bullet({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex gap-2 text-[9.5px] leading-snug text-foreground/85">
-      <span className="text-accent font-bold leading-none mt-[2px]">•</span>
-      <span>{children}</span>
-    </li>
-  );
-}
-
-function SectionHeader({ label, sub }: { label: string; sub: string }) {
-  return (
-    <div>
-      <div className="flex items-baseline gap-3">
-        <span className="inline-block h-2 w-2 rounded-full bg-accent" />
-        <div className={sectionEyebrow}>{label}</div>
+    <div
+      className={
+        muted
+          ? "rounded-md border border-border bg-muted/50 border-l-[3px] border-l-muted-foreground/40 p-2.5 flex gap-3"
+          : "rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-2.5 shadow-[0_1px_0_rgba(10,31,68,0.04)] flex gap-3"
+      }
+    >
+      <div className="flex-none w-[44px] pt-0.5">
+        <div
+          className={
+            muted
+              ? "text-[26px] leading-none font-bold text-accent/40 tracking-tight"
+              : "text-[26px] leading-none font-bold text-accent/70 tracking-tight"
+          }
+        >
+          {card.rank}
+        </div>
+        <div className="mt-1 inline-block rounded-sm bg-primary/10 px-1.5 py-[2px] text-[6.5px] font-semibold uppercase tracking-[0.18em] text-primary whitespace-nowrap">
+          {card.tier}
+        </div>
       </div>
-      <p className="mt-1 ml-5 text-[9px] italic text-muted-foreground">{sub}</p>
+      <div className="flex-1 min-w-0">
+        <div className="text-[7.5px] font-semibold uppercase tracking-[0.22em] text-accent mb-1 flex items-center gap-1.5">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+          {card.eyebrow}
+        </div>
+        <div className="flex items-baseline justify-between gap-3 flex-wrap">
+          <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
+            {card.title}
+          </div>
+          <div className="text-[9px] italic text-muted-foreground">{card.subtitle}</div>
+        </div>
+        <ul className={muted ? "mt-1.5 space-y-[3px]" : "mt-1.5 space-y-[3px]"}>
+          {card.bullets.map((b) => (
+            <li
+              key={b}
+              className="flex gap-2 text-[9px] leading-snug text-foreground/85"
+            >
+              <span className="text-accent font-bold leading-none mt-[2px]">•</span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-1.5 pt-1 border-t border-border/60 text-[9px] font-semibold text-primary leading-snug">
+          {card.emphasis}
+        </div>
+      </div>
     </div>
   );
 }
@@ -109,7 +197,7 @@ function IndustriesPage() {
 
         <div className="onepager-sheet flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-border">
+          <div className="flex items-center justify-between pb-2 border-b border-border">
             <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
             <div className="text-[7.5px] font-medium uppercase tracking-[0.2em] text-muted-foreground/60">
               Internal · Industry analysis
@@ -117,106 +205,45 @@ function IndustriesPage() {
           </div>
 
           {/* Hero */}
-          <div className="mt-3">
-            <h1 className="text-[26px] leading-[1.05] font-semibold text-primary tracking-tight">
+          <div className="mt-2.5">
+            <h1 className="text-[24px] leading-[1.05] font-semibold text-primary tracking-tight">
               Industries to target.
             </h1>
-            <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground max-w-[7in]">
-              Three plays across three risk profiles, ranked from where we have the most leverage to where we have the cleanest blast opportunity.
+            <p className="mt-1 text-[10.5px] leading-snug text-muted-foreground max-w-[7in]">
+              Ranked by fit against our model: fragmented, PE-active, operators preparing exits, and a repeatable financial structure we can build a playbook around.
             </p>
           </div>
 
           {/* Criteria strip */}
-          <div className="mt-2.5 rounded-md bg-muted/60 px-4 py-1.5 flex items-center justify-between">
+          <div className="mt-2 rounded-md bg-muted/60 px-4 py-1.5 flex items-center justify-between">
             {criteria.map((c, i) => (
-              <div key={c} className="flex items-center gap-4 flex-1 justify-center first:justify-start last:justify-end">
-                <span className="text-[9px] font-medium text-foreground/80 tracking-wide">{c}</span>
-                {i < criteria.length - 1 && <span className="text-border text-[10px]">|</span>}
+              <div
+                key={c}
+                className="flex items-center gap-3 flex-1 justify-center first:justify-start last:justify-end"
+              >
+                <span className="text-[8.5px] font-medium text-foreground/80 tracking-wide whitespace-nowrap">
+                  {c}
+                </span>
+                {i < criteria.length - 1 && (
+                  <span className="text-border text-[10px]">|</span>
+                )}
               </div>
             ))}
           </div>
 
-          {/* Section 1 */}
-          <div className="mt-3">
-            <SectionHeader
-              label="Expand what we already do"
-              sub="Existing client base, lowest risk, targeted high-touch outreach."
-            />
-            <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-3 shadow-[0_1px_0_rgba(10,31,68,0.04)]">
-              <CardEyebrow>Existing expertise</CardEyebrow>
-              <div className="flex items-baseline justify-between gap-3">
-                <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-                  Specialty trade contractors
-                </div>
-                <div className="text-[9px] italic text-muted-foreground">
-                  Roofing, fencing, exterior services, fleet, containment, kitchen/bath
-                </div>
-              </div>
-              <ul className="mt-2 space-y-1">
-                {card1Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
-              </ul>
-              <div className="mt-2 pt-1.5 border-t border-border/60 text-[9.5px] font-semibold text-primary leading-snug">
-                Strongest leverage. We already speak this language and have credibility in the space.
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2 */}
-          <div className="mt-3">
-            <SectionHeader
-              label="Underweighted segment"
-              sub="One existing client, room to systematically expand into a clean fit."
-            />
-            <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-3 shadow-[0_1px_0_rgba(10,31,68,0.04)]">
-              <CardEyebrow>Expansion opportunity</CardEyebrow>
-              <div className="flex items-baseline justify-between gap-3">
-                <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-                  Behavioral health and specialty healthcare
-                </div>
-                <div className="text-[9px] italic text-muted-foreground">
-                  ABA, mental health, addiction treatment, pediatric therapy
-                </div>
-              </div>
-              <ul className="mt-2 space-y-1">
-                {card2Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
-              </ul>
-              <div className="mt-2 pt-1.5 border-t border-border/60 text-[9.5px] font-semibold text-primary leading-snug">
-                Founders are clinicians, not finance people. Books are usually a mess.
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3 */}
-          <div className="mt-3">
-            <SectionHeader
-              label="Blast outreach"
-              sub="Largest list, automated email pipeline, lowest per-contact effort."
-            />
-            <div className="mt-2 rounded-md border border-primary/15 border-l-[3px] border-l-accent bg-accent/[0.08] p-3">
-              <CardEyebrow>Volume play</CardEyebrow>
-              <div className="flex items-baseline justify-between gap-3">
-                <div className="text-[12.5px] font-semibold text-primary leading-tight tracking-tight">
-                  Multi-site childcare and early childhood education
-                </div>
-                <div className="text-[9px] italic text-muted-foreground">
-                  Independent multi-location operators outside the major chains
-                </div>
-              </div>
-              <ul className="mt-2 grid grid-cols-2 gap-x-5 gap-y-1">
-                {card3Bullets.map((b) => <Bullet key={b}>{b}</Bullet>)}
-              </ul>
-              <div className="mt-2 pt-1.5 border-t border-primary/15 text-[9.5px] font-semibold text-primary leading-snug">
-                Best-in-class cold email response rates, massive list, active PE consolidation. Cleanest blast fit we've found.
-              </div>
-            </div>
+          {/* Ranked cards */}
+          <div className="mt-2.5 space-y-1.5">
+            {cards.map((c) => (
+              <PriorityCard key={c.rank} card={c} />
+            ))}
           </div>
 
           {/* Footer */}
-          <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-3">
-            <div className="text-[12px] font-semibold text-white leading-snug">
-              Lead with specialty trades. Build behavioral health second. Run multi-site childcare as the blast pipeline.
+          <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-2.5">
+            <div className="text-[11px] font-semibold text-white leading-snug">
+              Lead with specialty trades and fire safety. Expand into behavioral health and PI law. Keep property management and youth sports on the research bench.
             </div>
-            <div className="mt-1 text-[9.5px] italic text-white/70">
+            <div className="mt-1 text-[9px] italic text-white/70">
               Built for pushback. Happy to walk through any of it.
             </div>
           </div>
