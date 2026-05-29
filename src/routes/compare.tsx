@@ -131,12 +131,15 @@ function ScoreCell({
   criteriaLabel,
   isActive,
   onClick,
+  placement = "top",
 }: {
   score: Score;
   criteriaLabel: string;
   isActive: boolean;
   onClick: () => void;
+  placement?: "top" | "bottom";
 }) {
+
   return (
     <td
       onClick={onClick}
