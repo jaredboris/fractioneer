@@ -115,8 +115,8 @@ function PriorityCard({ card }: { card: Card }) {
     <div
       className={
         muted
-          ? "rounded-md border border-border bg-muted/50 border-l-[3px] border-l-muted-foreground/40 p-2.5 flex gap-3"
-          : "rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-2.5 shadow-[0_1px_0_rgba(10,31,68,0.04)] flex gap-3"
+          ? "rounded-md border border-border bg-muted/50 border-l-[3px] border-l-muted-foreground/40 p-2 flex gap-3"
+          : "rounded-md border border-primary/15 border-l-[3px] border-l-primary bg-white p-2 shadow-[0_1px_0_rgba(10,31,68,0.04)] flex gap-3"
       }
     >
       <div className="flex-none w-[88px] pt-0.5 pr-2 border-r border-border/50">
@@ -134,7 +134,7 @@ function PriorityCard({ card }: { card: Card }) {
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[7.5px] font-semibold uppercase tracking-[0.22em] text-accent mb-1 flex items-center gap-1.5">
+        <div className="text-[7.5px] font-semibold uppercase tracking-[0.22em] text-accent mb-0.5 flex items-center gap-1.5">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent" />
           {card.eyebrow}
         </div>
@@ -142,18 +142,18 @@ function PriorityCard({ card }: { card: Card }) {
           {card.title}
         </div>
         <div className="text-[9px] italic text-muted-foreground mt-0.5">{card.subtitle}</div>
-        <ul className={muted ? "mt-1.5 space-y-[3px]" : "mt-1.5 space-y-[3px]"}>
+        <ul className={muted ? "mt-1 space-y-[2px]" : "mt-1 space-y-[2px]"}>
           {card.bullets.map((b) => (
             <li
               key={b}
-              className="flex gap-2 text-[9px] leading-snug text-foreground/85"
+              className="flex gap-2 text-[8.5px] leading-snug text-foreground/85"
             >
               <span className="text-accent font-bold leading-none mt-[2px]">•</span>
               <span>{b}</span>
             </li>
           ))}
         </ul>
-        <div className="mt-1.5 pt-1 border-t border-border/60 text-[9px] font-semibold text-primary leading-snug">
+        <div className="mt-1 pt-1 border-t border-border/60 text-[8.5px] font-semibold text-primary leading-snug">
           {card.emphasis}
         </div>
       </div>
