@@ -4,8 +4,15 @@ import { useState } from "react";
 export const Route = createFileRoute("/compare")({
   head: () => ({
     meta: [
-      { title: "Fractioneer | Industry comparison" },
+      { title: "Fractioneer | Industry comparison matrix" },
+      { name: "description", content: "Internal comparison matrix scoring target industries against Fractioneer's playbook criteria: fragmentation, M&A activity, exit triggers, and recurring revenue." },
+      { property: "og:title", content: "Fractioneer | Industry comparison matrix" },
+      { property: "og:description", content: "Internal scoring of target industries against Fractioneer's playbook criteria." },
+      { property: "og:url", content: "https://fractioneer.co/compare" },
       { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://fractioneer.co/compare" },
     ],
   }),
   component: IndustryTable,

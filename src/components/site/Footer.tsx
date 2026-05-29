@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid gap-12 md:grid-cols-4">
           <div className="md:col-span-2">
             <div className="bg-white inline-flex rounded-md p-2">
-              <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
+              <img src={logo} alt="Fractioneer Finance Operations" className="h-7 w-auto" />
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-primary-foreground/70">
               Fractioneer supports franchise systems, PE-backed operators, and founder-owned businesses with CFO, controller, accounting, payroll, AP/AR, cash flow, reporting, and audit support.

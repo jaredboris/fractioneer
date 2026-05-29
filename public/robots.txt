@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /industries
+Disallow: /onepager
+Disallow: /onepager-v2
+Disallow: /compare
+
+Sitemap: https://fractioneer.co/sitemap.xml

@@ -12,8 +12,15 @@ import crashOverride from "@/assets/logos/crash-override.svg";
 export const Route = createFileRoute("/onepager")({
   head: () => ({
     meta: [
-      { title: "Fractioneer | One-pager" },
+      { title: "Fractioneer | Capability one-pager" },
+      { name: "description", content: "Printable capability overview: fractional CFO, controller, bookkeeping, payroll, AP/AR, and audit support for franchise and multi-unit operators." },
+      { property: "og:title", content: "Fractioneer | Capability one-pager" },
+      { property: "og:description", content: "Printable capability overview of Fractioneer's finance operations services." },
+      { property: "og:url", content: "https://fractioneer.co/onepager" },
       { name: "robots", content: "noindex, nofollow" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://fractioneer.co/onepager" },
     ],
   }),
   component: OnePager,
