@@ -2,7 +2,11 @@ import { Section } from "./Section";
 import { SectionHeader } from "./SectionHeader";
 import jonPaulPhoto from "@/assets/team/jon-paul-mcgahan.jpeg";
 import markPhoto from "@/assets/team/mark-carman.jpeg";
-import keriPhoto from "@/assets/team/keri-chang.jpeg";
+import keriPhoto from "@/assets/team/keri-chang.jpg";
+import angiePhoto from "@/assets/team/angie-serrano.jpg";
+import ivyPhoto from "@/assets/team/ivy-hije.jpg";
+import lawPhoto from "@/assets/team/law-pidlaoan.jpg";
+import theresaPhoto from "@/assets/team/theresa-laietta.jpg";
 
 type Leader = {
   name: string;
