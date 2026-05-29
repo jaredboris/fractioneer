@@ -19,7 +19,7 @@ import { HowItWorks } from "@/components/site/HowItWorks";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Fractioneer | Finance operations for franchise growth" },
+      { title: "Fractioneer | Finance operations for small business growth" },
       {
         name: "description",
         content:
