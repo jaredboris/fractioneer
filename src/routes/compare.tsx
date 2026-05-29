@@ -182,7 +182,8 @@ function ScoreCell({
         <div
           style={{
             position: "absolute",
-            bottom: "calc(100% + 8px)",
+            [placement === "top" ? "bottom" : "top"]: "calc(100% + 8px)",
+
             left: "50%",
             transform: "translateX(-50%)",
             background: "#0f172a",
