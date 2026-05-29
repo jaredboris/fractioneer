@@ -237,6 +237,8 @@ function IndustriesPage() {
             ))}
           </div>
 
+          {/* Closing onepager-sheet and onepager-page */}
+        </div>
       </div>
     </>
   );
