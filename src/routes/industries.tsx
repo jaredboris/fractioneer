@@ -204,7 +204,7 @@ function IndustriesPage() {
           </div>
 
           {/* Hero */}
-          <div className="mt-2.5">
+          <div className="mt-2">
             <h1 className="text-[24px] leading-[1.05] font-semibold text-primary tracking-tight">
               Industries to target.
             </h1>
@@ -214,7 +214,7 @@ function IndustriesPage() {
           </div>
 
           {/* Criteria strip */}
-          <div className="mt-2 rounded-md bg-muted/60 px-4 py-1.5 flex items-center justify-between">
+          <div className="mt-1.5 rounded-md bg-muted/60 px-4 py-1 flex items-center justify-between">
             {criteria.map((c, i) => (
               <div
                 key={c}
@@ -231,19 +231,16 @@ function IndustriesPage() {
           </div>
 
           {/* Ranked cards */}
-          <div className="mt-2.5 space-y-1.5">
+          <div className="mt-2 space-y-1">
             {cards.map((c) => (
               <PriorityCard key={c.rank} card={c} />
             ))}
           </div>
 
           {/* Footer */}
-          <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-2.5">
+          <div className="mt-auto -mx-[0.55in] bg-primary px-[0.55in] py-2">
             <div className="text-[11px] font-semibold text-white leading-snug">
               Lead with specialty trades and fire safety. Expand into behavioral health and PI law. Keep property management and youth sports on the research bench.
-            </div>
-            <div className="mt-1 text-[9px] italic text-white/70">
-              Built for pushback. Happy to walk through any of it.
             </div>
           </div>
         </div>
