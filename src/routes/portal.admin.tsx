@@ -373,7 +373,7 @@ function AdminPage() {
                 Temporary password
                 <input
                   required
-                  type="text"
+                  type="password"
                   minLength={8}
                   value={addForm.password}
                   onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
