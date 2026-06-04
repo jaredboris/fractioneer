@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut, Settings } from "lucide-react";
+import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut, Settings, ExternalLink } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
