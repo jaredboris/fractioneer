@@ -13,6 +13,8 @@ import {
   Building2,
   Upload,
   Loader2,
+  Eye,
+  X,
 } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
