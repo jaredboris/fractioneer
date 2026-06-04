@@ -4,6 +4,7 @@ import { ArrowLeft, Upload, FileText, Loader2, Plus, Trash2, LogOut } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { getMyRole } from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/portal/admin")({
   ssr: false,
@@ -16,16 +17,47 @@ export const Route = createFileRoute("/portal/admin")({
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/portal/login" });
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id);
-    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
-    if (!isAdmin) throw redirect({ to: "/portal" });
     return { user: data.user };
   },
-  component: AdminPage,
+  component: AdminGate,
 });
+
+function AdminGate() {
+  const navigate = useNavigate();
+  const [status, setStatus] = useState<"checking" | "ok" | "denied">("checking");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      // Server-side admin check. requireSupabaseAuth re-validates the JWT and
+      // user_roles is queried server-side, so a non-admin can't reach the
+      // admin UI shell by skipping the client redirect.
+      try {
+        const result = await getMyRole();
+        if (cancelled) return;
+        if (result.role === "admin") setStatus("ok");
+        else {
+          setStatus("denied");
+          navigate({ to: "/portal", replace: true });
+        }
+      } catch {
+        if (cancelled) return;
+        setStatus("denied");
+        navigate({ to: "/portal/login", replace: true });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [navigate]);
+
+  if (status !== "ok") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted/40">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  return <AdminPage />;
+}
 
 type Client = { id: string; company_name: string | null; full_name: string | null };
 type DashboardData = {
