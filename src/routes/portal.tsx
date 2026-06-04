@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
