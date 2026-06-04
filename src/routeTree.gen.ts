@@ -16,6 +16,7 @@ import { Route as OnepagerRouteImport } from './routes/onepager'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PortalLoginRouteImport } from './routes/portal.login'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -52,6 +53,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalLoginRoute = PortalLoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => PortalRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -59,8 +65,9 @@ export interface FileRoutesByFullPath {
   '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
-  '/portal': typeof PortalRoute
+  '/portal': typeof PortalRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/portal/login': typeof PortalLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -68,8 +75,9 @@ export interface FileRoutesByTo {
   '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
-  '/portal': typeof PortalRoute
+  '/portal': typeof PortalRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/portal/login': typeof PortalLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -78,8 +86,9 @@ export interface FileRoutesById {
   '/industries': typeof IndustriesRoute
   '/onepager': typeof OnepagerRoute
   '/onepager-v2': typeof OnepagerV2Route
-  '/portal': typeof PortalRoute
+  '/portal': typeof PortalRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/portal/login': typeof PortalLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/onepager-v2'
     | '/portal'
     | '/sitemap.xml'
+    | '/portal/login'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/onepager-v2'
     | '/portal'
     | '/sitemap.xml'
+    | '/portal/login'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/onepager-v2'
     | '/portal'
     | '/sitemap.xml'
+    | '/portal/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,7 +129,7 @@ export interface RootRouteChildren {
   IndustriesRoute: typeof IndustriesRoute
   OnepagerRoute: typeof OnepagerRoute
   OnepagerV2Route: typeof OnepagerV2Route
-  PortalRoute: typeof PortalRoute
+  PortalRoute: typeof PortalRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -172,8 +184,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portal/login': {
+      id: '/portal/login'
+      path: '/login'
+      fullPath: '/portal/login'
+      preLoaderRoute: typeof PortalLoginRouteImport
+      parentRoute: typeof PortalRoute
+    }
   }
 }
+
+interface PortalRouteChildren {
+  PortalLoginRoute: typeof PortalLoginRoute
+}
+
+const PortalRouteChildren: PortalRouteChildren = {
+  PortalLoginRoute: PortalLoginRoute,
+}
+
+const PortalRouteWithChildren =
+  PortalRoute._addFileChildren(PortalRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -181,9 +211,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndustriesRoute: IndustriesRoute,
   OnepagerRoute: OnepagerRoute,
   OnepagerV2Route: OnepagerV2Route,
-  PortalRoute: PortalRoute,
+  PortalRoute: PortalRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
