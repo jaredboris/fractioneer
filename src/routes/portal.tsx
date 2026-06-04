@@ -1,21 +1,24 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, AlertCircle, Clock, FileText, Download, Wallet, TrendingUp, Receipt } from "lucide-react";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/portal")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "Client Portal — Fractioneer" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
+  beforeLoad: async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) throw redirect({ to: "/portal/login" });
+    return { user: data.user };
+  },
   component: PortalPage,
 });
-
-const client = {
-  name: "Northstar Franchise Group",
-  contact: "Finance Operations Dashboard",
-};
 
 type Tone = "ok" | "warn" | "info";
 
@@ -68,9 +71,34 @@ function toneClasses(tone: Tone) {
 }
 
 function PortalPage() {
+  const { user } = Route.useRouteContext();
+  const navigate = useNavigate();
+  const [companyName, setCompanyName] = useState<string>("");
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const [{ data: profile }, { data: roles }] = await Promise.all([
+        supabase.from("profiles").select("company_name").eq("id", user.id).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", user.id),
+      ]);
+      if (cancelled) return;
+      setCompanyName(profile?.company_name ?? "");
+      setRole(roles && roles.length > 0 ? roles[0].role : null);
+    })();
+    return () => { cancelled = true; };
+  }, [user.id]);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate({ to: "/portal/login", replace: true });
+  }
+
+  const displayName = companyName || user.email || "Welcome";
+
   return (
     <div className="min-h-screen bg-muted/40">
-      {/* Header */}
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
@@ -80,25 +108,35 @@ function PortalPage() {
               Client Portal
             </span>
           </div>
-          <div className="text-right">
-            <div className="text-sm font-semibold text-foreground">{client.name}</div>
-            <div className="text-xs text-muted-foreground">{client.contact}</div>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-sm font-semibold text-foreground">{displayName}</div>
+              <div className="text-xs text-muted-foreground">
+                {user.email}
+                {role && <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">{role}</span>}
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              Log out
+            </button>
           </div>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        {/* Greeting */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Welcome back, Northstar
+            Welcome back{companyName ? `, ${companyName}` : ""}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Here's the latest snapshot of your finance operations.
           </p>
         </div>
 
-        {/* Status cards */}
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {statusCards.map((c) => (
             <div
@@ -121,14 +159,12 @@ function PortalPage() {
           ))}
         </section>
 
-        {/* Quick metrics row */}
         <section className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
           <MiniMetric label="Revenue (MTD)" value="$612,480" trend="+8.2%" />
           <MiniMetric label="Operating margin" value="22.4%" trend="+1.1pt" />
           <MiniMetric label="Royalties collected" value="94%" trend="On pace" />
         </section>
 
-        {/* Documents */}
         <section className="mt-10">
           <div className="mb-4 flex items-end justify-between">
             <div>
@@ -137,9 +173,7 @@ function PortalPage() {
                 Reports and reconciliations shared by your Fractioneer team.
               </p>
             </div>
-            <button className="text-xs font-medium text-accent hover:underline">
-              View all
-            </button>
+            <button className="text-xs font-medium text-accent hover:underline">View all</button>
           </div>
 
           <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -154,9 +188,7 @@ function PortalPage() {
                       <FileText className="h-5 w-5" />
                     </span>
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-foreground">
-                        {doc.name}
-                      </div>
+                      <div className="truncate text-sm font-medium text-foreground">{doc.name}</div>
                       <div className="text-xs text-muted-foreground">
                         Uploaded {doc.date} · {doc.size}
                       </div>
