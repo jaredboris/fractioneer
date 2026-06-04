@@ -67,7 +67,7 @@ function PortalShell() {
 }
 
 function PortalDashboard() {
-  const { user } = Route.useRouteContext();
+  const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
   const [role, setRole] = useState<string | null>(null);
@@ -83,9 +83,8 @@ function PortalDashboard() {
     { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
   >([]);
 
-  if (!user) return null;
-
   useEffect(() => {
+    if (!user) return;
     let cancelled = false;
     (async () => {
       const [{ data: profile }, { data: roles }, { data: dash }, { data: documents }] = await Promise.all([
@@ -101,7 +100,7 @@ function PortalDashboard() {
       setDocs(documents ?? []);
     })();
     return () => { cancelled = true; };
-  }, [user.id]);
+  }, [user?.id]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -118,6 +117,8 @@ function PortalDashboard() {
     a.download = name;
     a.click();
   }
+
+  if (!user) return null;
 
   const displayName = companyName || user.email || "Welcome";
   const isAdmin = role === "admin";
