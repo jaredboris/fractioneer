@@ -4,7 +4,7 @@ import { ArrowLeft, Upload, FileText, Loader2, Plus, Trash2, LogOut } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { getMyRole } from "@/lib/portal.functions";
+import { getMyRole, createClientAccount } from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/portal/admin")({
   ssr: false,
@@ -209,34 +209,38 @@ function AdminPage() {
     loadClientData(selectedId);
   }
 
-  async function handleAddClient() {
-    const email = prompt("New client's email (must already be created in Cloud → Users):");
-    if (!email) return;
-    const company = prompt("Company name:");
-    if (!company) return;
-    // Find user by email via profiles join — we look up auth user by listing profiles whose linked email matches.
-    // Since profiles table has no email, we ask admin to confirm the user id.
-    const userId = prompt(
-      "Paste the new client's user ID (from Cloud → Users). The user must already exist.",
-    );
-    if (!userId) return;
-    const { error: pErr } = await supabase
-      .from("profiles")
-      .upsert({ id: userId, company_name: company });
-    if (pErr) {
-      setStatus({ kind: "err", msg: `Profile: ${pErr.message}` });
-      return;
+  const [addOpen, setAddOpen] = useState(false);
+  const [addBusy, setAddBusy] = useState(false);
+  const [addForm, setAddForm] = useState({
+    email: "",
+    password: "",
+    company_name: "",
+    full_name: "",
+  });
+
+  async function handleCreateClient(e: React.FormEvent) {
+    e.preventDefault();
+    setAddBusy(true);
+    setStatus(null);
+    try {
+      const result = await createClientAccount({
+        data: {
+          email: addForm.email.trim(),
+          password: addForm.password,
+          company_name: addForm.company_name.trim(),
+          full_name: addForm.full_name.trim() || undefined,
+        },
+      });
+      setStatus({ kind: "ok", msg: `Added ${result.company_name}. They can sign in with their email and password.` });
+      setAddForm({ email: "", password: "", company_name: "", full_name: "" });
+      setAddOpen(false);
+      await loadClients();
+      setSelectedId(result.id);
+    } catch (err) {
+      setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to create client" });
+    } finally {
+      setAddBusy(false);
     }
-    const { error: rErr } = await supabase
-      .from("user_roles")
-      .upsert({ user_id: userId, role: "client" }, { onConflict: "user_id,role" });
-    if (rErr) {
-      setStatus({ kind: "err", msg: `Role: ${rErr.message}` });
-      return;
-    }
-    setStatus({ kind: "ok", msg: `Added ${company}.` });
-    await loadClients();
-    setSelectedId(userId);
   }
 
   async function handleLogout() {
@@ -318,17 +322,84 @@ function AdminPage() {
               </select>
             </div>
             <button
-              onClick={handleAddClient}
+              onClick={() => setAddOpen((v) => !v)}
               className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" />
-              Add client
+              {addOpen ? "Cancel" : "Add client"}
             </button>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Create the auth user in <strong>Cloud → Users</strong> first, then click <em>Add client</em> to attach
-            a company name and the <code>client</code> role.
-          </p>
+
+          {addOpen && (
+            <form
+              onSubmit={handleCreateClient}
+              className="mt-5 grid grid-cols-1 gap-4 rounded-lg border border-border bg-background p-5 sm:grid-cols-2"
+            >
+              <div className="sm:col-span-2">
+                <h3 className="text-sm font-semibold text-foreground">New client</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Creates the login, profile, and <code>client</code> role in one step. Share the email and
+                  temporary password with them.
+                </p>
+              </div>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Company name
+                <input
+                  required
+                  value={addForm.company_name}
+                  onChange={(e) => setAddForm({ ...addForm, company_name: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Contact name <span className="text-muted-foreground/60">(optional)</span>
+                <input
+                  value={addForm.full_name}
+                  onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Email
+                <input
+                  required
+                  type="email"
+                  value={addForm.email}
+                  onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Temporary password
+                <input
+                  required
+                  type="text"
+                  minLength={8}
+                  value={addForm.password}
+                  onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                  placeholder="At least 8 characters"
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <div className="sm:col-span-2 flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setAddOpen(false)}
+                  className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addBusy}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {addBusy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Create client
+                </button>
+              </div>
+            </form>
+          )}
         </section>
 
         {selectedId ? (
