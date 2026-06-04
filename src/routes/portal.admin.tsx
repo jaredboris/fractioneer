@@ -224,6 +224,7 @@ function AdminPage() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               to="/portal"
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
