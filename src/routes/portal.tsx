@@ -180,7 +180,7 @@ function AdminOverview({ role }: { role: string }) {
       ]);
       if (cancelled) return;
 
-      const dashMap = new Map((dashboards ?? []).map((d) => [d.client_id, d.updated_at]));
+      const dashMap = new Map<string, string | null>((dashboards ?? []).map((d) => [d.client_id, d.updated_at]));
       const docMap = new Map<string, { count: number; last: string | null }>();
       for (const d of documents ?? []) {
         const cur = docMap.get(d.client_id) ?? { count: 0, last: null };
