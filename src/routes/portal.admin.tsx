@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft, Upload, FileText, Loader2, Plus, Trash2, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/fractioneer-logo.jpg";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/portal/admin")({
   ssr: false,
@@ -223,6 +224,7 @@ function AdminPage() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               to="/portal"
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
