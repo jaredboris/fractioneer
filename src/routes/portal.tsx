@@ -60,17 +60,32 @@ function PortalPage() {
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
   const [role, setRole] = useState<string | null>(null);
+  const [dashboard, setDashboard] = useState<{
+    monthly_close: string;
+    monthly_close_detail: string | null;
+    cash_position: string;
+    cash_position_detail: string | null;
+    ap_ar_status: string;
+    ap_ar_detail: string | null;
+  } | null>(null);
+  const [docs, setDocs] = useState<
+    { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
+  >([]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [{ data: profile }, { data: roles }] = await Promise.all([
+      const [{ data: profile }, { data: roles }, { data: dash }, { data: documents }] = await Promise.all([
         supabase.from("profiles").select("company_name").eq("id", user.id).maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", user.id),
+        supabase.from("dashboard_data").select("*").eq("client_id", user.id).maybeSingle(),
+        supabase.from("documents").select("*").eq("client_id", user.id).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
       setCompanyName(profile?.company_name ?? "");
       setRole(roles && roles.length > 0 ? roles[0].role : null);
+      setDashboard(dash ?? null);
+      setDocs(documents ?? []);
     })();
     return () => { cancelled = true; };
   }, [user.id]);
@@ -80,7 +95,45 @@ function PortalPage() {
     navigate({ to: "/portal/login", replace: true });
   }
 
+  async function handleDownload(path: string, name: string) {
+    const { data, error } = await supabase.storage
+      .from("client-documents")
+      .createSignedUrl(path, 60);
+    if (error || !data) return;
+    const a = document.createElement("a");
+    a.href = data.signedUrl;
+    a.download = name;
+    a.click();
+  }
+
   const displayName = companyName || user.email || "Welcome";
+  const isAdmin = role === "admin";
+
+  const cards = dashboard
+    ? [
+        {
+          label: "Monthly Close",
+          value: dashboard.monthly_close,
+          detail: dashboard.monthly_close_detail ?? "",
+          tone: toneForMonthly(dashboard.monthly_close),
+          icon: <CheckCircle2 className="h-5 w-5" />,
+        },
+        {
+          label: "Cash Position",
+          value: dashboard.cash_position,
+          detail: dashboard.cash_position_detail ?? "",
+          tone: "info" as Tone,
+          icon: <Wallet className="h-5 w-5" />,
+        },
+        {
+          label: "AP / AR Status",
+          value: dashboard.ap_ar_status,
+          detail: dashboard.ap_ar_detail ?? "",
+          tone: toneForApAr(dashboard.ap_ar_status),
+          icon: <Receipt className="h-5 w-5" />,
+        },
+      ]
+    : FALLBACK_CARDS;
 
   return (
     <div className="min-h-screen bg-muted/40">
@@ -101,6 +154,15 @@ function PortalPage() {
                 {role && <span className="ml-2 rounded bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">{role}</span>}
               </div>
             </div>
+            {isAdmin && (
+              <Link
+                to="/portal/admin"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                Admin
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -123,7 +185,7 @@ function PortalPage() {
         </div>
 
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {statusCards.map((c) => (
+          {cards.map((c) => (
             <div
               key={c.label}
               className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)]"
@@ -144,12 +206,6 @@ function PortalPage() {
           ))}
         </section>
 
-        <section className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-          <MiniMetric label="Revenue (MTD)" value="$612,480" trend="+8.2%" />
-          <MiniMetric label="Operating margin" value="22.4%" trend="+1.1pt" />
-          <MiniMetric label="Royalties collected" value="94%" trend="On pace" />
-        </section>
-
         <section className="mt-10">
           <div className="mb-4 flex items-end justify-between">
             <div>
@@ -158,14 +214,18 @@ function PortalPage() {
                 Reports and reconciliations shared by your Fractioneer team.
               </p>
             </div>
-            <button className="text-xs font-medium text-accent hover:underline">View all</button>
           </div>
 
           <div className="overflow-hidden rounded-xl border border-border bg-card">
             <ul className="divide-y divide-border">
-              {documents.map((doc) => (
+              {docs.length === 0 && (
+                <li className="px-5 py-8 text-center text-sm text-muted-foreground">
+                  No documents shared yet.
+                </li>
+              )}
+              {docs.map((doc) => (
                 <li
-                  key={doc.name}
+                  key={doc.id}
                   className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-muted/40"
                 >
                   <div className="flex min-w-0 items-center gap-3">
@@ -173,15 +233,17 @@ function PortalPage() {
                       <FileText className="h-5 w-5" />
                     </span>
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-foreground">{doc.name}</div>
+                      <div className="truncate text-sm font-medium text-foreground">{doc.file_name}</div>
                       <div className="text-xs text-muted-foreground">
-                        Uploaded {doc.date} · {doc.size}
+                        Uploaded {new Date(doc.created_at).toLocaleDateString()}
+                        {doc.file_size ? ` · ${(doc.file_size / 1024).toFixed(0)} KB` : ""}
                       </div>
                     </div>
                   </div>
                   <button
+                    onClick={() => handleDownload(doc.file_path, doc.file_name)}
                     className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                    aria-label={`Download ${doc.name}`}
+                    aria-label={`Download ${doc.file_name}`}
                   >
                     <Download className="h-3.5 w-3.5" />
                     Download
@@ -191,6 +253,7 @@ function PortalPage() {
             </ul>
           </div>
         </section>
+
 
         <footer className="mt-12 border-t border-border pt-6 text-center text-xs text-muted-foreground">
           Need something? Email your Fractioneer team at{" "}
