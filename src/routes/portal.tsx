@@ -162,6 +162,7 @@ type ClientRow = {
 function AdminOverview({ role }: { role: string }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
   const [rows, setRows] = useState<ClientRow[] | null>(null);
+  const [previewId, setPreviewId] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
