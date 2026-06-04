@@ -453,6 +453,187 @@ function SummaryCard({
 
 /* ---------------------------- CLIENT DASHBOARD ---------------------------- */
 
+/* ----------------------------- CLIENT PREVIEW ----------------------------- */
+
+type DashboardRow = {
+  monthly_close: string;
+  monthly_close_detail: string | null;
+  cash_position: string;
+  cash_position_detail: string | null;
+  ap_ar_status: string;
+  ap_ar_detail: string | null;
+};
+type DocRow = {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number | null;
+  created_at: string;
+};
+
+function ClientPreview({ clientId, clientLabel }: { clientId: string; clientLabel: string }) {
+  const [dashboard, setDashboard] = useState<DashboardRow | null>(null);
+  const [docs, setDocs] = useState<DocRow[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDashboard(null);
+    setDocs(null);
+    (async () => {
+      const [{ data: dash }, { data: documents }] = await Promise.all([
+        supabase.from("dashboard_data").select("*").eq("client_id", clientId).maybeSingle(),
+        supabase
+          .from("documents")
+          .select("id, file_name, file_path, file_size, created_at")
+          .eq("client_id", clientId)
+          .order("created_at", { ascending: false }),
+      ]);
+      if (cancelled) return;
+      setDashboard(dash ?? null);
+      setDocs(documents ?? []);
+    })();
+    return () => { cancelled = true; };
+  }, [clientId]);
+
+  async function getSignedUrl(path: string, download?: string) {
+    const { data, error } = await supabase.storage
+      .from("client-documents")
+      .createSignedUrl(path, 60, download ? { download } : undefined);
+    if (error || !data) return null;
+    return data.signedUrl;
+  }
+  async function handleView(path: string) {
+    const url = await getSignedUrl(path);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  }
+  async function handleDownload(path: string, name: string) {
+    const url = await getSignedUrl(path, name);
+    if (!url) return;
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+  }
+
+  const cards = dashboard
+    ? [
+        {
+          label: "Monthly Close",
+          value: dashboard.monthly_close,
+          detail: dashboard.monthly_close_detail ?? "",
+          tone: toneForMonthly(dashboard.monthly_close),
+          icon: <CheckCircle2 className="h-5 w-5" />,
+        },
+        {
+          label: "Cash Position",
+          value: dashboard.cash_position,
+          detail: dashboard.cash_position_detail ?? "",
+          tone: "info" as Tone,
+          icon: <Wallet className="h-5 w-5" />,
+        },
+        {
+          label: "AP / AR Status",
+          value: dashboard.ap_ar_status,
+          detail: dashboard.ap_ar_detail ?? "",
+          tone: toneForApAr(dashboard.ap_ar_status),
+          icon: <Receipt className="h-5 w-5" />,
+        },
+      ]
+    : [
+        { label: "Monthly Close", value: "—", detail: "Not set yet", tone: "info" as Tone, icon: <CheckCircle2 className="h-5 w-5" /> },
+        { label: "Cash Position", value: "—", detail: "Not set yet", tone: "info" as Tone, icon: <Wallet className="h-5 w-5" /> },
+        { label: "AP / AR Status", value: "—", detail: "Not set yet", tone: "info" as Tone, icon: <Receipt className="h-5 w-5" /> },
+      ];
+
+  return (
+    <div>
+      <div className="mb-6 flex items-center gap-2 rounded-md border border-accent/30 bg-accent/5 px-4 py-2.5 text-sm text-accent">
+        <Eye className="h-4 w-4" />
+        <span>
+          Previewing as: <strong className="font-semibold">{clientLabel}</strong> — read-only
+        </span>
+      </div>
+
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((c) => (
+          <div
+            key={c.label}
+            className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{c.label}</span>
+              <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${toneClasses(c.tone)}`}>
+                {c.icon}
+              </span>
+            </div>
+            <div className="mt-4 text-2xl font-semibold text-foreground">{c.value}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{c.detail}</div>
+          </div>
+        ))}
+      </section>
+
+      <section className="mt-10">
+        <div className="mb-4">
+          <h2 className="text-lg font-semibold text-foreground">Documents</h2>
+          <p className="text-sm text-muted-foreground">Files shared with this client.</p>
+        </div>
+        <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border">
+            {docs === null && (
+              <li className="flex items-center justify-center px-5 py-8 text-sm text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading…
+              </li>
+            )}
+            {docs && docs.length === 0 && (
+              <li className="px-5 py-8 text-center text-sm text-muted-foreground">
+                No documents shared yet.
+              </li>
+            )}
+            {(docs ?? []).map((doc) => (
+              <li
+                key={doc.id}
+                className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-muted/40"
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-primary">
+                    <FileText className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-medium text-foreground">{doc.file_name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Uploaded {new Date(doc.created_at).toLocaleDateString()}
+                      {doc.file_size ? ` · ${(doc.file_size / 1024).toFixed(0)} KB` : ""}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleView(doc.file_path)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    View
+                  </button>
+                  <button
+                    onClick={() => handleDownload(doc.file_path, doc.file_name)}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Download
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+/* ---------------------------- CLIENT DASHBOARD ---------------------------- */
+
 function ClientDashboard({ role }: { role: string | null }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
   const [companyName, setCompanyName] = useState<string>("");
