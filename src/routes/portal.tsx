@@ -1,8 +1,9 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut } from "lucide-react";
+import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut, Settings } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
