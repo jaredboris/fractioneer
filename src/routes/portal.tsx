@@ -83,6 +83,8 @@ function PortalDashboard() {
     { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
   >([]);
 
+  if (!user) return null;
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
