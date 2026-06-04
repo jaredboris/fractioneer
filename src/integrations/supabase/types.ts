@@ -14,6 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
+      dashboard_data: {
+        Row: {
+          ap_ar_detail: string | null
+          ap_ar_status: string
+          cash_position: string
+          cash_position_detail: string | null
+          client_id: string
+          created_at: string
+          monthly_close: string
+          monthly_close_detail: string | null
+          updated_at: string
+        }
+        Insert: {
+          ap_ar_detail?: string | null
+          ap_ar_status?: string
+          cash_position?: string
+          cash_position_detail?: string | null
+          client_id: string
+          created_at?: string
+          monthly_close?: string
+          monthly_close_detail?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ap_ar_detail?: string | null
+          ap_ar_status?: string
+          cash_position?: string
+          cash_position_detail?: string | null
+          client_id?: string
+          created_at?: string
+          monthly_close?: string
+          monthly_close_detail?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_data_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          client_id: string
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           company_name: string
