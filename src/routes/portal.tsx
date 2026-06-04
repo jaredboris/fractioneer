@@ -228,133 +228,197 @@ function AdminOverview({ role }: { role: string }) {
         showAdminLink={true}
       />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Operations overview</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Status of every client portal at a glance.
-          </p>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              {previewId ? "Client preview" : "Operations overview"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {previewId
+                ? "Read-only view of what this client sees when they log in."
+                : "Status of every client portal at a glance."}
+            </p>
+          </div>
+          <div className="flex items-end gap-2">
+            <div>
+              <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                View as client
+              </label>
+              <div className="mt-1 flex items-center gap-2">
+                <div className="relative">
+                  <Eye className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <select
+                    value={previewId}
+                    onChange={(e) => setPreviewId(e.target.value)}
+                    disabled={!rows || rows.length === 0}
+                    className="block min-w-[16rem] rounded-md border border-input bg-background py-2 pl-8 pr-3 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50"
+                  >
+                    <option value="">— Admin overview —</option>
+                    {(rows ?? []).map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.company_name || r.full_name || r.id}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {previewId && (
+                  <button
+                    onClick={() => setPreviewId("")}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    aria-label="Exit preview"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    Exit preview
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <SummaryCard
-            label="Clients"
-            value={String(totals.total)}
-            detail="Active client portals"
-            tone="info"
-            icon={<Building2 className="h-5 w-5" />}
+        {previewId ? (
+          <ClientPreview
+            clientId={previewId}
+            clientLabel={
+              (rows ?? []).find((r) => r.id === previewId)?.company_name ||
+              (rows ?? []).find((r) => r.id === previewId)?.full_name ||
+              "Client"
+            }
           />
-          <SummaryCard
-            label="Need dashboard data"
-            value={String(totals.needsData)}
-            detail={totals.needsData === 0 ? "All set" : "Set values to share with client"}
-            tone={totals.needsData === 0 ? "ok" : "warn"}
-            icon={<AlertTriangle className="h-5 w-5" />}
-          />
-          <SummaryCard
-            label="Need documents"
-            value={String(totals.needsDocs)}
-            detail={totals.needsDocs === 0 ? "All have files" : "No files uploaded yet"}
-            tone={totals.needsDocs === 0 ? "ok" : "warn"}
-            icon={<Upload className="h-5 w-5" />}
-          />
-        </section>
+        ) : (
+          <>
+            <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <SummaryCard
+                label="Clients"
+                value={String(totals.total)}
+                detail="Active client portals"
+                tone="info"
+                icon={<Building2 className="h-5 w-5" />}
+              />
+              <SummaryCard
+                label="Need dashboard data"
+                value={String(totals.needsData)}
+                detail={totals.needsData === 0 ? "All set" : "Set values to share with client"}
+                tone={totals.needsData === 0 ? "ok" : "warn"}
+                icon={<AlertTriangle className="h-5 w-5" />}
+              />
+              <SummaryCard
+                label="Need documents"
+                value={String(totals.needsDocs)}
+                detail={totals.needsDocs === 0 ? "All have files" : "No files uploaded yet"}
+                tone={totals.needsDocs === 0 ? "ok" : "warn"}
+                icon={<Upload className="h-5 w-5" />}
+              />
+            </section>
 
-        <section className="overflow-hidden rounded-xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-5 py-4">
-            <div>
-              <h2 className="text-base font-semibold text-foreground">Clients</h2>
-              <p className="text-xs text-muted-foreground">
-                Flagged rows need data set or documents uploaded.
-              </p>
-            </div>
-            <Link
-              to="/portal/admin"
-              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <Settings className="h-3.5 w-3.5" />
-              Manage data
-            </Link>
-          </div>
+            <section className="overflow-hidden rounded-xl border border-border bg-card">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+                <div>
+                  <h2 className="text-base font-semibold text-foreground">Clients</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Flagged rows need data set or documents uploaded.
+                  </p>
+                </div>
+                <Link
+                  to="/portal/admin"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                >
+                  <Settings className="h-3.5 w-3.5" />
+                  Manage data
+                </Link>
+              </div>
 
-          {rows === null ? (
-            <div className="flex items-center justify-center px-5 py-12 text-sm text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Loading…
-            </div>
-          ) : rows.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-muted-foreground">
-              No clients yet. Use <strong>Manage data</strong> to add your first client.
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <tr>
-                    <th className="px-5 py-3">Client</th>
-                    <th className="px-5 py-3">Dashboard</th>
-                    <th className="px-5 py-3">Documents</th>
-                    <th className="px-5 py-3">Last upload</th>
-                    <th className="px-5 py-3 text-right">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {rows.map((r) => {
-                    const noData = !r.dashboard_updated_at;
-                    const noDocs = r.document_count === 0;
-                    const needsAttention = noData || noDocs;
-                    return (
-                      <tr key={r.id} className={needsAttention ? "bg-destructive/[0.03]" : ""}>
-                        <td className="px-5 py-4">
-                          <div className="font-medium text-foreground">
-                            {r.company_name || r.full_name || "—"}
-                          </div>
-                          <div className="text-xs text-muted-foreground">{r.id.slice(0, 8)}…</div>
-                        </td>
-                        <td className="px-5 py-4">
-                          {noData ? (
-                            <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
-                              <AlertTriangle className="h-3.5 w-3.5" />
-                              Not set
-                            </span>
-                          ) : (
-                            <div className="text-xs text-muted-foreground">
-                              Updated {new Date(r.dashboard_updated_at!).toLocaleDateString()}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-5 py-4">
-                          <div className="text-sm font-medium text-foreground">
-                            {r.document_count}
-                          </div>
-                        </td>
-                        <td className="px-5 py-4 text-xs text-muted-foreground">
-                          {r.last_upload_at ? new Date(r.last_upload_at).toLocaleDateString() : "—"}
-                        </td>
-                        <td className="px-5 py-4 text-right">
-                          {needsAttention ? (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-1 text-[11px] font-medium text-destructive">
-                              <AlertTriangle className="h-3 w-3" />
-                              {noData && noDocs
-                                ? "Needs data & docs"
-                                : noData
-                                  ? "Needs data"
-                                  : "Needs docs"}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 rounded-md bg-accent/10 px-2 py-1 text-[11px] font-medium text-accent">
-                              <CheckCircle2 className="h-3 w-3" />
-                              Ready
-                            </span>
-                          )}
-                        </td>
+              {rows === null ? (
+                <div className="flex items-center justify-center px-5 py-12 text-sm text-muted-foreground">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading…
+                </div>
+              ) : rows.length === 0 ? (
+                <div className="px-5 py-12 text-center text-sm text-muted-foreground">
+                  No clients yet. Use <strong>Manage data</strong> to add your first client.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      <tr>
+                        <th className="px-5 py-3">Client</th>
+                        <th className="px-5 py-3">Dashboard</th>
+                        <th className="px-5 py-3">Documents</th>
+                        <th className="px-5 py-3">Last upload</th>
+                        <th className="px-5 py-3 text-right">Status</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {rows.map((r) => {
+                        const noData = !r.dashboard_updated_at;
+                        const noDocs = r.document_count === 0;
+                        const needsAttention = noData || noDocs;
+                        return (
+                          <tr key={r.id} className={needsAttention ? "bg-destructive/[0.03]" : ""}>
+                            <td className="px-5 py-4">
+                              <div className="font-medium text-foreground">
+                                {r.company_name || r.full_name || "—"}
+                              </div>
+                              <div className="text-xs text-muted-foreground">{r.id.slice(0, 8)}…</div>
+                            </td>
+                            <td className="px-5 py-4">
+                              {noData ? (
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
+                                  <AlertTriangle className="h-3.5 w-3.5" />
+                                  Not set
+                                </span>
+                              ) : (
+                                <div className="text-xs text-muted-foreground">
+                                  Updated {new Date(r.dashboard_updated_at!).toLocaleDateString()}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-5 py-4">
+                              <div className="text-sm font-medium text-foreground">
+                                {r.document_count}
+                              </div>
+                            </td>
+                            <td className="px-5 py-4 text-xs text-muted-foreground">
+                              {r.last_upload_at ? new Date(r.last_upload_at).toLocaleDateString() : "—"}
+                            </td>
+                            <td className="px-5 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {needsAttention ? (
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-1 text-[11px] font-medium text-destructive">
+                                    <AlertTriangle className="h-3 w-3" />
+                                    {noData && noDocs
+                                      ? "Needs data & docs"
+                                      : noData
+                                        ? "Needs data"
+                                        : "Needs docs"}
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-accent/10 px-2 py-1 text-[11px] font-medium text-accent">
+                                    <CheckCircle2 className="h-3 w-3" />
+                                    Ready
+                                  </span>
+                                )}
+                                <button
+                                  onClick={() => setPreviewId(r.id)}
+                                  className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                                  aria-label={`Preview as ${r.company_name || r.full_name || "client"}`}
+                                >
+                                  <Eye className="h-3 w-3" />
+                                  Preview
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+          </>
+        )}
       </main>
     </div>
   );
