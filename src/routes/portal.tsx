@@ -107,13 +107,24 @@ function PortalDashboard() {
     navigate({ to: "/portal/login", replace: true });
   }
 
-  async function handleDownload(path: string, name: string) {
+  async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage
       .from("client-documents")
-      .createSignedUrl(path, 60);
-    if (error || !data) return;
+      .createSignedUrl(path, 60, download ? { download } : undefined);
+    if (error || !data) return null;
+    return data.signedUrl;
+  }
+
+  async function handleView(path: string) {
+    const url = await getSignedUrl(path);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  async function handleDownload(path: string, name: string) {
+    const url = await getSignedUrl(path, name);
+    if (!url) return;
     const a = document.createElement("a");
-    a.href = data.signedUrl;
+    a.href = url;
     a.download = name;
     a.click();
   }
