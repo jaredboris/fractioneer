@@ -127,6 +127,7 @@ function PortalHeader({
               )}
             </div>
           </div>
+          <ThemeToggle />
           {showAdminLink && (
             <Link
               to="/portal/admin"
