@@ -23,42 +23,26 @@ export const Route = createFileRoute("/portal")({
 
 type Tone = "ok" | "warn" | "info";
 
-const statusCards: {
+const FALLBACK_CARDS: {
   label: string;
   value: string;
   detail: string;
   tone: Tone;
   icon: React.ReactNode;
 }[] = [
-  {
-    label: "Monthly Close",
-    value: "On track",
-    detail: "November close — 3 days remaining",
-    tone: "ok",
-    icon: <CheckCircle2 className="h-5 w-5" />,
-  },
-  {
-    label: "Cash Position",
-    value: "$1.84M",
-    detail: "14.2 months runway · +6% MoM",
-    tone: "info",
-    icon: <Wallet className="h-5 w-5" />,
-  },
-  {
-    label: "AP / AR Status",
-    value: "Current",
-    detail: "AP $128k · AR $342k · 0 past due",
-    tone: "ok",
-    icon: <Receipt className="h-5 w-5" />,
-  },
+  { label: "Monthly Close", value: "—", detail: "Not set yet", tone: "info", icon: <CheckCircle2 className="h-5 w-5" /> },
+  { label: "Cash Position", value: "—", detail: "Not set yet", tone: "info", icon: <Wallet className="h-5 w-5" /> },
+  { label: "AP / AR Status", value: "—", detail: "Not set yet", tone: "info", icon: <Receipt className="h-5 w-5" /> },
 ];
 
-const documents = [
-  { name: "October-2026_Financial-Package.pdf", date: "Nov 4, 2026", size: "2.4 MB" },
-  { name: "Q3-2026_Royalty-Reconciliation.pdf", date: "Oct 18, 2026", size: "812 KB" },
-  { name: "Cash-Flow-Forecast_90day.pdf", date: "Oct 12, 2026", size: "1.1 MB" },
-  { name: "Location-PnL_September-2026.pdf", date: "Oct 6, 2026", size: "3.2 MB" },
-];
+function toneForMonthly(v: string): Tone {
+  if (v === "Delayed") return "warn";
+  return "ok";
+}
+function toneForApAr(v: string): Tone {
+  return v === "Behind" ? "warn" : "ok";
+}
+
 
 function toneClasses(tone: Tone) {
   switch (tone) {
