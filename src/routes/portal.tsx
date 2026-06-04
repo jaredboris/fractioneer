@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut, Settings } from "lucide-react";
+import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut, Settings, ExternalLink } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -107,13 +107,24 @@ function PortalDashboard() {
     navigate({ to: "/portal/login", replace: true });
   }
 
-  async function handleDownload(path: string, name: string) {
+  async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage
       .from("client-documents")
-      .createSignedUrl(path, 60);
-    if (error || !data) return;
+      .createSignedUrl(path, 60, download ? { download } : undefined);
+    if (error || !data) return null;
+    return data.signedUrl;
+  }
+
+  async function handleView(path: string) {
+    const url = await getSignedUrl(path);
+    if (url) window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  async function handleDownload(path: string, name: string) {
+    const url = await getSignedUrl(path, name);
+    if (!url) return;
     const a = document.createElement("a");
-    a.href = data.signedUrl;
+    a.href = url;
     a.download = name;
     a.click();
   }
@@ -240,7 +251,8 @@ function PortalDashboard() {
               {docs.map((doc) => (
                 <li
                   key={doc.id}
-                  className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-muted/40"
+                  onClick={() => handleView(doc.file_path)}
+                  className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-muted/40"
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-primary">
@@ -254,14 +266,24 @@ function PortalDashboard() {
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDownload(doc.file_path, doc.file_name)}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                    aria-label={`Download ${doc.file_name}`}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    Download
-                  </button>
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => handleView(doc.file_path)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      aria-label={`View ${doc.file_name}`}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDownload(doc.file_path, doc.file_name)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      aria-label={`Download ${doc.file_name}`}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
