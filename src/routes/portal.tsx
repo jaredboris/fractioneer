@@ -66,15 +66,22 @@ function PortalShell() {
 
 function PortalRouter() {
   const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
-  const [role, setRole] = useState<string | null | undefined>(undefined);
+  const [role, setRole] = useState<"admin" | "client" | null | undefined>(undefined);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
-      if (cancelled) return;
-      setRole(data && data.length > 0 ? data[0].role : null);
+      // Server-verified role: requireSupabaseAuth middleware re-validates the
+      // JWT and queries user_roles server-side. Cannot be spoofed by editing
+      // client state or DevTools.
+      try {
+        const result = await getMyRole();
+        if (cancelled) return;
+        setRole(result.role);
+      } catch {
+        if (!cancelled) setRole(null);
+      }
     })();
     return () => { cancelled = true; };
   }, [user?.id]);
