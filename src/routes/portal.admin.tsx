@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { ArrowLeft, Upload, FileText, Loader2, Plus, Trash2, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/fractioneer-logo.jpg";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/portal/admin")({
   ssr: false,
