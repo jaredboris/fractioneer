@@ -19,6 +19,7 @@ import {
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { getMyRole } from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
