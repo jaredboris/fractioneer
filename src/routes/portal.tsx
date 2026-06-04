@@ -251,7 +251,8 @@ function PortalDashboard() {
               {docs.map((doc) => (
                 <li
                   key={doc.id}
-                  className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-muted/40"
+                  onClick={() => handleView(doc.file_path)}
+                  className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-muted/40"
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-primary">
@@ -265,14 +266,24 @@ function PortalDashboard() {
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDownload(doc.file_path, doc.file_name)}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                    aria-label={`Download ${doc.file_name}`}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    Download
-                  </button>
+                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => handleView(doc.file_path)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      aria-label={`View ${doc.file_name}`}
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDownload(doc.file_path, doc.file_name)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      aria-label={`Download ${doc.file_name}`}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
