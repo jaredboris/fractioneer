@@ -322,17 +322,84 @@ function AdminPage() {
               </select>
             </div>
             <button
-              onClick={handleAddClient}
+              onClick={() => setAddOpen((v) => !v)}
               className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" />
-              Add client
+              {addOpen ? "Cancel" : "Add client"}
             </button>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            Create the auth user in <strong>Cloud → Users</strong> first, then click <em>Add client</em> to attach
-            a company name and the <code>client</code> role.
-          </p>
+
+          {addOpen && (
+            <form
+              onSubmit={handleCreateClient}
+              className="mt-5 grid grid-cols-1 gap-4 rounded-lg border border-border bg-background p-5 sm:grid-cols-2"
+            >
+              <div className="sm:col-span-2">
+                <h3 className="text-sm font-semibold text-foreground">New client</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Creates the login, profile, and <code>client</code> role in one step. Share the email and
+                  temporary password with them.
+                </p>
+              </div>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Company name
+                <input
+                  required
+                  value={addForm.company_name}
+                  onChange={(e) => setAddForm({ ...addForm, company_name: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Contact name <span className="text-muted-foreground/60">(optional)</span>
+                <input
+                  value={addForm.full_name}
+                  onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Email
+                <input
+                  required
+                  type="email"
+                  value={addForm.email}
+                  onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <label className="block text-xs font-medium text-muted-foreground">
+                Temporary password
+                <input
+                  required
+                  type="text"
+                  minLength={8}
+                  value={addForm.password}
+                  onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
+                  placeholder="At least 8 characters"
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </label>
+              <div className="sm:col-span-2 flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setAddOpen(false)}
+                  className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addBusy}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {addBusy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Create client
+                </button>
+              </div>
+            </form>
+          )}
         </section>
 
         {selectedId ? (
