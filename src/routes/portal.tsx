@@ -386,7 +386,7 @@ function SummaryCard({
 
 /* ---------------------------- CLIENT DASHBOARD ---------------------------- */
 
-function ClientDashboard({ role }: { role: string }) {
+function ClientDashboard({ role }: { role: string | null }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
   const [companyName, setCompanyName] = useState<string>("");
   const [dashboard, setDashboard] = useState<{
