@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, FileText, Download, Wallet, TrendingUp, Receipt, LogOut, Settings } from "lucide-react";
 import logo from "@/assets/fractioneer-logo.jpg";
@@ -13,12 +13,13 @@ export const Route = createFileRoute("/portal")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
+    if (location.pathname === "/portal/login") return;
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/portal/login" });
     return { user: data.user };
   },
-  component: PortalPage,
+  component: PortalShell,
 });
 
 type Tone = "ok" | "warn" | "info";
@@ -55,7 +56,17 @@ function toneClasses(tone: Tone) {
   }
 }
 
-function PortalPage() {
+function PortalShell() {
+  const location = useLocation();
+
+  if (location.pathname !== "/portal") {
+    return <Outlet />;
+  }
+
+  return <PortalDashboard />;
+}
+
+function PortalDashboard() {
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState<string>("");
