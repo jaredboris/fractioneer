@@ -209,34 +209,38 @@ function AdminPage() {
     loadClientData(selectedId);
   }
 
-  async function handleAddClient() {
-    const email = prompt("New client's email (must already be created in Cloud → Users):");
-    if (!email) return;
-    const company = prompt("Company name:");
-    if (!company) return;
-    // Find user by email via profiles join — we look up auth user by listing profiles whose linked email matches.
-    // Since profiles table has no email, we ask admin to confirm the user id.
-    const userId = prompt(
-      "Paste the new client's user ID (from Cloud → Users). The user must already exist.",
-    );
-    if (!userId) return;
-    const { error: pErr } = await supabase
-      .from("profiles")
-      .upsert({ id: userId, company_name: company });
-    if (pErr) {
-      setStatus({ kind: "err", msg: `Profile: ${pErr.message}` });
-      return;
+  const [addOpen, setAddOpen] = useState(false);
+  const [addBusy, setAddBusy] = useState(false);
+  const [addForm, setAddForm] = useState({
+    email: "",
+    password: "",
+    company_name: "",
+    full_name: "",
+  });
+
+  async function handleCreateClient(e: React.FormEvent) {
+    e.preventDefault();
+    setAddBusy(true);
+    setStatus(null);
+    try {
+      const result = await createClientAccount({
+        data: {
+          email: addForm.email.trim(),
+          password: addForm.password,
+          company_name: addForm.company_name.trim(),
+          full_name: addForm.full_name.trim() || undefined,
+        },
+      });
+      setStatus({ kind: "ok", msg: `Added ${result.company_name}. They can sign in with their email and password.` });
+      setAddForm({ email: "", password: "", company_name: "", full_name: "" });
+      setAddOpen(false);
+      await loadClients();
+      setSelectedId(result.id);
+    } catch (err) {
+      setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to create client" });
+    } finally {
+      setAddBusy(false);
     }
-    const { error: rErr } = await supabase
-      .from("user_roles")
-      .upsert({ user_id: userId, role: "client" }, { onConflict: "user_id,role" });
-    if (rErr) {
-      setStatus({ kind: "err", msg: `Role: ${rErr.message}` });
-      return;
-    }
-    setStatus({ kind: "ok", msg: `Added ${company}.` });
-    await loadClients();
-    setSelectedId(userId);
   }
 
   async function handleLogout() {
