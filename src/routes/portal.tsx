@@ -48,6 +48,16 @@ let cachedPortalGate: {
 
 const PORTAL_GATE_CACHE_MS = 5 * 60 * 1000;
 
+// Invalidate the portal gate cache on every auth identity transition so a
+// fresh sign-in re-runs the AAL/2FA check instead of reusing a prior session.
+if (typeof window !== "undefined") {
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+      cachedPortalGate = null;
+    }
+  });
+}
+
 export const Route = createFileRoute("/portal")({
   ssr: false,
   head: () => ({
@@ -65,24 +75,37 @@ export const Route = createFileRoute("/portal")({
     ) {
       return;
     }
+
+    // Identity lookup — may be served from the short-lived cache.
+    let user: { id: string; email?: string | null };
     if (cachedPortalGate && Date.now() - cachedPortalGate.checkedAt < PORTAL_GATE_CACHE_MS) {
-      return { user: cachedPortalGate.user };
+      user = cachedPortalGate.user;
+    } else {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        cachedPortalGate = null;
+        throw redirect({ to: "/portal/login" });
+      }
+      user = { id: data.user.id, email: data.user.email ?? null };
+
+      // First-time sign-ins (especially via OAuth) may not have a row in
+      // user_roles yet — provision a default `client` role server-side.
+      try {
+        await ensureMyRole();
+      } catch {
+        // Non-fatal: getMyRole below will surface a null role and the UI
+        // handles it gracefully.
+      }
+      cachedPortalGate = { user, checkedAt: Date.now() };
     }
 
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/portal/login" });
-
-    // First-time sign-ins (especially via OAuth) may not have a row in
-    // user_roles yet — provision a default `client` role server-side.
-    try {
-      await ensureMyRole();
-    } catch {
-      // Non-fatal: getMyRole below will surface a null role and the UI
-      // handles it gracefully.
+    // Enforce TOTP 2FA on every navigation — never cached. AAL is per-session
+    // and resets on sign-out, so this must run every time the gate is hit.
+    const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aalError) {
+      cachedPortalGate = null;
+      throw redirect({ to: "/portal/login" });
     }
-
-    // Enforce TOTP 2FA for every portal user.
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aal) {
       if (aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
         throw redirect({ to: "/portal/verify-2fa" });
@@ -92,11 +115,7 @@ export const Route = createFileRoute("/portal")({
         throw redirect({ to: "/portal/setup-2fa" });
       }
     }
-    cachedPortalGate = {
-      user: { id: data.user.id, email: data.user.email ?? null },
-      checkedAt: Date.now(),
-    };
-    return { user: cachedPortalGate.user };
+    return { user };
   },
   pendingMs: Infinity,
   component: PortalShell,
