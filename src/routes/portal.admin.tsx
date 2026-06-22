@@ -244,6 +244,62 @@ function AdminPage() {
     }
   }
 
+  // ----- Excel upload / AI extraction -----
+  const [xlsxFileName, setXlsxFileName] = useState<string | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [savingExtracted, setSavingExtracted] = useState(false);
+  const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
+
+  async function handleXlsxSelected(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !selectedId) return;
+    setStatus(null);
+    setExtracted(null);
+    setAnalyzing(true);
+    setXlsxFileName(file.name);
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf, { type: "array" });
+      const sheetName = wb.SheetNames[0];
+      if (!sheetName) throw new Error("Spreadsheet has no sheets.");
+      const sheet = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: null });
+      const rowsStr = JSON.stringify(rows).slice(0, 180_000);
+      const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
+      setExtracted(result);
+    } catch (err) {
+      setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to analyze spreadsheet" });
+      setXlsxFileName(null);
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function handleConfirmExtracted() {
+    if (!extracted || !selectedId) return;
+    setSavingExtracted(true);
+    setStatus(null);
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      await saveExtractedFinancials({
+        data: {
+          client_id: selectedId,
+          period: today,
+          ...extracted,
+        },
+      });
+      setStatus({ kind: "ok", msg: "Saved extracted financials to the client's dashboard." });
+      setExtracted(null);
+      setXlsxFileName(null);
+      loadClientData(selectedId);
+    } catch (err) {
+      setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to save" });
+    } finally {
+      setSavingExtracted(false);
+    }
+  }
+
   async function handleLogout() {
     await supabase.auth.signOut();
     navigate({ to: "/portal/login", replace: true });
