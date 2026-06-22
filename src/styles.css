@@ -157,3 +157,36 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* iOS-style widget edit mode */
+@keyframes widget-jiggle-a {
+  0%, 100% { transform: rotate(-0.9deg) translate(0, 0); }
+  50%      { transform: rotate(0.9deg) translate(0, -1px); }
+}
+@keyframes widget-jiggle-b {
+  0%, 100% { transform: rotate(0.9deg) translate(0, 0); }
+  50%      { transform: rotate(-0.9deg) translate(0, 1px); }
+}
+.widget-jiggle-a { animation: widget-jiggle-a 0.28s ease-in-out infinite; transform-origin: center; will-change: transform; }
+.widget-jiggle-b { animation: widget-jiggle-b 0.32s ease-in-out infinite; transform-origin: center; will-change: transform; }
+
+@keyframes widget-settle {
+  0%   { transform: rotate(-0.6deg); }
+  60%  { transform: rotate(0.4deg); }
+  100% { transform: rotate(0); }
+}
+.widget-settle { animation: widget-settle 0.32s ease-out; }
+
+@keyframes widget-remove {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.4); opacity: 0; }
+}
+.widget-remove { animation: widget-remove 0.25s ease-in forwards; pointer-events: none; }
+
+.widget-drop-target {
+  outline: 2px dashed rgb(59 130 246 / 0.6);
+  outline-offset: 4px;
+  border-radius: 0.75rem;
+}
+.widget-dragging { opacity: 0.4; }
+
