@@ -138,6 +138,19 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  React.useEffect(() => {
+    const sync = () => {
+      const isPortal = location.pathname.indexOf('/portal') === 0;
+      if (!isPortal) {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = '';
+      }
+    };
+    sync();
+    window.addEventListener('popstate', sync);
+    return () => window.removeEventListener('popstate', sync);
+  });
+
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
