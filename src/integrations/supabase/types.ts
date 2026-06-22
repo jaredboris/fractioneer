@@ -18,34 +18,52 @@ export type Database = {
         Row: {
           ap_ar_detail: string | null
           ap_ar_status: string
+          cash_balance: number | null
           cash_position: string
           cash_position_detail: string | null
           client_id: string
           created_at: string
           monthly_close: string
           monthly_close_detail: string | null
+          monthly_close_status: string | null
+          net_revenue: number | null
+          period: string | null
+          total_ap: number | null
+          total_ar: number | null
           updated_at: string
         }
         Insert: {
           ap_ar_detail?: string | null
           ap_ar_status?: string
+          cash_balance?: number | null
           cash_position?: string
           cash_position_detail?: string | null
           client_id: string
           created_at?: string
           monthly_close?: string
           monthly_close_detail?: string | null
+          monthly_close_status?: string | null
+          net_revenue?: number | null
+          period?: string | null
+          total_ap?: number | null
+          total_ar?: number | null
           updated_at?: string
         }
         Update: {
           ap_ar_detail?: string | null
           ap_ar_status?: string
+          cash_balance?: number | null
           cash_position?: string
           cash_position_detail?: string | null
           client_id?: string
           created_at?: string
           monthly_close?: string
           monthly_close_detail?: string | null
+          monthly_close_status?: string | null
+          net_revenue?: number | null
+          period?: string | null
+          total_ap?: number | null
+          total_ar?: number | null
           updated_at?: string
         }
         Relationships: [
