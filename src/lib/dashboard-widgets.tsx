@@ -621,27 +621,30 @@ function ChartShell({
   title,
   subtitle,
   empty,
+  sparse,
   children,
 }: {
   title: string;
   subtitle: string;
   empty: boolean;
+  sparse?: boolean;
   children: React.ReactNode;
 }) {
+  const showPlaceholder = empty || sparse;
   return (
-    <div className="flex min-h-[320px] flex-col rounded-xl p-5 nb-card h-full">
-      <div className="mb-4">
+    <div className="flex min-h-[280px] flex-col rounded-xl p-4 nb-card h-full">
+      <div className="mb-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
           {title}
         </h2>
-        <p className="text-xs text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
+        <p className="text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
       </div>
-      {empty ? (
-        <div className="flex flex-1 items-center justify-center text-sm text-slate-400 dark:text-[#6B7280]">
-          No financial data available yet.
+      {showPlaceholder ? (
+        <div className="flex flex-1 items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
+          More data will appear as your Fractioneer team uploads monthly financials.
         </div>
       ) : (
-        <div className="h-64 w-full flex-1">{children}</div>
+        <div className="h-[200px] w-full flex-1">{children}</div>
       )}
     </div>
   );
