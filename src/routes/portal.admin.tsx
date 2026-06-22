@@ -686,3 +686,28 @@ function Input({
     />
   );
 }
+
+function ExtractedRow({
+  label,
+  value,
+  kind,
+}: {
+  label: string;
+  value: number | string | null;
+  kind: "currency" | "text";
+}) {
+  const missing = value === null || value === undefined;
+  const display = missing
+    ? "Not found"
+    : kind === "currency"
+    ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value))
+    : String(value);
+  return (
+    <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
+      <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
+      <div className={`mt-1 text-sm font-semibold ${missing ? "text-destructive" : "text-foreground"}`}>
+        {display}
+      </div>
+    </div>
+  );
+}
