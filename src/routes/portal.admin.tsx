@@ -628,7 +628,10 @@ function AdminPage() {
                   <ExtractedRow label="Total AR" value={extracted.total_ar} kind="currency" />
                   <ExtractedRow label="Total AP" value={extracted.total_ap} kind="currency" />
                   <ExtractedRow label="Net revenue" value={extracted.net_revenue} kind="currency" />
+                  <ExtractedRow label="Net income" value={extracted.net_income} kind="currency" />
+                  <ExtractedRow label="Period end" value={extracted.period_end} kind="text" />
                   <ExtractedRow label="Monthly close status" value={extracted.monthly_close_status} kind="text" />
+
                 </dl>
                 <div className="mt-5 flex items-center justify-end gap-2">
                   <button
