@@ -58,6 +58,9 @@ function SettingsPage() {
     };
   }, [user.id]);
 
+  const isAdmin = !impersonation && role === "admin";
+  const displayCompanyName = impersonation ? companyName : (isAdmin ? "Fractioneer" : companyName);
+
   return (
     <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
       <PortalSidebar companyName={companyName} email={displayEmail} role={impersonation ? "client" : role} />
