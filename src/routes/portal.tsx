@@ -113,15 +113,13 @@ function PortalShell() {
 
 function PortalRouter() {
   const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
+  const impersonation = useImpersonation();
   const [role, setRole] = useState<"admin" | "client" | null | undefined>(undefined);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      // Server-verified role: requireSupabaseAuth middleware re-validates the
-      // JWT and queries user_roles server-side. Cannot be spoofed by editing
-      // client state or DevTools.
       try {
         const result = await getMyRole();
         if (cancelled) return;
@@ -141,6 +139,8 @@ function PortalRouter() {
     );
   }
 
+  // Admin viewing a client in spy mode → render the real client dashboard.
+  if (role === "admin" && impersonation) return <ClientDashboard role="client" />;
   return role === "admin" ? <AdminOverview role={role} /> : <ClientDashboard role={role} />;
 }
 
