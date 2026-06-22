@@ -1035,3 +1035,148 @@ function ClientDashboard({ role }: { role: string | null }) {
     </div>
   );
 }
+
+/* --------------------------- Dashboard helpers --------------------------- */
+
+type DashboardFinancialRow = {
+  client_id: string;
+  monthly_close: string;
+  monthly_close_detail: string | null;
+  monthly_close_status: string | null;
+  cash_position: string;
+  cash_balance: number | null;
+  total_ar: number | null;
+  total_ap: number | null;
+  net_revenue: number | null;
+  net_income: number | null;
+  period: string | null;
+};
+
+function formatCurrencyOrDash(v: number | null | undefined): string {
+  if (v === null || v === undefined || Number.isNaN(Number(v))) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number(v));
+}
+
+function compactCurrency(v: number): string {
+  if (!Number.isFinite(v)) return "";
+  const abs = Math.abs(v);
+  if (abs >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `$${(v / 1_000).toFixed(0)}k`;
+  return `$${v.toFixed(0)}`;
+}
+
+function parsePeriod(period: string): Date {
+  // period is YYYY-MM-DD; build as local date to avoid TZ shifts
+  const [y, m, d] = period.split("-").map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
+}
+
+function formatAsOf(period: string | null): string {
+  if (!period) return "";
+  return `As of ${parsePeriod(period).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  })}`;
+}
+
+function formatMonthShort(period: string): string {
+  return parsePeriod(period).toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+}
+
+function formatMonthYear(period: string): string {
+  return parsePeriod(period).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function StatCard({
+  label,
+  value,
+  tone,
+  icon,
+  periodLabel,
+}: {
+  label: string;
+  value: string;
+  tone: Tone;
+  icon: React.ReactNode;
+  periodLabel: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${toneClasses(tone)}`}>
+          {icon}
+        </span>
+      </div>
+      <div className="mt-4 text-2xl font-semibold text-foreground">{value}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{periodLabel || "—"}</div>
+    </div>
+  );
+}
+
+function LockedToggle({ label }: { label: string }) {
+  return (
+    <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
+      <span className="text-sm text-foreground">{label}</span>
+      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Always on</span>
+    </div>
+  );
+}
+
+function PrefToggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between rounded-md border border-border bg-background px-3 py-2 hover:bg-muted/40">
+      <span className="text-sm text-foreground">{label}</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-4 w-4 cursor-pointer accent-primary"
+      />
+    </label>
+  );
+}
+
+function ArApBar({ ar, ap }: { ar: number | null; ap: number | null }) {
+  const arVal = ar ?? 0;
+  const apVal = ap ?? 0;
+  const total = arVal + apVal;
+  const arPct = total > 0 ? (arVal / total) * 100 : 0;
+  const apPct = total > 0 ? (apVal / total) * 100 : 0;
+  return (
+    <div className="mt-2">
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
+        {total > 0 && (
+          <>
+            <div style={{ width: `${arPct}%` }} className="h-full bg-primary" />
+            <div style={{ width: `${apPct}%` }} className="h-full bg-muted-foreground/40" />
+          </>
+        )}
+      </div>
+      <div className="mt-2 flex items-center justify-between text-xs">
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="inline-block h-2 w-2 rounded-sm bg-primary" />
+          AR <span className="font-medium text-foreground">{formatCurrencyOrDash(ar)}</span>
+        </span>
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="inline-block h-2 w-2 rounded-sm bg-muted-foreground/40" />
+          AP <span className="font-medium text-foreground">{formatCurrencyOrDash(ap)}</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
