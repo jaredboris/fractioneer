@@ -892,8 +892,12 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
   const widgets = useWidgetPrefs();
-  const [manageOpen, setManageOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
 
   useEffect(() => {
     let cancelled = false;
