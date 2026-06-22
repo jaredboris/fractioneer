@@ -1042,173 +1042,59 @@ function ClientDashboard({ role }: { role: string | null }) {
           </p>
         </div>
 
-        <div className="mb-3 flex items-center justify-end nb-rise" style={{ animationDelay: "120ms" }}>
+        <div className="mb-3 flex items-center justify-end gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
           <button
-            onClick={() => setCustomizeOpen((v) => !v)}
+            onClick={() => setManageOpen((v) => !v)}
             className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
             Manage Widgets
           </button>
+          <button
+            onClick={() => setAddOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Add Widget
+          </button>
         </div>
 
-        {customizeOpen && (
-          <div className="mb-3 rounded-xl p-4 nb-card">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Customize stat cards</h3>
-                <p className="mt-0.5 text-xs text-slate-500 dark:text-[#9CA3AF]">
-                  Choose which cards to display. Monthly Close and Cash Position are always shown.
-                </p>
-              </div>
-              <button
-                onClick={() => setCustomizeOpen(false)}
-                className="rounded p-1 text-slate-500 dark:text-[#9CA3AF]"
-                aria-label="Close"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <LockedToggle label="Monthly Close Status" />
-              <LockedToggle label="Cash Position" />
-              <PrefToggle
-                label="Accounts Receivable"
-                checked={prefs.ar}
-                onChange={(v) => setPrefs({ ...prefs, ar: v })}
-              />
-              <PrefToggle
-                label="Accounts Payable"
-                checked={prefs.ap}
-                onChange={(v) => setPrefs({ ...prefs, ap: v })}
-              />
-            </div>
-          </div>
+        {manageOpen && (
+          <ManageWidgetsPanel
+            ids={widgets.ids}
+            onMove={widgets.move}
+            onRemove={widgets.remove}
+            onClose={() => setManageOpen(false)}
+          />
+        )}
+
+        {addOpen && (
+          <AddWidgetModal
+            ids={widgets.ids}
+            onAdd={widgets.add}
+            onClose={() => setAddOpen(false)}
+          />
         )}
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="nb-rise" style={{ animationDelay: "180ms" }}>
-            <StatCard
-              label="Monthly Close"
-              value={latest?.monthly_close_status ?? latest?.monthly_close ?? "—"}
-              tone={
-                latest?.monthly_close_status === "closed"
-                  ? "ok"
-                  : latest?.monthly_close
-                    ? toneForMonthly(latest.monthly_close)
-                    : "info"
-              }
-              icon={<CheckCircle2 className="h-5 w-5" />}
-              periodLabel={periodLabel}
-            />
-          </div>
-          <div className="nb-rise" style={{ animationDelay: "280ms" }}>
-            <StatCard
-              label="Cash Position"
-              value={formatCurrencyOrDash(latest?.cash_balance ?? null)}
-              numericValue={latest?.cash_balance ?? null}
-              tone="info"
-              icon={<Wallet className="h-5 w-5" />}
-              periodLabel={periodLabel}
-              trend={trendFor(latest?.cash_balance, prev?.cash_balance)}
-            />
-          </div>
-          {prefs.ar && (
-            <div className="nb-rise" style={{ animationDelay: "380ms" }}>
-              <StatCard
-                label="Accounts Receivable"
-                value={formatCurrencyOrDash(latest?.total_ar ?? null)}
-                numericValue={latest?.total_ar ?? null}
-                tone="info"
-                icon={<Receipt className="h-5 w-5" />}
-                periodLabel={periodLabel}
-                trend={trendFor(latest?.total_ar, prev?.total_ar)}
-              />
-            </div>
-          )}
-          {prefs.ap && (
-            <div className="nb-rise" style={{ animationDelay: "480ms" }}>
-              <StatCard
-                label="Accounts Payable"
-                value={formatCurrencyOrDash(latest?.total_ap ?? null)}
-                numericValue={latest?.total_ap ?? null}
-                tone="info"
-                icon={<Receipt className="h-5 w-5" />}
-                periodLabel={periodLabel}
-                trend={trendFor(latest?.total_ap, prev?.total_ap)}
-              />
-            </div>
-          )}
+          {widgets.ids.map((id, idx) => {
+            const def = WIDGET_BY_ID[id];
+            if (!def) return null;
+            return (
+              <div
+                key={id}
+                className={`nb-rise ${def.kind === "chart" ? "sm:col-span-2 lg:col-span-4" : ""}`}
+                style={{ animationDelay: `${180 + idx * 80}ms` }}
+              >
+                {def.render(widgetCtx)}
+              </div>
+            );
+          })}
         </section>
 
-        <section className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-5">
+        <section className="mt-5">
           <div
-            className="flex min-h-[360px] flex-col rounded-xl p-5 nb-card nb-rise lg:col-span-3"
-            style={{ animationDelay: "560ms" }}
-          >
-            <div className="mb-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
-                Revenue vs Expenses
-              </h2>
-              <p className="text-xs text-slate-400 dark:text-[#6B7280]">By month, based on submitted financials.</p>
-            </div>
-            {chartData.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center text-sm text-slate-400 dark:text-[#6B7280]">
-                No financial data available yet.
-              </div>
-            ) : (
-              <div className="h-64 w-full flex-1">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="nbRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#60A5FA" stopOpacity={1} />
-                        <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.85} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
-                    <XAxis dataKey="month" stroke={axisStroke} fontSize={12} />
-                    <YAxis
-                      stroke={axisStroke}
-                      fontSize={12}
-                      tickFormatter={(v) => compactCurrency(Number(v))}
-                    />
-                    <RTooltip
-                      formatter={(v: number) => formatCurrencyOrDash(v)}
-                      contentStyle={{
-                        background: tooltipBg,
-                        border: `1px solid ${tooltipBorder}`,
-                        borderRadius: 8,
-                        fontSize: 12,
-                        color: tooltipText,
-                      }}
-                      cursor={{ fill: "rgba(59,130,246,0.08)" }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
-                    <Bar
-                      dataKey="Revenue"
-                      fill="url(#nbRevenue)"
-                      radius={[4, 4, 0, 0]}
-                      className="nb-chart-bar"
-                      animationDuration={1100}
-                      animationEasing="ease-out"
-                    />
-                    <Bar
-                      dataKey="Expenses"
-                      fill={expensesFill}
-                      radius={[4, 4, 0, 0]}
-                      animationDuration={1100}
-                      animationBegin={150}
-                      animationEasing="ease-out"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
-
-          <div
-            className="relative flex min-h-[360px] flex-col overflow-hidden rounded-xl p-5 nb-card nb-rise lg:col-span-2"
+            className="relative flex min-h-[360px] flex-col overflow-hidden rounded-xl p-5 nb-card nb-rise"
             style={{ animationDelay: "660ms" }}
           >
             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
