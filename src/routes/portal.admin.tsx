@@ -261,11 +261,14 @@ function AdminPage() {
     try {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
-      const sheetName = wb.SheetNames[0];
-      if (!sheetName) throw new Error("Spreadsheet has no sheets.");
-      const sheet = wb.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: null });
-      const rowsStr = JSON.stringify(rows).slice(0, 180_000);
+      if (wb.SheetNames.length === 0) throw new Error("Spreadsheet has no sheets.");
+      const blocks: string[] = [];
+      for (const name of wb.SheetNames) {
+        const sheet = wb.Sheets[name];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: null, header: 1 });
+        blocks.push(`=== Sheet: ${name} ===\n${JSON.stringify(rows)}`);
+      }
+      const rowsStr = blocks.join("\n\n").slice(0, 180_000);
       const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
       setExtracted(result);
     } catch (err) {
@@ -281,12 +284,13 @@ function AdminPage() {
     setSavingExtracted(true);
     setStatus(null);
     try {
-      const today = new Date().toISOString().slice(0, 10);
+      const period = extracted.period_end ?? new Date().toISOString().slice(0, 10);
+      const { period_end: _omit, ...rest } = extracted;
       await saveExtractedFinancials({
         data: {
           client_id: selectedId,
-          period: today,
-          ...extracted,
+          period,
+          ...rest,
         },
       });
       setStatus({ kind: "ok", msg: "Saved extracted financials to the client's dashboard." });
@@ -299,6 +303,7 @@ function AdminPage() {
       setSavingExtracted(false);
     }
   }
+
 
   async function handleLogout() {
     await supabase.auth.signOut();
