@@ -49,7 +49,8 @@ function Setup2FAPage() {
 
         const { data, error } = await supabase.auth.mfa.enroll({
           factorType: "totp",
-          friendlyName: `Fractioneer ${Date.now()}`,
+          friendlyName: `Fractioneer Portal ${Date.now()}`,
+          issuer: "Fractioneer Portal",
         });
         if (error) throw error;
         if (cancelled) return;
