@@ -214,10 +214,24 @@ type ClientRow = {
   last_upload_at: string | null;
 };
 
-function AdminOverview({ role }: { role: string }) {
+type ActivityItem = {
+  id: string;
+  kind: "upload" | "extraction";
+  client_id: string;
+  client_name: string;
+  label: string;
+  created_at: string;
+};
+
+const AI_COST_PER_EXTRACTION = 0.02; // estimated USD per Excel extraction
+
+function AdminOverview({ role: _role }: { role: string }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
   const [rows, setRows] = useState<ClientRow[] | null>(null);
   const [previewId, setPreviewId] = useState<string>("");
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [periodsThisMonth, setPeriodsThisMonth] = useState<number>(0);
+  const [uploadsThisMonth, setUploadsThisMonth] = useState<number>(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -228,15 +242,23 @@ function AdminOverview({ role }: { role: string }) {
         .eq("role", "client");
       const ids = (roles ?? []).map((r) => r.user_id);
       if (ids.length === 0) {
-        if (!cancelled) setRows([]);
+        if (!cancelled) {
+          setRows([]);
+          setActivity([]);
+        }
         return;
       }
-      const [{ data: profiles }, { data: dashboards }, { data: documents }] = await Promise.all([
+      const [{ data: profiles }, { data: dashboards }, { data: documents }, { data: periods }] = await Promise.all([
         supabase.from("profiles").select("id, company_name, full_name").in("id", ids),
         supabase.from("dashboard_data").select("client_id, updated_at").in("client_id", ids),
-        supabase.from("documents").select("client_id, created_at").in("client_id", ids),
+        supabase.from("documents").select("id, client_id, file_name, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(50),
+        supabase.from("periods").select("id, client_id, period_end, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(50),
       ]);
       if (cancelled) return;
+
+      const nameMap = new Map<string, string>(
+        (profiles ?? []).map((p) => [p.id, p.company_name || p.full_name || p.id.slice(0, 8)]),
+      );
 
       const dashMap = new Map<string, string | null>((dashboards ?? []).map((d) => [d.client_id, d.updated_at]));
       const docMap = new Map<string, { count: number; last: string | null }>();
@@ -255,7 +277,6 @@ function AdminOverview({ role }: { role: string }) {
         document_count: docMap.get(p.id)?.count ?? 0,
         last_upload_at: docMap.get(p.id)?.last ?? null,
       }));
-      // Sort: needs attention first, then alphabetical
       merged.sort((a, b) => {
         const aNeeds = !a.dashboard_updated_at || a.document_count === 0 ? 0 : 1;
         const bNeeds = !b.dashboard_updated_at || b.document_count === 0 ? 0 : 1;
@@ -263,6 +284,36 @@ function AdminOverview({ role }: { role: string }) {
         return (a.company_name || a.full_name || "").localeCompare(b.company_name || b.full_name || "");
       });
       setRows(merged);
+
+      // This-month counts
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const uploadsMonth = (documents ?? []).filter((d) => new Date(d.created_at) >= monthStart).length;
+      const periodsMonth = (periods ?? []).filter((p) => new Date(p.created_at) >= monthStart).length;
+      setUploadsThisMonth(uploadsMonth);
+      setPeriodsThisMonth(periodsMonth);
+
+      // Recent activity: combine documents + periods
+      const docItems: ActivityItem[] = (documents ?? []).map((d) => ({
+        id: `doc-${d.id}`,
+        kind: "upload",
+        client_id: d.client_id,
+        client_name: nameMap.get(d.client_id) ?? "Unknown",
+        label: d.file_name,
+        created_at: d.created_at,
+      }));
+      const perItems: ActivityItem[] = (periods ?? []).map((p) => ({
+        id: `per-${p.id}`,
+        kind: "extraction",
+        client_id: p.client_id,
+        client_name: nameMap.get(p.client_id) ?? "Unknown",
+        label: `Period ${p.period_end}`,
+        created_at: p.created_at,
+      }));
+      const combined = [...docItems, ...perItems]
+        .sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at))
+        .slice(0, 10);
+      setActivity(combined);
     })();
     return () => { cancelled = true; };
   }, []);
@@ -274,109 +325,120 @@ function AdminOverview({ role }: { role: string }) {
     return { total: list.length, needsData, needsDocs };
   })();
 
+  const aiCostEstimate = (uploadsThisMonth * AI_COST_PER_EXTRACTION).toFixed(2);
+
   return (
-    <div className="min-h-screen bg-muted/40">
-      <PortalHeader
-        displayName="Fractioneer"
-        email={user.email ?? null}
-        role={role}
-        showAdminLink={true}
-      />
-      <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <AdminShell email={user.email ?? null}>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            {previewId ? "Client preview" : "Operations overview"}
+          </h1>
+          <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
+            {previewId
+              ? "Read-only view of what this client sees when they log in."
+              : "Status of every client portal at a glance."}
+          </p>
+        </div>
+        <div className="flex items-end gap-2">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {previewId ? "Client preview" : "Operations overview"}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {previewId
-                ? "Read-only view of what this client sees when they log in."
-                : "Status of every client portal at a glance."}
-            </p>
-          </div>
-          <div className="flex items-end gap-2">
-            <div>
-              <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                View as client
-              </label>
-              <div className="mt-1 flex items-center gap-2">
-                <div className="relative">
-                  <Eye className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <select
-                    value={previewId}
-                    onChange={(e) => setPreviewId(e.target.value)}
-                    disabled={!rows || rows.length === 0}
-                    className="block min-w-[16rem] rounded-md border border-input bg-background py-2 pl-8 pr-3 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent disabled:opacity-50"
-                  >
-                    <option value="">— Admin overview —</option>
-                    {(rows ?? []).map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.company_name || r.full_name || r.id}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                {previewId && (
-                  <button
-                    onClick={() => setPreviewId("")}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-                    aria-label="Exit preview"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                    Exit preview
-                  </button>
-                )}
+            <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">
+              View as client
+            </label>
+            <div className="mt-1 flex items-center gap-2">
+              <div className="relative">
+                <Eye className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <select
+                  value={previewId}
+                  onChange={(e) => setPreviewId(e.target.value)}
+                  disabled={!rows || rows.length === 0}
+                  className="block min-w-[16rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
+                >
+                  <option value="">— Admin overview —</option>
+                  {(rows ?? []).map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.company_name || r.full_name || r.id}
+                    </option>
+                  ))}
+                </select>
               </div>
+              {previewId && (
+                <button
+                  onClick={() => setPreviewId("")}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white dark:hover:bg-[#1a2335]"
+                  aria-label="Exit preview"
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Exit preview
+                </button>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {previewId ? (
-          <ClientPreview
-            clientId={previewId}
-            clientLabel={
-              (rows ?? []).find((r) => r.id === previewId)?.company_name ||
-              (rows ?? []).find((r) => r.id === previewId)?.full_name ||
-              "Client"
-            }
-          />
-        ) : (
-          <>
-            <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <SummaryCard
-                label="Clients"
-                value={String(totals.total)}
-                detail="Active client portals"
-                tone="info"
-                icon={<Building2 className="h-5 w-5" />}
-              />
-              <SummaryCard
-                label="Need dashboard data"
-                value={String(totals.needsData)}
-                detail={totals.needsData === 0 ? "All set" : "Set values to share with client"}
-                tone={totals.needsData === 0 ? "ok" : "warn"}
-                icon={<AlertTriangle className="h-5 w-5" />}
-              />
-              <SummaryCard
-                label="Need documents"
-                value={String(totals.needsDocs)}
-                detail={totals.needsDocs === 0 ? "All have files" : "No files uploaded yet"}
-                tone={totals.needsDocs === 0 ? "ok" : "warn"}
-                icon={<Upload className="h-5 w-5" />}
-              />
-            </section>
+      {previewId ? (
+        <ClientPreview
+          clientId={previewId}
+          clientLabel={
+            (rows ?? []).find((r) => r.id === previewId)?.company_name ||
+            (rows ?? []).find((r) => r.id === previewId)?.full_name ||
+            "Client"
+          }
+        />
+      ) : (
+        <>
+          <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <DarkStatCard
+              label="Clients"
+              value={String(totals.total)}
+              detail="Active client portals"
+              tone="info"
+              icon={<Building2 className="h-5 w-5" />}
+            />
+            <DarkStatCard
+              label="Need dashboard data"
+              value={String(totals.needsData)}
+              detail={totals.needsData === 0 ? "All set" : "Values to set"}
+              tone={totals.needsData === 0 ? "ok" : "warn"}
+              icon={<AlertTriangle className="h-5 w-5" />}
+            />
+            <DarkStatCard
+              label="Need documents"
+              value={String(totals.needsDocs)}
+              detail={totals.needsDocs === 0 ? "All have files" : "No files yet"}
+              tone={totals.needsDocs === 0 ? "ok" : "warn"}
+              icon={<Upload className="h-5 w-5" />}
+            />
+            <DarkStatCard
+              label="AI credits (month)"
+              value={`$${aiCostEstimate}`}
+              detail={`${uploadsThisMonth} upload${uploadsThisMonth === 1 ? "" : "s"} · est`}
+              tone="info"
+              icon={<TrendingUp className="h-5 w-5" />}
+            />
+            <DarkStatCard
+              label="Periods (month)"
+              value={String(periodsThisMonth)}
+              detail="Processed this month"
+              tone="info"
+              icon={<CheckCircle2 className="h-5 w-5" />}
+            />
+          </section>
 
-            <section className="overflow-hidden rounded-xl border border-border bg-card">
-              <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <section className="lg:col-span-2 overflow-hidden rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827]">
+              <div className="flex items-center justify-between border-b border-[#E5E9F1] px-5 py-4 dark:border-[#1E2A3A]">
                 <div>
-                  <h2 className="text-base font-semibold text-foreground">Clients</h2>
-                  <p className="text-xs text-muted-foreground">
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">Clients</h2>
+                  <p className="text-xs text-slate-500 dark:text-[#9CA3AF]">
                     Flagged rows need data set or documents uploaded.
                   </p>
                 </div>
                 <Link
                   to="/portal/admin"
-                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  search={{ tab: "clients" } as never}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700"
                 >
                   <Settings className="h-3.5 w-3.5" />
                   Manage data
@@ -384,79 +446,75 @@ function AdminOverview({ role }: { role: string }) {
               </div>
 
               {rows === null ? (
-                <div className="flex items-center justify-center px-5 py-12 text-sm text-muted-foreground">
+                <div className="flex items-center justify-center px-5 py-12 text-sm text-slate-500 dark:text-[#9CA3AF]">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Loading…
                 </div>
               ) : rows.length === 0 ? (
-                <div className="px-5 py-12 text-center text-sm text-muted-foreground">
+                <div className="px-5 py-12 text-center text-sm text-slate-500 dark:text-[#9CA3AF]">
                   No clients yet. Use <strong>Manage data</strong> to add your first client.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-muted/40 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:bg-[#0F1729] dark:text-[#6B7280]">
                       <tr>
                         <th className="px-5 py-3">Client</th>
                         <th className="px-5 py-3">Dashboard</th>
-                        <th className="px-5 py-3">Documents</th>
+                        <th className="px-5 py-3">Docs</th>
                         <th className="px-5 py-3">Last upload</th>
                         <th className="px-5 py-3 text-right">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-border">
+                    <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
                       {rows.map((r) => {
                         const noData = !r.dashboard_updated_at;
                         const noDocs = r.document_count === 0;
                         const needsAttention = noData || noDocs;
                         return (
-                          <tr key={r.id} className={needsAttention ? "bg-destructive/[0.03]" : ""}>
+                          <tr key={r.id} className={needsAttention ? "bg-rose-50/40 dark:bg-rose-500/[0.04]" : ""}>
                             <td className="px-5 py-4">
-                              <div className="font-medium text-foreground">
+                              <div className="font-medium text-slate-900 dark:text-white">
                                 {r.company_name || r.full_name || "—"}
                               </div>
-                              <div className="text-xs text-muted-foreground">{r.id.slice(0, 8)}…</div>
+                              <div className="text-xs text-slate-400">{r.id.slice(0, 8)}…</div>
                             </td>
                             <td className="px-5 py-4">
                               {noData ? (
-                                <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive">
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-rose-600 dark:text-rose-400">
                                   <AlertTriangle className="h-3.5 w-3.5" />
                                   Not set
                                 </span>
                               ) : (
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-slate-500 dark:text-[#9CA3AF]">
                                   Updated {new Date(r.dashboard_updated_at!).toLocaleDateString()}
                                 </div>
                               )}
                             </td>
                             <td className="px-5 py-4">
-                              <div className="text-sm font-medium text-foreground">
+                              <div className="text-sm font-medium text-slate-900 dark:text-white">
                                 {r.document_count}
                               </div>
                             </td>
-                            <td className="px-5 py-4 text-xs text-muted-foreground">
+                            <td className="px-5 py-4 text-xs text-slate-500 dark:text-[#9CA3AF]">
                               {r.last_upload_at ? new Date(r.last_upload_at).toLocaleDateString() : "—"}
                             </td>
                             <td className="px-5 py-4 text-right">
                               <div className="flex items-center justify-end gap-2">
                                 {needsAttention ? (
-                                  <span className="inline-flex items-center gap-1 rounded-md bg-destructive/10 px-2 py-1 text-[11px] font-medium text-destructive">
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-1 text-[11px] font-medium text-rose-600 dark:text-rose-300">
                                     <AlertTriangle className="h-3 w-3" />
-                                    {noData && noDocs
-                                      ? "Needs data & docs"
-                                      : noData
-                                        ? "Needs data"
-                                        : "Needs docs"}
+                                    {noData && noDocs ? "Needs data & docs" : noData ? "Needs data" : "Needs docs"}
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 rounded-md bg-accent/10 px-2 py-1 text-[11px] font-medium text-accent">
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-300">
                                     <CheckCircle2 className="h-3 w-3" />
                                     Ready
                                   </span>
                                 )}
                                 <button
                                   onClick={() => setPreviewId(r.id)}
-                                  className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                                  className="inline-flex items-center gap-1 rounded-md border border-[#E5E9F1] bg-white px-2 py-1 text-[11px] font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white dark:hover:bg-[#1a2335]"
                                   aria-label={`Preview as ${r.company_name || r.full_name || "client"}`}
                                 >
                                   <Eye className="h-3 w-3" />
@@ -472,9 +530,78 @@ function AdminOverview({ role }: { role: string }) {
                 </div>
               )}
             </section>
-          </>
-        )}
-      </main>
+
+            {/* Recent activity */}
+            <section className="rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827]">
+              <div className="border-b border-[#E5E9F1] px-5 py-4 dark:border-[#1E2A3A]">
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">Recent activity</h2>
+                <p className="text-xs text-slate-500 dark:text-[#9CA3AF]">Last 10 uploads & extractions.</p>
+              </div>
+              {activity.length === 0 ? (
+                <div className="px-5 py-12 text-center text-sm text-slate-500 dark:text-[#9CA3AF]">No activity yet.</div>
+              ) : (
+                <ul className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
+                  {activity.map((a) => (
+                    <li key={a.id} className="flex items-start gap-3 px-5 py-3">
+                      <span
+                        className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
+                          a.kind === "upload"
+                            ? "bg-blue-500/10 text-blue-600 dark:text-blue-300"
+                            : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
+                        }`}
+                      >
+                        {a.kind === "upload" ? <Upload className="h-3.5 w-3.5" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-xs font-medium text-slate-900 dark:text-white">
+                          {a.client_name}
+                        </div>
+                        <div className="truncate text-xs text-slate-500 dark:text-[#9CA3AF]">
+                          {a.kind === "upload" ? "Upload" : "Extraction"} · {a.label}
+                        </div>
+                        <div className="mt-0.5 text-[10px] uppercase tracking-wider text-slate-400">
+                          {new Date(a.created_at).toLocaleString()}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          </div>
+        </>
+      )}
+    </AdminShell>
+  );
+}
+
+function DarkStatCard({
+  label,
+  value,
+  detail,
+  tone,
+  icon,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  tone: Tone;
+  icon: React.ReactNode;
+}) {
+  const toneBg =
+    tone === "ok"
+      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
+      : tone === "warn"
+        ? "bg-rose-500/10 text-rose-600 dark:text-rose-300"
+        : "bg-blue-500/10 text-blue-600 dark:text-blue-300";
+  return (
+    <div className="rounded-2xl border border-[#E5E9F1] bg-white p-5 dark:border-[#1E2A3A] dark:bg-[#111827]">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">{label}</span>
+        <span className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${toneBg}`}>{icon}</span>
+      </div>
+      <div className="mt-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{value}</div>
+      <div className="mt-1 text-xs text-slate-500 dark:text-[#9CA3AF]">{detail}</div>
     </div>
   );
 }
