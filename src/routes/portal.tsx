@@ -1273,18 +1273,51 @@ function StatCard({
   periodLabel: string;
   trend?: { dir: "up" | "down"; pct: number };
 }) {
+function useIsDark() {
+  const [isDark, setIsDark] = useState<boolean>(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+  );
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    const update = () => setIsDark(root.classList.contains("dark"));
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return isDark;
+}
+
+function StatCard({
+  label,
+  value,
+  numericValue,
+  tone,
+  icon,
+  periodLabel,
+  trend,
+}: {
+  label: string;
+  value: string;
+  numericValue?: number | null;
+  tone: Tone;
+  icon: React.ReactNode;
+  periodLabel: string;
+  trend?: { dir: "up" | "down"; pct: number };
+}) {
   const iconBg =
     tone === "ok"
-      ? "rgba(52, 211, 153, 0.12)"
+      ? "rgba(16, 185, 129, 0.12)"
       : tone === "warn"
         ? "rgba(248, 113, 113, 0.12)"
         : "rgba(59, 130, 246, 0.12)";
   const iconColor =
-    tone === "ok" ? "#34D399" : tone === "warn" ? "#F87171" : "#60A5FA";
+    tone === "ok" ? "#10B981" : tone === "warn" ? "#EF4444" : "#3B82F6";
   return (
     <div className="rounded-xl p-5 nb-card">
       <div className="flex items-start justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
+        <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">
           {label}
         </span>
         <span
@@ -1298,7 +1331,7 @@ function StatCard({
           {icon}
         </span>
       </div>
-      <div className="mt-3 text-3xl font-bold tracking-tight text-white">
+      <div className="mt-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
         {numericValue != null && Number.isFinite(numericValue) ? (
           <CountUpValue value={numericValue} format={(n) => formatCurrencyOrDash(n)} fallback={value} />
         ) : (
@@ -1306,13 +1339,13 @@ function StatCard({
         )}
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
-        <span className="text-[11px]" style={{ color: "#6B7280" }}>
+        <span className="text-[11px] text-slate-400 dark:text-[#6B7280]">
           {periodLabel || "—"}
         </span>
         {trend && (
           <span
             className="inline-flex items-center gap-0.5 text-[11px] font-medium"
-            style={{ color: trend.dir === "up" ? "#34D399" : "#F87171" }}
+            style={{ color: trend.dir === "up" ? "#10B981" : "#EF4444" }}
           >
             {trend.dir === "up" ? (
               <TrendingUp className="h-3 w-3" />
@@ -1362,12 +1395,9 @@ function CountUpValue({
 
 function LockedToggle({ label }: { label: string }) {
   return (
-    <div
-      className="flex items-center justify-between rounded-md px-3 py-2"
-      style={{ backgroundColor: "#0F1729", border: "1px solid #1E2A3A" }}
-    >
-      <span className="text-sm" style={{ color: "#E5E7EB" }}>{label}</span>
-      <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>Always on</span>
+    <div className="flex items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
+      <span className="text-sm text-slate-700 dark:text-[#E5E7EB]">{label}</span>
+      <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">Always on</span>
     </div>
   );
 }
@@ -1382,11 +1412,8 @@ function PrefToggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label
-      className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2"
-      style={{ backgroundColor: "#0F1729", border: "1px solid #1E2A3A" }}
-    >
-      <span className="text-sm" style={{ color: "#E5E7EB" }}>{label}</span>
+    <label className="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
+      <span className="text-sm text-slate-700 dark:text-[#E5E7EB]">{label}</span>
       <input
         type="checkbox"
         checked={checked}
@@ -1405,28 +1432,26 @@ function ArApBar({ ar, ap }: { ar: number | null; ap: number | null }) {
   const apPct = total > 0 ? (apVal / total) * 100 : 0;
   return (
     <div className="mt-2">
-      <div
-        className="flex h-2.5 w-full overflow-hidden rounded-full"
-        style={{ backgroundColor: "#1E2A3A" }}
-      >
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-[#1E2A3A]">
         {total > 0 && (
           <>
             <div
               style={{ width: `${arPct}%`, backgroundColor: "#3B82F6", boxShadow: "0 0 8px rgba(59,130,246,0.6)" }}
               className="h-full"
             />
-            <div style={{ width: `${apPct}%`, backgroundColor: "#475569" }} className="h-full" />
+            <div style={{ width: `${apPct}%` }} className="h-full bg-slate-400 dark:bg-[#475569]" />
           </>
         )}
       </div>
       <div className="mt-2 flex items-center justify-between text-xs">
-        <span className="flex items-center gap-1.5" style={{ color: "#9CA3AF" }}>
+        <span className="flex items-center gap-1.5 text-slate-500 dark:text-[#9CA3AF]">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#3B82F6" }} />
-          AR <span className="font-medium text-white">{formatCurrencyOrDash(ar)}</span>
+          AR <span className="font-medium text-slate-900 dark:text-white">{formatCurrencyOrDash(ar)}</span>
         </span>
-        <span className="flex items-center gap-1.5" style={{ color: "#9CA3AF" }}>
-          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#475569" }} />
-          AP <span className="font-medium text-white">{formatCurrencyOrDash(ap)}</span>
+        <span className="flex items-center gap-1.5 text-slate-500 dark:text-[#9CA3AF]">
+          <span className="inline-block h-2 w-2 rounded-sm bg-slate-400 dark:bg-[#475569]" />
+          AP <span className="font-medium text-slate-900 dark:text-white">{formatCurrencyOrDash(ap)}</span>
+
         </span>
       </div>
     </div>
