@@ -914,3 +914,134 @@ function NumField({
   );
 }
 
+
+function ActivityLogPanel() {
+  const [items, setItems] = useState<ActivityLogItem[] | null>(null);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "client");
+      const ids = (roles ?? []).map((r) => r.user_id);
+      if (ids.length === 0) { if (!cancelled) setItems([]); return; }
+      const [{ data: profiles }, { data: docs }, { data: pers }] = await Promise.all([
+        supabase.from("profiles").select("id, company_name, full_name").in("id", ids),
+        supabase.from("documents").select("id, client_id, file_name, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(200),
+        supabase.from("periods").select("id, client_id, period_end, created_at, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap").in("client_id", ids).order("created_at", { ascending: false }).limit(200),
+      ]);
+      if (cancelled) return;
+      const nameMap = new Map<string, string>((profiles ?? []).map((p) => [p.id, p.company_name || p.full_name || p.id.slice(0, 8)]));
+      const docItems: ActivityLogItem[] = (docs ?? []).map((d) => ({
+        id: `doc-${d.id}`, kind: "upload", client_id: d.client_id,
+        client_name: nameMap.get(d.client_id) ?? "Unknown",
+        label: d.file_name, created_at: d.created_at, flagged_nulls: [],
+      }));
+      const fieldLabels: Array<[string, string]> = [
+        ["net_revenue", "Net revenue"], ["net_income", "Net income"], ["gross_margin", "Gross margin"],
+        ["cash_balance", "Cash"], ["total_ar", "AR"], ["total_ap", "AP"],
+      ];
+      const perItems: ActivityLogItem[] = (pers ?? []).map((p) => {
+        const nulls = fieldLabels.filter(([k]) => (p as Record<string, unknown>)[k] === null).map(([, l]) => l);
+        const fields = fieldLabels.filter(([k]) => (p as Record<string, unknown>)[k] !== null).map(([, l]) => l);
+        return {
+          id: `per-${p.id}`, kind: "extraction", client_id: p.client_id,
+          client_name: nameMap.get(p.client_id) ?? "Unknown",
+          label: `Period ${p.period_end} · ${fields.length}/${fieldLabels.length} fields`,
+          created_at: p.created_at, flagged_nulls: nulls,
+        };
+      });
+      const combined = [...docItems, ...perItems].sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
+      setItems(combined);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const filtered = useMemo(() => {
+    if (!items) return null;
+    const q = query.trim().toLowerCase();
+    if (!q) return items;
+    return items.filter((i) =>
+      i.client_name.toLowerCase().includes(q) || i.label.toLowerCase().includes(q) || i.kind.includes(q),
+    );
+  }, [items, query]);
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827]">
+      <div className="flex flex-col gap-3 border-b border-[#E5E9F1] px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-[#1E2A3A]">
+        <div>
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white">All activity</h2>
+          <p className="text-xs text-slate-500 dark:text-[#9CA3AF]">
+            {items === null ? "Loading…" : `${filtered?.length ?? 0} entries`}
+          </p>
+        </div>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search client, file, kind…"
+            className="block w-full min-w-[18rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white"
+          />
+        </div>
+      </div>
+
+      {items === null ? (
+        <div className="flex items-center justify-center px-5 py-12 text-sm text-slate-500 dark:text-[#9CA3AF]">
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Loading…
+        </div>
+      ) : filtered && filtered.length === 0 ? (
+        <div className="px-5 py-12 text-center text-sm text-slate-500 dark:text-[#9CA3AF]">
+          {query ? "No matches." : "No activity yet."}
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:bg-[#0F1729] dark:text-[#6B7280]">
+              <tr>
+                <th className="px-5 py-3">Date</th>
+                <th className="px-5 py-3">Client</th>
+                <th className="px-5 py-3">Type</th>
+                <th className="px-5 py-3">Details</th>
+                <th className="px-5 py-3">Null fields</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
+              {(filtered ?? []).map((i) => (
+                <tr key={i.id}>
+                  <td className="whitespace-nowrap px-5 py-3 text-xs text-slate-500 dark:text-[#9CA3AF]">
+                    {new Date(i.created_at).toLocaleString()}
+                  </td>
+                  <td className="px-5 py-3 text-sm font-medium text-slate-900 dark:text-white">{i.client_name}</td>
+                  <td className="px-5 py-3">
+                    <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium ${
+                      i.kind === "upload"
+                        ? "bg-blue-500/10 text-blue-600 dark:text-blue-300"
+                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
+                    }`}>
+                      {i.kind === "upload" ? <Upload className="h-3 w-3" /> : <CheckCircle2 className="h-3 w-3" />}
+                      {i.kind === "upload" ? "Upload" : "Extraction"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3 text-sm text-slate-700 dark:text-[#D1D5DB]">{i.label}</td>
+                  <td className="px-5 py-3">
+                    {i.flagged_nulls.length === 0 ? (
+                      <span className="text-xs text-slate-400">—</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-600 dark:text-amber-300">
+                        <AlertTriangle className="h-3 w-3" />
+                        {i.flagged_nulls.join(", ")}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
