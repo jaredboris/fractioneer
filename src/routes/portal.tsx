@@ -913,9 +913,12 @@ function ClientDashboard({ role }: { role: string | null }) {
   const widgets = useWidgetPrefs();
   const [editMode, setEditMode] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
 
   useEffect(() => {
