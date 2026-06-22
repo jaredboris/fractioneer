@@ -38,6 +38,7 @@ import { AdminShell } from "@/components/portal/AdminSidebar";
 import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
+import { useImpersonation, startImpersonation } from "@/lib/impersonation";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
@@ -888,7 +889,7 @@ function ClientDashboard({ role }: { role: string | null }) {
     a.click();
   }
 
-  const displayName = companyName || user.email || "Welcome";
+  const displayName = companyName || (impersonation ? impersonation.label : user.email) || "Welcome";
 
   // Latest row drives the stat cards + period summary
   const latest = dashboardRows[dashboardRows.length - 1] ?? null;
