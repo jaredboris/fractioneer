@@ -34,12 +34,25 @@ import {
   WIDGET_BY_ID,
   useWidgetPrefs,
   EditableWidget,
+  WidgetOverlay,
   AddWidgetModal,
   mergeRows,
   type PeriodRow,
   type DashboardRow as WidgetDashboardRow,
   type NormalizedRow,
 } from "@/lib/dashboard-widgets";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
