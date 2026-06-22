@@ -270,6 +270,7 @@ type ClientRow = {
   full_name: string | null;
   dashboard_updated_at: string | null;
   document_count: number;
+  period_count: number;
   last_upload_at: string | null;
 };
 
