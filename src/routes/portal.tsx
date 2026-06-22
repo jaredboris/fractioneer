@@ -1256,23 +1256,6 @@ function formatMonthYear(period: string): string {
   return parsePeriod(period).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
-function StatCard({
-  label,
-  value,
-  numericValue,
-  tone,
-  icon,
-  periodLabel,
-  trend,
-}: {
-  label: string;
-  value: string;
-  numericValue?: number | null;
-  tone: Tone;
-  icon: React.ReactNode;
-  periodLabel: string;
-  trend?: { dir: "up" | "down"; pct: number };
-}) {
 function useIsDark() {
   const [isDark, setIsDark] = useState<boolean>(() =>
     typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
