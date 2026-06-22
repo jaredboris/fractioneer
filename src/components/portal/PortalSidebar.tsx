@@ -66,20 +66,23 @@ export function PortalSidebar({
   return (
     <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#0A0F1E]">
       {/* Brand */}
-      <div className="flex items-center px-2 py-2">
-        <div className="relative h-9 w-9">
+      <div className="flex items-center gap-3 px-2">
+        <div className="relative h-22 w-22 shrink-0">
           <img
             src={logoDark}
             alt="Fractioneer"
-            className="absolute inset-0 h-9 w-9 object-contain transition-opacity duration-500 ease-in-out opacity-100 dark:opacity-0"
+            className="absolute inset-0 h-22 w-22 object-contain transition-opacity duration-500 ease-in-out opacity-100 dark:opacity-0"
           />
           <img
             src={logoWhite}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 h-9 w-9 object-contain transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100"
+            className="absolute inset-0 h-22 w-22 object-contain transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100"
           />
         </div>
+        <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          Fractioneer
+        </span>
       </div>
 
       {/* User card */}
