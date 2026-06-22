@@ -799,32 +799,43 @@ function ClientDashboard({ role }: { role: string | null }) {
     return ((Number(rev) - expenses) / Number(rev)) * 100;
   })();
 
+  const isDark = useIsDark();
+  const axisStroke = isDark ? "#6B7280" : "#94A3B8";
+  const gridStroke = isDark ? "#1E2A3A" : "#E5E9F1";
+  const expensesFill = isDark ? "#374151" : "#E2E8F0";
+  const tooltipBg = isDark ? "#111827" : "#FFFFFF";
+  const tooltipBorder = isDark ? "#1E2A3A" : "#E5E9F1";
+  const tooltipText = isDark ? "#E5E7EB" : "#0F172A";
+  const legendColor = isDark ? "#9CA3AF" : "#475569";
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0A0F1E" }}>
+    <div className="min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out both; }
-        .nb-card { background-color: #111827; border: 1px solid #1E2A3A; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .nb-card:hover { transform: scale(1.01); box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+        .nb-card { background-color: #FFFFFF; border: 1px solid #E5E9F1; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .nb-card:hover { transform: scale(1.01); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
+        .dark .nb-card { background-color: #111827; border-color: #1E2A3A; }
+        .dark .nb-card:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
         .nb-chart-bar { filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.45)); }
       `}</style>
       <PortalHeader displayName={displayName} email={user.email ?? null} role={role} showAdminLink={false} />
 
       <main className="mx-auto w-full max-w-6xl px-6 py-8">
         <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
             Welcome back{companyName ? `, ${companyName}` : ""}
           </h1>
-          <p className="mt-1 text-sm" style={{ color: "#9CA3AF" }}>
+          <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
             Here's the latest snapshot of your finance operations.
           </p>
         </div>
 
         <div
-          className="mb-4 flex items-start gap-2 rounded-md px-3 py-2 text-xs nb-rise"
-          style={{ animationDelay: "60ms", backgroundColor: "#1C1500", border: "1px solid #92400E", color: "#FCD34D" }}
+          className="mb-4 flex items-start gap-2 rounded-md border px-3 py-2 text-xs nb-rise bg-amber-50 border-amber-200 text-amber-900 dark:bg-[#1C1500] dark:border-[#92400E] dark:text-[#FCD34D]"
+          style={{ animationDelay: "60ms" }}
         >
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: "#F59E0B" }} />
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-[#F59E0B]" />
           <p>
             These figures are AI-extracted from your uploaded financials and may contain errors. For
             verified data,{" "}
@@ -832,8 +843,7 @@ function ClientDashboard({ role }: { role: string | null }) {
               <button
                 type="button"
                 onClick={() => handleDownload(latestExcel.file_path, latestExcel.file_name)}
-                className="font-medium underline underline-offset-2"
-                style={{ color: "#FDE68A" }}
+                className="font-medium underline underline-offset-2 text-amber-800 dark:text-[#FDE68A]"
               >
                 download the source file
               </button>
@@ -847,8 +857,7 @@ function ClientDashboard({ role }: { role: string | null }) {
         <div className="mb-3 flex items-center justify-end nb-rise" style={{ animationDelay: "120ms" }}>
           <button
             onClick={() => setCustomizeOpen((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
-            style={{ backgroundColor: "#111827", border: "1px solid #1E2A3A", color: "#E5E7EB" }}
+            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
             Manage Widgets
@@ -859,15 +868,14 @@ function ClientDashboard({ role }: { role: string | null }) {
           <div className="mb-3 rounded-xl p-4 nb-card">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-white">Customize stat cards</h3>
-                <p className="mt-0.5 text-xs" style={{ color: "#9CA3AF" }}>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Customize stat cards</h3>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-[#9CA3AF]">
                   Choose which cards to display. Monthly Close and Cash Position are always shown.
                 </p>
               </div>
               <button
                 onClick={() => setCustomizeOpen(false)}
-                className="rounded p-1"
-                style={{ color: "#9CA3AF" }}
+                className="rounded p-1 text-slate-500 dark:text-[#9CA3AF]"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -951,13 +959,13 @@ function ClientDashboard({ role }: { role: string | null }) {
             style={{ animationDelay: "560ms" }}
           >
             <div className="mb-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "#9CA3AF" }}>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
                 Revenue vs Expenses
               </h2>
-              <p className="text-xs" style={{ color: "#6B7280" }}>By month, based on submitted financials.</p>
+              <p className="text-xs text-slate-400 dark:text-[#6B7280]">By month, based on submitted financials.</p>
             </div>
             {chartData.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center text-sm" style={{ color: "#6B7280" }}>
+              <div className="flex flex-1 items-center justify-center text-sm text-slate-400 dark:text-[#6B7280]">
                 No financial data available yet.
               </div>
             ) : (
@@ -970,25 +978,25 @@ function ClientDashboard({ role }: { role: string | null }) {
                         <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.85} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1E2A3A" vertical={false} />
-                    <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                    <XAxis dataKey="month" stroke={axisStroke} fontSize={12} />
                     <YAxis
-                      stroke="#6B7280"
+                      stroke={axisStroke}
                       fontSize={12}
                       tickFormatter={(v) => compactCurrency(Number(v))}
                     />
                     <RTooltip
                       formatter={(v: number) => formatCurrencyOrDash(v)}
                       contentStyle={{
-                        background: "#111827",
-                        border: "1px solid #1E2A3A",
+                        background: tooltipBg,
+                        border: `1px solid ${tooltipBorder}`,
                         borderRadius: 8,
                         fontSize: 12,
-                        color: "#E5E7EB",
+                        color: tooltipText,
                       }}
                       cursor={{ fill: "rgba(59,130,246,0.08)" }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12, color: "#9CA3AF" }} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: legendColor }} />
                     <Bar
                       dataKey="Revenue"
                       fill="url(#nbRevenue)"
@@ -999,7 +1007,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                     />
                     <Bar
                       dataKey="Expenses"
-                      fill="#374151"
+                      fill={expensesFill}
                       radius={[4, 4, 0, 0]}
                       animationDuration={1100}
                       animationBegin={150}
@@ -1015,18 +1023,18 @@ function ClientDashboard({ role }: { role: string | null }) {
             className="relative flex min-h-[360px] flex-col overflow-hidden rounded-xl p-5 nb-card nb-rise lg:col-span-2"
             style={{ animationDelay: "660ms" }}
           >
-            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "#9CA3AF" }}>
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
               Period Summary
             </h2>
-            <p className="text-xs" style={{ color: "#6B7280" }}>
+            <p className="text-xs text-slate-400 dark:text-[#6B7280]">
               {latest?.period ? formatMonthYear(latest.period) : "No period set"}
             </p>
 
             <div className="relative mt-5">
-              <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
+              <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
                 Net Revenue
               </div>
-              <div className="mt-1 text-4xl font-bold tracking-tight text-white">
+              <div className="mt-1 text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
                 <CountUpValue value={latest?.net_revenue ?? null} format={(n) => formatCurrencyOrDash(n)} fallback="—" />
               </div>
               <svg
@@ -1057,7 +1065,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
             <dl className="mt-10 space-y-4">
               <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
                   Net Income
                 </dt>
                 <dd
@@ -1065,23 +1073,29 @@ function ClientDashboard({ role }: { role: string | null }) {
                   style={{
                     color:
                       latest?.net_income == null
-                        ? "#E5E7EB"
+                        ? undefined
                         : latest.net_income < 0
                           ? "#F87171"
-                          : "#34D399",
+                          : "#10B981",
                   }}
                 >
-                  {latest?.net_income != null &&
-                    (latest.net_income < 0 ? (
-                      <TrendingDown className="h-4 w-4" />
-                    ) : (
-                      <TrendingUp className="h-4 w-4" />
-                    ))}
-                  {formatCurrencyOrDash(latest?.net_income ?? null)}
+                  {latest?.net_income == null && (
+                    <span className="text-slate-900 dark:text-[#E5E7EB]">—</span>
+                  )}
+                  {latest?.net_income != null && (
+                    <>
+                      {latest.net_income < 0 ? (
+                        <TrendingDown className="h-4 w-4" />
+                      ) : (
+                        <TrendingUp className="h-4 w-4" />
+                      )}
+                      {formatCurrencyOrDash(latest.net_income)}
+                    </>
+                  )}
                 </dd>
               </div>
               <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
                   Gross Margin
                 </dt>
                 <dd
@@ -1089,17 +1103,21 @@ function ClientDashboard({ role }: { role: string | null }) {
                   style={{
                     color:
                       grossMarginPct == null
-                        ? "#E5E7EB"
+                        ? undefined
                         : grossMarginPct < 0
                           ? "#F87171"
-                          : "#34D399",
+                          : "#10B981",
                   }}
                 >
-                  {grossMarginPct == null ? "—" : `${grossMarginPct.toFixed(1)}%`}
+                  {grossMarginPct == null ? (
+                    <span className="text-slate-900 dark:text-[#E5E7EB]">—</span>
+                  ) : (
+                    `${grossMarginPct.toFixed(1)}%`
+                  )}
                 </dd>
               </div>
               <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
                   AR vs AP
                 </dt>
                 <ArApBar ar={latest?.total_ar ?? null} ap={latest?.total_ap ?? null} />
@@ -1107,6 +1125,7 @@ function ClientDashboard({ role }: { role: string | null }) {
             </dl>
           </div>
         </section>
+
 
 
 
@@ -1237,6 +1256,22 @@ function formatMonthYear(period: string): string {
   return parsePeriod(period).toLocaleDateString("en-US", { month: "long", year: "numeric" });
 }
 
+function useIsDark() {
+  const [isDark, setIsDark] = useState<boolean>(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+  );
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    const update = () => setIsDark(root.classList.contains("dark"));
+    update();
+    const obs = new MutationObserver(update);
+    obs.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return isDark;
+}
+
 function StatCard({
   label,
   value,
@@ -1256,16 +1291,16 @@ function StatCard({
 }) {
   const iconBg =
     tone === "ok"
-      ? "rgba(52, 211, 153, 0.12)"
+      ? "rgba(16, 185, 129, 0.12)"
       : tone === "warn"
         ? "rgba(248, 113, 113, 0.12)"
         : "rgba(59, 130, 246, 0.12)";
   const iconColor =
-    tone === "ok" ? "#34D399" : tone === "warn" ? "#F87171" : "#60A5FA";
+    tone === "ok" ? "#10B981" : tone === "warn" ? "#EF4444" : "#3B82F6";
   return (
     <div className="rounded-xl p-5 nb-card">
       <div className="flex items-start justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
+        <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">
           {label}
         </span>
         <span
@@ -1279,7 +1314,7 @@ function StatCard({
           {icon}
         </span>
       </div>
-      <div className="mt-3 text-3xl font-bold tracking-tight text-white">
+      <div className="mt-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
         {numericValue != null && Number.isFinite(numericValue) ? (
           <CountUpValue value={numericValue} format={(n) => formatCurrencyOrDash(n)} fallback={value} />
         ) : (
@@ -1287,13 +1322,13 @@ function StatCard({
         )}
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
-        <span className="text-[11px]" style={{ color: "#6B7280" }}>
+        <span className="text-[11px] text-slate-400 dark:text-[#6B7280]">
           {periodLabel || "—"}
         </span>
         {trend && (
           <span
             className="inline-flex items-center gap-0.5 text-[11px] font-medium"
-            style={{ color: trend.dir === "up" ? "#34D399" : "#F87171" }}
+            style={{ color: trend.dir === "up" ? "#10B981" : "#EF4444" }}
           >
             {trend.dir === "up" ? (
               <TrendingUp className="h-3 w-3" />
@@ -1343,12 +1378,9 @@ function CountUpValue({
 
 function LockedToggle({ label }: { label: string }) {
   return (
-    <div
-      className="flex items-center justify-between rounded-md px-3 py-2"
-      style={{ backgroundColor: "#0F1729", border: "1px solid #1E2A3A" }}
-    >
-      <span className="text-sm" style={{ color: "#E5E7EB" }}>{label}</span>
-      <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>Always on</span>
+    <div className="flex items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
+      <span className="text-sm text-slate-700 dark:text-[#E5E7EB]">{label}</span>
+      <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">Always on</span>
     </div>
   );
 }
@@ -1363,11 +1395,8 @@ function PrefToggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label
-      className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2"
-      style={{ backgroundColor: "#0F1729", border: "1px solid #1E2A3A" }}
-    >
-      <span className="text-sm" style={{ color: "#E5E7EB" }}>{label}</span>
+    <label className="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
+      <span className="text-sm text-slate-700 dark:text-[#E5E7EB]">{label}</span>
       <input
         type="checkbox"
         checked={checked}
@@ -1386,28 +1415,26 @@ function ArApBar({ ar, ap }: { ar: number | null; ap: number | null }) {
   const apPct = total > 0 ? (apVal / total) * 100 : 0;
   return (
     <div className="mt-2">
-      <div
-        className="flex h-2.5 w-full overflow-hidden rounded-full"
-        style={{ backgroundColor: "#1E2A3A" }}
-      >
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-[#1E2A3A]">
         {total > 0 && (
           <>
             <div
               style={{ width: `${arPct}%`, backgroundColor: "#3B82F6", boxShadow: "0 0 8px rgba(59,130,246,0.6)" }}
               className="h-full"
             />
-            <div style={{ width: `${apPct}%`, backgroundColor: "#475569" }} className="h-full" />
+            <div style={{ width: `${apPct}%` }} className="h-full bg-slate-400 dark:bg-[#475569]" />
           </>
         )}
       </div>
       <div className="mt-2 flex items-center justify-between text-xs">
-        <span className="flex items-center gap-1.5" style={{ color: "#9CA3AF" }}>
+        <span className="flex items-center gap-1.5 text-slate-500 dark:text-[#9CA3AF]">
           <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#3B82F6" }} />
-          AR <span className="font-medium text-white">{formatCurrencyOrDash(ar)}</span>
+          AR <span className="font-medium text-slate-900 dark:text-white">{formatCurrencyOrDash(ar)}</span>
         </span>
-        <span className="flex items-center gap-1.5" style={{ color: "#9CA3AF" }}>
-          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#475569" }} />
-          AP <span className="font-medium text-white">{formatCurrencyOrDash(ap)}</span>
+        <span className="flex items-center gap-1.5 text-slate-500 dark:text-[#9CA3AF]">
+          <span className="inline-block h-2 w-2 rounded-sm bg-slate-400 dark:bg-[#475569]" />
+          AP <span className="font-medium text-slate-900 dark:text-white">{formatCurrencyOrDash(ap)}</span>
+
         </span>
       </div>
     </div>
