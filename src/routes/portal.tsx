@@ -1163,26 +1163,52 @@ function StatCard({
   tone,
   icon,
   periodLabel,
+  trend,
 }: {
   label: string;
   value: string;
   tone: Tone;
   icon: React.ReactNode;
   periodLabel: string;
+  trend?: { dir: "up" | "down"; pct: number };
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${toneClasses(tone)}`}>
+    <div
+      className="rounded-xl border border-border border-l-[3px] bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)]"
+      style={{ borderLeftColor: "#2563EB" }}
+    >
+      <div className="flex items-start justify-between">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
+        <span className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${toneClasses(tone)}`}>
           {icon}
         </span>
       </div>
-      <div className="mt-4 text-2xl font-semibold text-foreground">{value}</div>
-      <div className="mt-1 text-xs text-muted-foreground">{periodLabel || "—"}</div>
+      <div className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</div>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <span className="text-[11px]" style={{ color: "#94A3B8" }}>
+          {periodLabel || "—"}
+        </span>
+        {trend && (
+          <span
+            className={`inline-flex items-center gap-0.5 text-[11px] font-medium ${
+              trend.dir === "up" ? "text-emerald-600" : "text-rose-600"
+            }`}
+          >
+            {trend.dir === "up" ? (
+              <TrendingUp className="h-3 w-3" />
+            ) : (
+              <TrendingDown className="h-3 w-3" />
+            )}
+            {trend.pct.toFixed(1)}%
+          </span>
+        )}
+      </div>
     </div>
   );
 }
+
 
 function LockedToggle({ label }: { label: string }) {
   return (
