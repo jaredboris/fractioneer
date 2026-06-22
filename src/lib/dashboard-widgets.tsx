@@ -720,7 +720,7 @@ function CashFlowChart({ ctx }: { ctx: WidgetContext }) {
     [ctx.rows],
   );
   return (
-    <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0}>
+    <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0} sparse={data.length <= 1}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} vertical={false} />
