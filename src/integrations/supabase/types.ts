@@ -26,6 +26,7 @@ export type Database = {
           monthly_close: string
           monthly_close_detail: string | null
           monthly_close_status: string | null
+          net_income: number | null
           net_revenue: number | null
           period: string | null
           total_ap: number | null
@@ -43,6 +44,7 @@ export type Database = {
           monthly_close?: string
           monthly_close_detail?: string | null
           monthly_close_status?: string | null
+          net_income?: number | null
           net_revenue?: number | null
           period?: string | null
           total_ap?: number | null
@@ -60,6 +62,7 @@ export type Database = {
           monthly_close?: string
           monthly_close_detail?: string | null
           monthly_close_status?: string | null
+          net_income?: number | null
           net_revenue?: number | null
           period?: string | null
           total_ap?: number | null
