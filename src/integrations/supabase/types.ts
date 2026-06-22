@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          admin_user_id: string
+          client_id: string | null
+          completion_tokens: number | null
+          created_at: string
+          estimated_cost_usd: number | null
+          id: string
+          model: string
+          operation: string
+          prompt_tokens: number | null
+          total_tokens: number | null
+        }
+        Insert: {
+          admin_user_id: string
+          client_id?: string | null
+          completion_tokens?: number | null
+          created_at?: string
+          estimated_cost_usd?: number | null
+          id?: string
+          model: string
+          operation: string
+          prompt_tokens?: number | null
+          total_tokens?: number | null
+        }
+        Update: {
+          admin_user_id?: string
+          client_id?: string | null
+          completion_tokens?: number | null
+          created_at?: string
+          estimated_cost_usd?: number | null
+          id?: string
+          model?: string
+          operation?: string
+          prompt_tokens?: number | null
+          total_tokens?: number | null
+        }
+        Relationships: []
+      }
       dashboard_data: {
         Row: {
           ap_ar_detail: string | null

@@ -38,6 +38,7 @@ import { AdminShell } from "@/components/portal/AdminSidebar";
 import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
+import { useImpersonation, startImpersonation } from "@/lib/impersonation";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
@@ -112,15 +113,13 @@ function PortalShell() {
 
 function PortalRouter() {
   const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
+  const impersonation = useImpersonation();
   const [role, setRole] = useState<"admin" | "client" | null | undefined>(undefined);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
-      // Server-verified role: requireSupabaseAuth middleware re-validates the
-      // JWT and queries user_roles server-side. Cannot be spoofed by editing
-      // client state or DevTools.
       try {
         const result = await getMyRole();
         if (cancelled) return;
@@ -140,6 +139,8 @@ function PortalRouter() {
     );
   }
 
+  // Admin viewing a client in spy mode → render the real client dashboard.
+  if (role === "admin" && impersonation) return <ClientDashboard role="client" />;
   return role === "admin" ? <AdminOverview role={role} /> : <ClientDashboard role={role} />;
 }
 
@@ -224,7 +225,7 @@ type ActivityItem = {
   created_at: string;
 };
 
-const AI_COST_PER_EXTRACTION = 0.02; // estimated USD per Excel extraction
+
 
 function AdminOverview({ role: _role }: { role: string }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
@@ -232,7 +233,9 @@ function AdminOverview({ role: _role }: { role: string }) {
   const [previewId, setPreviewId] = useState<string>("");
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [periodsThisMonth, setPeriodsThisMonth] = useState<number>(0);
-  const [uploadsThisMonth, setUploadsThisMonth] = useState<number>(0);
+  const [, setUploadsThisMonth] = useState<number>(0);
+  const [aiSpendThisMonth, setAiSpendThisMonth] = useState<number>(0);
+  const [aiCallsThisMonth, setAiCallsThisMonth] = useState<number>(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -294,6 +297,17 @@ function AdminOverview({ role: _role }: { role: string }) {
       setUploadsThisMonth(uploadsMonth);
       setPeriodsThisMonth(periodsMonth);
 
+      // Real AI spend for the current month from the ai_usage log table.
+      const { data: aiRows } = await supabase
+        .from("ai_usage")
+        .select("estimated_cost_usd, total_tokens, created_at")
+        .gte("created_at", monthStart.toISOString());
+      if (!cancelled) {
+        const spend = (aiRows ?? []).reduce((sum, r) => sum + Number(r.estimated_cost_usd ?? 0), 0);
+        setAiSpendThisMonth(spend);
+        setAiCallsThisMonth((aiRows ?? []).length);
+      }
+
       // Recent activity: combine documents + periods
       const docItems: ActivityItem[] = (documents ?? []).map((d) => ({
         id: `doc-${d.id}`,
@@ -326,25 +340,23 @@ function AdminOverview({ role: _role }: { role: string }) {
     return { total: list.length, needsData, needsDocs };
   })();
 
-  const aiCostEstimate = (uploadsThisMonth * AI_COST_PER_EXTRACTION).toFixed(2);
+  
 
   return (
     <AdminShell email={user.email ?? null}>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-            {previewId ? "Client preview" : "Operations overview"}
+            Operations overview
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
-            {previewId
-              ? "Read-only view of what this client sees when they log in."
-              : "Status of every client portal at a glance."}
+            Status of every client portal at a glance.
           </p>
         </div>
         <div className="flex items-end gap-2">
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">
-              View as client
+              View as client (spy mode)
             </label>
             <div className="mt-1 flex items-center gap-2">
               <div className="relative">
@@ -355,7 +367,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                   disabled={!rows || rows.length === 0}
                   className="block min-w-[16rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
                 >
-                  <option value="">— Admin overview —</option>
+                  <option value="">— Select client —</option>
                   {(rows ?? []).map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.company_name || r.full_name || r.id}
@@ -363,32 +375,26 @@ function AdminOverview({ role: _role }: { role: string }) {
                   ))}
                 </select>
               </div>
-              {previewId && (
-                <button
-                  onClick={() => setPreviewId("")}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white dark:hover:bg-[#1a2335]"
-                  aria-label="Exit preview"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  Exit preview
-                </button>
-              )}
+              <button
+                type="button"
+                disabled={!previewId}
+                onClick={() => {
+                  const r = (rows ?? []).find((x) => x.id === previewId);
+                  if (!r) return;
+                  startImpersonation(r.id, r.company_name || r.full_name || "Client");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                Enter spy mode
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {previewId ? (
-        <ClientPreview
-          clientId={previewId}
-          clientLabel={
-            (rows ?? []).find((r) => r.id === previewId)?.company_name ||
-            (rows ?? []).find((r) => r.id === previewId)?.full_name ||
-            "Client"
-          }
-        />
-      ) : (
-        <>
+      <>
+
           <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <DarkStatCard
               label="Clients"
@@ -412,9 +418,9 @@ function AdminOverview({ role: _role }: { role: string }) {
               icon={<Upload className="h-5 w-5" />}
             />
             <DarkStatCard
-              label="AI credits (month)"
-              value={`$${aiCostEstimate}`}
-              detail={`${uploadsThisMonth} upload${uploadsThisMonth === 1 ? "" : "s"} · est`}
+              label="AI spend (month)"
+              value={`$${aiSpendThisMonth.toFixed(aiSpendThisMonth < 1 ? 4 : 2)}`}
+              detail={`${aiCallsThisMonth} extraction${aiCallsThisMonth === 1 ? "" : "s"}`}
               tone="info"
               icon={<TrendingUp className="h-5 w-5" />}
             />
@@ -570,8 +576,8 @@ function AdminOverview({ role: _role }: { role: string }) {
               )}
             </section>
           </div>
-        </>
-      )}
+      </>
+
     </AdminShell>
   );
 }
@@ -819,7 +825,9 @@ function ClientPreview({ clientId, clientLabel }: { clientId: string; clientLabe
 
 function ClientDashboard({ role }: { role: string | null }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
-  const companyName = useCompanyName(user.id);
+  const impersonation = useImpersonation();
+  const effectiveId = impersonation?.clientId ?? user.id;
+  const companyName = useCompanyName(effectiveId);
   const [dashboardRows, setDashboardRows] = useState<DashboardFinancialRow[]>([]);
   const [docs, setDocs] = useState<
     { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
@@ -848,21 +856,23 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   useEffect(() => {
     let cancelled = false;
+    setDashboardRows([]);
+    setDocs([]);
     (async () => {
       const [{ data: dash }, { data: documents }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
-          .eq("client_id", user.id)
+          .eq("client_id", effectiveId)
           .order("period", { ascending: true }),
-        supabase.from("documents").select("*").eq("client_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("documents").select("*").eq("client_id", effectiveId).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setDocs(documents ?? []);
     })();
     return () => { cancelled = true; };
-  }, [user.id]);
+  }, [effectiveId]);
 
   async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage
@@ -884,7 +894,7 @@ function ClientDashboard({ role }: { role: string | null }) {
     a.click();
   }
 
-  const displayName = companyName || user.email || "Welcome";
+  const displayName = companyName || (impersonation ? impersonation.label : user.email) || "Welcome";
 
   // Latest row drives the stat cards + period summary
   const latest = dashboardRows[dashboardRows.length - 1] ?? null;

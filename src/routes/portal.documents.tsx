@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
+import { useEffectiveClientId } from "@/lib/impersonation";
 
 export const Route = createFileRoute("/portal/documents")({
   ssr: false,
@@ -33,17 +34,19 @@ function DocumentsPage() {
   const { user } = Route.useRouteContext() as {
     user: { id: string; email?: string | null };
   };
-  const companyName = useCompanyName(user.id);
+  const effectiveId = useEffectiveClientId(user.id)!;
+  const companyName = useCompanyName(effectiveId);
   const [role, setRole] = useState<string | null>(null);
   const [docs, setDocs] = useState<DocRow[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setDocs(null);
     (async () => {
       const { data: documents } = await supabase
         .from("documents")
         .select("id, file_name, file_path, file_size, created_at")
-        .eq("client_id", user.id)
+        .eq("client_id", effectiveId)
         .order("created_at", { ascending: false });
       if (cancelled) return;
       setDocs(documents ?? []);
@@ -55,7 +58,7 @@ function DocumentsPage() {
     return () => {
       cancelled = true;
     };
-  }, [user.id]);
+  }, [effectiveId]);
 
   async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage

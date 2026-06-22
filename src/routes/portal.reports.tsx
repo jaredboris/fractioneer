@@ -7,6 +7,7 @@ import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { PortalEmptyState } from "@/components/portal/EmptyState";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
+import { useEffectiveClientId } from "@/lib/impersonation";
 
 export const Route = createFileRoute("/portal/reports")({
   ssr: false,
@@ -56,19 +57,21 @@ function ReportsPage() {
   const { user } = Route.useRouteContext() as {
     user: { id: string; email?: string | null };
   };
-  const companyName = useCompanyName(user.id);
+  const effectiveId = useEffectiveClientId(user.id)!;
+  const companyName = useCompanyName(effectiveId);
   const [role, setRole] = useState<string | null>(null);
   const [periods, setPeriods] = useState<PeriodRow[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setPeriods(null);
     (async () => {
       const { data } = await supabase
         .from("periods")
         .select(
           "id, period_end, net_revenue, net_income, gross_margin, document_id, documents(file_name, file_path)",
         )
-        .eq("client_id", user.id)
+        .eq("client_id", effectiveId)
         .order("period_end", { ascending: false });
       if (cancelled) return;
       setPeriods((data ?? []) as unknown as PeriodRow[]);
@@ -80,7 +83,7 @@ function ReportsPage() {
     return () => {
       cancelled = true;
     };
-  }, [user.id]);
+  }, [effectiveId]);
 
   async function handleDownload(path: string, name: string) {
     const { data } = await supabase.storage
