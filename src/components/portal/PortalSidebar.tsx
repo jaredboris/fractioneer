@@ -66,7 +66,7 @@ export function PortalSidebar({
   return (
     <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#0A0F1E]">
       {/* Brand */}
-      <div className="flex items-center px-2 py-0">
+      <div className="flex items-center px-2 -mt-2 -mb-2">
         <div className="relative h-[90px] w-[90px] shrink-0">
           <img
             src={logoDark}
