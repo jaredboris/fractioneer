@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { LayoutGrid, FileText, Settings as SettingsIcon, LogOut, Mail, Moon, Sun, Sparkles } from "lucide-react";
 
-import logo from "@/assets/fractioneer-logo.jpg";
+import logoDark from "@/assets/fractioneer-logo-dark.svg";
+import logoWhite from "@/assets/fractioneer-logo-white.svg";
 import { supabase } from "@/integrations/supabase/client";
 
 const THEME_KEY = "fractioneer-portal-theme";
@@ -58,7 +59,19 @@ export function PortalSidebar({
     <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#0A0F1E]">
       {/* Brand */}
       <div className="flex items-center gap-2 px-2 py-1">
-        <img src={logo} alt="Fractioneer" className="h-7 w-auto rounded" />
+        <div className="relative h-7 w-7">
+          <img
+            src={logoDark}
+            alt="Fractioneer"
+            className="absolute inset-0 h-7 w-7 object-contain transition-opacity duration-500 ease-in-out opacity-100 dark:opacity-0"
+          />
+          <img
+            src={logoWhite}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-7 w-7 object-contain transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100"
+          />
+        </div>
         <span className="text-sm font-semibold text-slate-900 dark:text-white">Fractioneer</span>
       </div>
 
