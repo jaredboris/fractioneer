@@ -759,7 +759,22 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   // Latest row drives the stat cards + period summary
   const latest = dashboardRows[dashboardRows.length - 1] ?? null;
+  const prev = dashboardRows.length >= 2 ? dashboardRows[dashboardRows.length - 2] : null;
   const periodLabel = formatAsOf(latest?.period ?? null);
+
+  function trendFor(curr: number | null | undefined, previous: number | null | undefined) {
+    if (!prev) return undefined;
+    if (curr == null || previous == null || previous === 0) return undefined;
+    const pct = ((Number(curr) - Number(previous)) / Math.abs(Number(previous))) * 100;
+    if (!Number.isFinite(pct)) return undefined;
+    return { dir: pct >= 0 ? ("up" as const) : ("down" as const), pct: Math.abs(pct) };
+  }
+
+  // Most recent Excel upload for the "download source" link in the disclaimer.
+  const latestExcel = useMemo(
+    () => docs.find((d) => /\.xlsx?$/i.test(d.file_name)) ?? null,
+    [docs],
+  );
 
   const chartData = useMemo(() => {
     return dashboardRows
@@ -775,12 +790,21 @@ function ClientDashboard({ role }: { role: string | null }) {
       });
   }, [dashboardRows]);
 
+  // Gross margin for period summary
+  const grossMarginPct = (() => {
+    const rev = latest?.net_revenue;
+    const ni = latest?.net_income;
+    if (rev == null || ni == null || rev === 0) return null;
+    const expenses = Math.max(0, Number(rev) - Number(ni));
+    return ((Number(rev) - expenses) / Number(rev)) * 100;
+  })();
+
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen" style={{ backgroundColor: "#F8FAFC" }}>
       <PortalHeader displayName={displayName} email={user.email ?? null} role={role} showAdminLink={false} />
 
-      <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        <div className="mb-8">
+      <main className="mx-auto w-full max-w-6xl px-6 py-8">
+        <div className="mb-4">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Welcome back{companyName ? `, ${companyName}` : ""}
           </h1>
@@ -789,7 +813,29 @@ function ClientDashboard({ role }: { role: string | null }) {
           </p>
         </div>
 
-        <div className="mb-4 flex items-center justify-end">
+        <div className="mb-4 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
+          <p>
+            These figures are AI-extracted from your uploaded financials and may contain errors. For
+            verified data,{" "}
+            {latestExcel ? (
+              <button
+                type="button"
+                onClick={() => handleDownload(latestExcel.file_path, latestExcel.file_name)}
+                className="font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950"
+              >
+                download the source file
+              </button>
+            ) : (
+              <span className="font-medium opacity-70">download the source file</span>
+            )}
+            .
+          </p>
+        </div>
+
+        <div className="my-4 h-px w-full bg-slate-200" />
+
+        <div className="mb-3 flex items-center justify-end">
           <button
             onClick={() => setCustomizeOpen((v) => !v)}
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -800,7 +846,7 @@ function ClientDashboard({ role }: { role: string | null }) {
         </div>
 
         {customizeOpen && (
-          <div className="mb-4 rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
+          <div className="mb-3 rounded-xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-foreground">Customize stat cards</h3>
@@ -833,7 +879,7 @@ function ClientDashboard({ role }: { role: string | null }) {
           </div>
         )}
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label="Monthly Close"
             value={latest?.monthly_close_status ?? latest?.monthly_close ?? "—"}
@@ -853,6 +899,7 @@ function ClientDashboard({ role }: { role: string | null }) {
             tone="info"
             icon={<Wallet className="h-5 w-5" />}
             periodLabel={periodLabel}
+            trend={trendFor(latest?.cash_balance, prev?.cash_balance)}
           />
           {prefs.ar && (
             <StatCard
@@ -861,6 +908,7 @@ function ClientDashboard({ role }: { role: string | null }) {
               tone="info"
               icon={<Receipt className="h-5 w-5" />}
               periodLabel={periodLabel}
+              trend={trendFor(latest?.total_ar, prev?.total_ar)}
             />
           )}
           {prefs.ap && (
@@ -870,12 +918,13 @@ function ClientDashboard({ role }: { role: string | null }) {
               tone="info"
               icon={<Receipt className="h-5 w-5" />}
               periodLabel={periodLabel}
+              trend={trendFor(latest?.total_ap, prev?.total_ap)}
             />
           )}
         </section>
 
-        <section className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
-          <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-3">
+        <section className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-5">
+          <div className="flex min-h-[360px] flex-col rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-3">
             <div className="mb-4">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                 Revenue vs Expenses
@@ -883,39 +932,39 @@ function ClientDashboard({ role }: { role: string | null }) {
               <p className="text-xs text-muted-foreground">By month, based on submitted financials.</p>
             </div>
             {chartData.length === 0 ? (
-              <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+              <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
                 No financial data available yet.
               </div>
             ) : (
-              <div className="h-64 w-full">
+              <div className="h-64 w-full flex-1">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+                    <XAxis dataKey="month" stroke="#64748B" fontSize={12} />
                     <YAxis
-                      stroke="hsl(var(--muted-foreground))"
+                      stroke="#64748B"
                       fontSize={12}
                       tickFormatter={(v) => compactCurrency(Number(v))}
                     />
                     <RTooltip
                       formatter={(v: number) => formatCurrencyOrDash(v)}
                       contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
+                        background: "#ffffff",
+                        border: "1px solid #E2E8F0",
                         borderRadius: 8,
                         fontSize: 12,
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Expenses" fill="hsl(var(--muted-foreground) / 0.35)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Revenue" fill="#2563EB" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Expenses" fill="#E2E8F0" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             )}
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-2">
+          <div className="flex min-h-[360px] flex-col rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-2">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
               Period Summary
             </h2>
@@ -952,6 +1001,22 @@ function ClientDashboard({ role }: { role: string | null }) {
                       <TrendingUp className="h-4 w-4" />
                     ))}
                   {formatCurrencyOrDash(latest?.net_income ?? null)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Gross Margin
+                </dt>
+                <dd
+                  className={`mt-1 text-xl font-semibold ${
+                    grossMarginPct == null
+                      ? "text-foreground"
+                      : grossMarginPct < 0
+                        ? "text-destructive"
+                        : "text-accent"
+                  }`}
+                >
+                  {grossMarginPct == null ? "—" : `${grossMarginPct.toFixed(1)}%`}
                 </dd>
               </div>
               <div>
@@ -1098,26 +1163,52 @@ function StatCard({
   tone,
   icon,
   periodLabel,
+  trend,
 }: {
   label: string;
   value: string;
   tone: Tone;
   icon: React.ReactNode;
   periodLabel: string;
+  trend?: { dir: "up" | "down"; pct: number };
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
-        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${toneClasses(tone)}`}>
+    <div
+      className="rounded-xl border border-border border-l-[3px] bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)]"
+      style={{ borderLeftColor: "#2563EB" }}
+    >
+      <div className="flex items-start justify-between">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
+        <span className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${toneClasses(tone)}`}>
           {icon}
         </span>
       </div>
-      <div className="mt-4 text-2xl font-semibold text-foreground">{value}</div>
-      <div className="mt-1 text-xs text-muted-foreground">{periodLabel || "—"}</div>
+      <div className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</div>
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <span className="text-[11px]" style={{ color: "#94A3B8" }}>
+          {periodLabel || "—"}
+        </span>
+        {trend && (
+          <span
+            className={`inline-flex items-center gap-0.5 text-[11px] font-medium ${
+              trend.dir === "up" ? "text-emerald-600" : "text-rose-600"
+            }`}
+          >
+            {trend.dir === "up" ? (
+              <TrendingUp className="h-3 w-3" />
+            ) : (
+              <TrendingDown className="h-3 w-3" />
+            )}
+            {trend.pct.toFixed(1)}%
+          </span>
+        )}
+      </div>
     </div>
   );
 }
+
 
 function LockedToggle({ label }: { label: string }) {
   return (
