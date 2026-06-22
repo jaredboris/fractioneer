@@ -17,6 +17,7 @@ import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { PortalEmptyState } from "@/components/portal/EmptyState";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
+import { useEffectiveClientId } from "@/lib/impersonation";
 
 export const Route = createFileRoute("/portal/cashflow")({
   ssr: false,
@@ -54,17 +55,19 @@ function CashFlowPage() {
   const { user } = Route.useRouteContext() as {
     user: { id: string; email?: string | null };
   };
-  const companyName = useCompanyName(user.id);
+  const effectiveId = useEffectiveClientId(user.id)!;
+  const companyName = useCompanyName(effectiveId);
   const [role, setRole] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setRows(null);
     (async () => {
       const { data } = await supabase
         .from("periods")
         .select("period_end, cash_balance, total_ar, total_ap")
-        .eq("client_id", user.id)
+        .eq("client_id", effectiveId)
         .order("period_end", { ascending: true });
       if (cancelled) return;
       setRows((data ?? []) as Row[]);
@@ -76,7 +79,7 @@ function CashFlowPage() {
     return () => {
       cancelled = true;
     };
-  }, [user.id]);
+  }, [effectiveId]);
 
   const chartData = (rows ?? []).map((r) => ({
     period: fmtDateShort(r.period_end),
