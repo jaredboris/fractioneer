@@ -34,6 +34,7 @@ import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { AdminShell } from "@/components/portal/AdminSidebar";
 import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
