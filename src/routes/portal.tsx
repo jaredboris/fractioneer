@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   FileText,
@@ -15,7 +15,21 @@ import {
   Loader2,
   Eye,
   X,
+  SlidersHorizontal,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RTooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
