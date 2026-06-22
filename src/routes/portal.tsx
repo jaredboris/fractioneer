@@ -1029,7 +1029,7 @@ function ClientDashboard({ role }: { role: string | null }) {
     <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .nb-rise { animation: nb-rise 0.5s ease-out both; }
+        .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
         .nb-card { background-color: #FFFFFF; border: 1px solid #E5E9F1; transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .nb-card:hover { transform: scale(1.01); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
         .dark .nb-card { background-color: #111827; border-color: #1E2A3A; }
