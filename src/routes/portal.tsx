@@ -1119,12 +1119,13 @@ function ClientDashboard({ role }: { role: string | null }) {
           }}
         >
           <SortableContext items={widgets.ids} strategy={rectSortingStrategy}>
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
-              {widgets.ids.map((id, idx) => {
+            {(() => {
+              const statIds = widgets.ids.filter((id) => WIDGET_BY_ID[id]?.kind === "stat");
+              const chartIds = widgets.ids.filter((id) => WIDGET_BY_ID[id]?.kind === "chart");
+              const renderItem = (id: string, idx: number) => {
                 const def = WIDGET_BY_ID[id];
                 if (!def) return null;
                 const isRemoving = removingId === id;
-                const colSpan = def.kind === "chart" ? "sm:col-span-2 lg:col-span-4" : "";
                 return (
                   <EditableWidget
                     key={id}
@@ -1139,13 +1140,32 @@ function ClientDashboard({ role }: { role: string | null }) {
                         setRemovingId(null);
                       }
                     }}
-                    className={colSpan}
                   >
                     {def.render(widgetCtx)}
                   </EditableWidget>
                 );
-              })}
-            </section>
+              };
+              return (
+                <>
+                  {statIds.length > 0 && (
+                    <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+                      {statIds.map((id, i) => renderItem(id, i))}
+                    </section>
+                  )}
+                  {statIds.length > 0 && chartIds.length > 0 && (
+                    <div
+                      className="my-5 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-[#1E2A3A]"
+                      aria-hidden
+                    />
+                  )}
+                  {chartIds.length > 0 && (
+                    <section className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                      {chartIds.map((id, i) => renderItem(id, statIds.length + i))}
+                    </section>
+                  )}
+                </>
+              );
+            })()}
           </SortableContext>
           <DragOverlay dropAnimation={{ duration: 320, easing: "cubic-bezier(0.22, 1.2, 0.36, 1)" }}>
             {activeId && WIDGET_BY_ID[activeId] ? (
