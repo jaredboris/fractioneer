@@ -329,7 +329,7 @@ function AdminOverview({ role: _role }: { role: string }) {
         supabase.from("profiles").select("id, company_name, full_name").in("id", ids),
         supabase.from("dashboard_data").select("client_id, updated_at").in("client_id", ids),
         supabase.from("documents").select("id, client_id, file_name, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(200),
-        supabase.from("periods").select("id, client_id, period_end, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(500),
+        supabase.from("periods").select("id, client_id, period_end, created_at, updated_at").in("client_id", ids).order("updated_at", { ascending: false }).limit(500),
         supabase.from("periods").select("id", { count: "exact", head: true }).in("client_id", ids).gte("created_at", monthStart.toISOString()),
       ]);
       if (cancelled) return;
@@ -343,7 +343,8 @@ function AdminOverview({ role: _role }: { role: string }) {
       for (const p of periods ?? []) {
         const cur = perMap.get(p.client_id) ?? { count: 0, last: null };
         cur.count += 1;
-        if (!cur.last || new Date(p.created_at) > new Date(cur.last)) cur.last = p.created_at;
+        const lastTouched = p.updated_at ?? p.created_at;
+        if (!cur.last || new Date(lastTouched) > new Date(cur.last)) cur.last = lastTouched;
         perMap.set(p.client_id, cur);
       }
 
@@ -551,6 +552,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                         const noData = r.period_count === 0;
                         const noDocs = r.period_count === 0;
                         const needsAttention = noDocs;
+                        const dashboardUpdatedAt = r.dashboard_updated_at ?? r.last_upload_at;
                         return (
                           <tr key={r.id} className={needsAttention ? "bg-rose-50/40 dark:bg-rose-500/[0.04]" : ""}>
                             <td className="px-5 py-4">
@@ -567,7 +569,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                                 </span>
                               ) : (
                                 <div className="text-xs text-slate-500 dark:text-[#9CA3AF]">
-                                  Updated {new Date(r.dashboard_updated_at!).toLocaleDateString()}
+                                  Updated {dashboardUpdatedAt ? new Date(dashboardUpdatedAt).toLocaleDateString() : "—"}
                                 </div>
                               )}
                             </td>
