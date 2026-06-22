@@ -87,9 +87,21 @@ type Document = {
 const MONTHLY_OPTIONS = ["On track", "Delayed", "Ready"];
 const APAR_OPTIONS = ["Current", "Behind"];
 
+type ActivityLogItem = {
+  id: string;
+  kind: "upload" | "extraction";
+  client_id: string;
+  client_name: string;
+  label: string;
+  created_at: string;
+  flagged_nulls: string[];
+};
+
 function AdminPage() {
   const { user } = Route.useRouteContext();
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const tab = search.tab;
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [loading, setLoading] = useState(true);
