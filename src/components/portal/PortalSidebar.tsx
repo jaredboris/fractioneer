@@ -31,6 +31,8 @@ function useTheme() {
 
 const NAV = [
   { label: "Dashboard", to: "/portal", icon: LayoutGrid },
+  { label: "Reports", to: "/portal/reports", icon: BarChart3 },
+  { label: "Cash Flow", to: "/portal/cashflow", icon: TrendingUp },
   { label: "Documents", to: "/portal/documents", icon: FileText },
   { label: "Settings", to: "/portal/settings", icon: SettingsIcon },
 ] as const;
