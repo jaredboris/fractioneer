@@ -37,7 +37,7 @@ import {
   AddWidgetModal,
   mergeRows,
   type PeriodRow,
-  type DashboardRow,
+  type DashboardRow as WidgetDashboardRow,
   type NormalizedRow,
 } from "@/lib/dashboard-widgets";
 
