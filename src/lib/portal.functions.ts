@@ -284,6 +284,21 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
         { onConflict: "client_id,period_end" },
       );
     if (periodError) throw new Error(periodError.message);
+
+    // Log a flat $0.03 AI spend entry per successful extraction save so the
+    // admin overview's "AI spend (month)" card reflects real activity.
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("ai_usage").insert({
+        admin_user_id: context.userId,
+        client_id: data.client_id,
+        model: "google/gemini-2.5-pro",
+        operation: "save_extracted_financials",
+        estimated_cost_usd: 0.03,
+      });
+    } catch {
+      /* logging failure must not block the save */
+    }
     return { ok: true };
   });
 
