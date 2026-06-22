@@ -33,6 +33,8 @@ import {
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { PortalSidebar } from "@/components/portal/PortalSidebar";
+
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/portal")({
@@ -809,7 +811,7 @@ function ClientDashboard({ role }: { role: string | null }) {
   const legendColor = isDark ? "#9CA3AF" : "#475569";
 
   return (
-    <div className="min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
+    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out both; }
@@ -819,9 +821,10 @@ function ClientDashboard({ role }: { role: string | null }) {
         .dark .nb-card:hover { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
         .nb-chart-bar { filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.45)); }
       `}</style>
-      <PortalHeader displayName={displayName} email={user.email ?? null} role={role} showAdminLink={false} />
+      <PortalSidebar companyName={companyName || null} email={user.email ?? null} role={role} />
 
-      <main className="mx-auto w-full max-w-6xl px-6 py-8">
+      <main className="flex-1 px-8 py-8">
+
         <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
             Welcome back{companyName ? `, ${companyName}` : ""}
