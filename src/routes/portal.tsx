@@ -18,6 +18,7 @@ import {
   SlidersHorizontal,
   TrendingUp,
   TrendingDown,
+  Plus,
 } from "lucide-react";
 import {
   BarChart,
@@ -29,6 +30,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import {
+  WIDGET_BY_ID,
+  useWidgetPrefs,
+  ManageWidgetsPanel,
+  AddWidgetModal,
+  mergeRows,
+  type PeriodRow,
+  type DashboardRow,
+  type NormalizedRow,
+} from "@/lib/dashboard-widgets";
 
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
