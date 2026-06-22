@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
+import { useEffectiveClientId, useImpersonation } from "@/lib/impersonation";
 
 export const Route = createFileRoute("/portal/settings")({
   ssr: false,
@@ -25,7 +26,20 @@ function SettingsPage() {
   const { user } = Route.useRouteContext() as {
     user: { id: string; email?: string | null };
   };
-  const companyName = useCompanyName(user.id);
+  const impersonation = useImpersonation();
+  const effectiveId = useEffectiveClientId(user.id)!;
+  const companyName = useCompanyName(effectiveId);
+  const [impersonatedEmail, setImpersonatedEmail] = useState<string | null>(null);
+  const displayEmail = impersonation ? impersonatedEmail : user.email ?? null;
+  useEffect(() => {
+    if (!impersonation) { setImpersonatedEmail(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("profiles").select("full_name").eq("id", effectiveId).maybeSingle();
+      if (!cancelled) setImpersonatedEmail(data?.full_name ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [impersonation, effectiveId]);
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
