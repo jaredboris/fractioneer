@@ -33,7 +33,7 @@ import {
 import {
   WIDGET_BY_ID,
   useWidgetPrefs,
-  ManageWidgetsPanel,
+  EditableWidget,
   AddWidgetModal,
   mergeRows,
   type PeriodRow,
