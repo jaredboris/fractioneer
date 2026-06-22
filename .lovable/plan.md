@@ -1,59 +1,76 @@
+## Goal
+Add (1) mandatory TOTP 2FA for all portal users and (2) an admin-only Excel→AI→dashboard upload flow.
 
-# Refine `/onepager-v2`
+---
 
-Scope: edit only `src/routes/onepager-v2.tsx`. Pure content + visual hierarchy pass. No new components, no routing changes, no business logic.
+## Part 1 — TOTP 2FA (Supabase MFA)
 
-## 1. Soften the CTA
+Apply to admin + client users. Gate every `/portal/*` route behind enrollment + verification.
 
-Replace the "Worth a 30-minute call with Mark." block with a quieter warm-referral footer:
+**New routes**
+- `src/routes/portal.setup-2fa.tsx` — enroll via `supabase.auth.mfa.enroll({ factorType: 'totp' })`, render QR (svg from `totp.qr_code`) + plain-text secret, verify with `challengeAndVerify()`.
+- `src/routes/portal.verify-2fa.tsx` — prompts 6-digit code per session; calls `challengeAndVerify()` against the existing factor.
 
-- Headline: **"Mark can walk through where Fractioneer may be able to help."**
-- Sub: one short line — "A direct conversation about your finance setup. No prep required."
-- Right side: `info@fractioneer.co` / `fractioneer.co` (unchanged).
-- Reduce visual weight: drop the `border-t-2 border-accent` to a single `border-t border-border`, smaller headline (`text-[12px]` instead of `14px`). The CTA should feel like a sign-off, not a pitch.
+**Gate logic (in `portal.tsx` `beforeLoad`)**
+After auth check, call `supabase.auth.mfa.getAuthenticatorAssuranceLevel()`:
+- `currentLevel === 'aal1' && nextLevel === 'aal1'` → no factor → redirect `/portal/setup-2fa`
+- `currentLevel === 'aal1' && nextLevel === 'aal2'` → enrolled but not verified this session → redirect `/portal/verify-2fa`
+- `aal2` → allow through
 
-## 2. De-duplicate copy
+Setup/verify routes themselves bypass the gate (check `location.pathname`).
 
-Audit pass — current page repeats "cleanup", "controls", "AP/AR", "reporting", "buyout", "ownership transition" across triggers, featured block, capability cards, and why-us. Tighten so each idea lands once in its strongest spot:
+**Login flow**: existing `portal.login.tsx` already redirects to `/portal` — the gate handles routing onward. No changes needed there beyond letting the gate run.
 
-- **Triggers** (callout): keep all four, but rewrite to be about *situations* (messy books, transition underway, finance function gaps, reporting leadership can't trust) — strip operational nouns.
-- **Featured block**: own "transaction, buyout, diligence, ownership transition" exclusively. Remove "cleanup" from its supporting bullets (move to capability card).
-- **Capability cards**: own the operational vocabulary (cleanup, controls, AP/AR, payroll, close). Drop "transaction support" from the CFO card since the featured block owns it. Rewrite the three cards so titles + descriptions don't echo trigger language:
-  - "Monthly close & controls"
-  - "CFO & reporting"
-  - "Back-office operations"
-- **Why Fractioneer**: keep as differentiators only (boutique, senior-led, complexity, transparency). Don't re-list services.
+---
 
-## 3. Sharpen hierarchy
+## Part 2 — Admin Excel Upload + AI Extraction
 
-The page currently has ~6 blocks of roughly equal weight. Re-tier them:
+**Migration** — extend `dashboard_data` with dedicated columns:
+```sql
+ALTER TABLE public.dashboard_data
+  ADD COLUMN cash_balance numeric,
+  ADD COLUMN total_ar numeric,
+  ADD COLUMN total_ap numeric,
+  ADD COLUMN net_revenue numeric,
+  ADD COLUMN monthly_close_status text,
+  ADD COLUMN period date;
+```
+(Existing text columns stay for back-compat; admin form keeps working.)
 
-- **Tier 1 (dominant)**: Hero headline + metrics row. Metrics already at 30px — keep. Add a touch more vertical space above metrics so they breathe.
-- **Tier 2 (featured)**: Transaction & buyout block. Keep navy `bg-primary` treatment; this is the single strongest visual moment after the metrics.
-- **Tier 3 (supporting)**: Triggers callout, capability cards, why-us. Flatten these visually so they read as supporting content, not competing features:
-  - Triggers: remove the `bg-muted/60` fill, render as a clean bordered band (`border-y border-border py-3`) — lighter than the featured block.
-  - Capability cards: keep the `border-t-2 border-primary/80` accent.
-  - Why-us: drop to a single-line row with bold label + inline description (`text-[10px]`) to compress vertical space and reduce card-count fatigue.
-- **Tier 4 (proof)**: Logo strip + testimonial — current `bg-muted/50` band stays, slightly tighter padding.
-- **Tier 5 (sign-off)**: CTA as described above.
+**Dependency**: `bun add xlsx`
 
-## 4. Section order (unchanged but re-justified)
+**Server function** `extractFinancialsFromRows` in `src/lib/portal.functions.ts`:
+- Admin-only (re-checks `has_role`).
+- Input: `{ rows: string }` (JSON-stringified rows, capped length).
+- Calls Lovable AI Gateway via `@ai-sdk/openai-compatible` using `google/gemini-2.5-pro` with `Output.object` schema `{ cash_balance, total_ar, total_ap, net_revenue, monthly_close_status }` (all nullable).
+- Returns the structured object.
 
-1. Header
-2. Hero
-3. Metrics
-4. Triggers ("When leadership calls Fractioneer")
-5. Featured: Transaction & buyout
-6. Capability cards ("What Fractioneer can run")
-7. Why Fractioneer
-8. Proof: logos + testimonial
-9. CTA
+**Server function** `saveExtractedFinancials`:
+- Admin-only.
+- Input: `{ client_id, cash_balance?, total_ar?, total_ap?, net_revenue?, monthly_close_status?, period }`.
+- Upsert into `dashboard_data` by `client_id`.
 
-## 5. Constraints
+**Helper file** `src/lib/ai-gateway.server.ts` — provider helper per `ai-sdk-lovable-gateway` knowledge.
 
-- Must still fit 8.5"×11" single page. After flattening why-us and tightening CTA, vertical budget should improve, not worsen.
-- No new claims, no fake dashboards, no prospect name.
-- Construction/multi-entity stays subtle — only the existing "multi-entity, multi-project, multi-location" line in Why Fractioneer carries it.
-- Logo strip untouched (already tuned in prior turns).
+**UI** — new "Upload Client Financials" section in `src/routes/portal.admin.tsx`:
+1. Reuses existing client dropdown (or its own).
+2. File input (`.xlsx`); parses first sheet via `XLSX.utils.sheet_to_json` client-side.
+3. "Analyze" → calls `extractFinancialsFromRows`.
+4. Shows preview table of extracted values; null fields flagged in red ("Not found in spreadsheet").
+5. "Confirm & Save" → calls `saveExtractedFinancials`; success toast.
 
-Deliverable: one edit to `src/routes/onepager-v2.tsx`.
+Styled to match existing card/border/button classes already in `portal.admin.tsx`.
+
+---
+
+## Technical notes
+- `LOVABLE_API_KEY` already provisioned — no secret prompt needed.
+- TanStack: setup/verify pages use `ssr: false` like `portal.tsx`; `supabase.auth.mfa.*` runs in the browser.
+- `getAuthenticatorAssuranceLevel()` is sync-ish from local session — fast enough to call in `beforeLoad`.
+- xlsx parsing is client-side, so the file never hits storage; only the parsed JSON goes to the server fn.
+- Existing admin dashboard editor remains untouched; new columns surface in the upload preview only (admin can still hand-edit the legacy text fields).
+
+## Out of scope
+- Recovery codes / backup factors (Supabase MFA supports only TOTP factors; not requested).
+- Unenroll UI.
+- Editing the new numeric columns in the existing dashboard form (only the upload flow writes them; can be added later).
