@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutGrid, FileText, Settings as SettingsIcon, LogOut, Mail, Moon, Sun, Sparkles } from "lucide-react";
+import { LayoutGrid, FileText, Settings as SettingsIcon, LogOut, Mail, Moon, Sun, Sparkles, BarChart3, TrendingUp } from "lucide-react";
 
 import logoDark from "@/assets/fractioneer-logo-dark.svg";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
