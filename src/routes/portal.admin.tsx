@@ -152,9 +152,14 @@ function AdminPage() {
   }, [loadClients]);
 
   const loadClientData = useCallback(async (clientId: string) => {
-    const [{ data: dash }, { data: docs }] = await Promise.all([
+    const [{ data: dash }, { data: docs }, { data: pers }] = await Promise.all([
       supabase.from("dashboard_data").select("*").eq("client_id", clientId).maybeSingle(),
       supabase.from("documents").select("*").eq("client_id", clientId).order("created_at", { ascending: false }),
+      supabase
+        .from("periods")
+        .select("id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, document_id")
+        .eq("client_id", clientId)
+        .order("period_end", { ascending: false }),
     ]);
     if (dash) {
       setForm({
@@ -176,6 +181,7 @@ function AdminPage() {
       });
     }
     setDocuments(docs ?? []);
+    setPeriods((pers ?? []) as PeriodRow[]);
   }, []);
 
   useEffect(() => {
