@@ -345,7 +345,7 @@ function AdminOverview({ role: _role }: { role: string }) {
         <div className="flex items-end gap-2">
           <div>
             <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">
-              View as client
+              View as client (spy mode)
             </label>
             <div className="mt-1 flex items-center gap-2">
               <div className="relative">
@@ -356,7 +356,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                   disabled={!rows || rows.length === 0}
                   className="block min-w-[16rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
                 >
-                  <option value="">— Admin overview —</option>
+                  <option value="">— Select client —</option>
                   {(rows ?? []).map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.company_name || r.full_name || r.id}
@@ -364,31 +364,25 @@ function AdminOverview({ role: _role }: { role: string }) {
                   ))}
                 </select>
               </div>
-              {previewId && (
-                <button
-                  onClick={() => setPreviewId("")}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white dark:hover:bg-[#1a2335]"
-                  aria-label="Exit preview"
-                >
-                  <X className="h-3.5 w-3.5" />
-                  Exit preview
-                </button>
-              )}
+              <button
+                type="button"
+                disabled={!previewId}
+                onClick={() => {
+                  const r = (rows ?? []).find((x) => x.id === previewId);
+                  if (!r) return;
+                  startImpersonation(r.id, r.company_name || r.full_name || "Client");
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                Enter spy mode
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {previewId ? (
-        <ClientPreview
-          clientId={previewId}
-          clientLabel={
-            (rows ?? []).find((r) => r.id === previewId)?.company_name ||
-            (rows ?? []).find((r) => r.id === previewId)?.full_name ||
-            "Client"
-          }
-        />
-      ) : (
+      {false ? null : (
         <>
           <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <DarkStatCard
