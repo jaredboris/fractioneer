@@ -19,7 +19,7 @@ import {
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { getMyRole } from "@/lib/portal.functions";
+import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
@@ -40,6 +40,15 @@ export const Route = createFileRoute("/portal")({
     }
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/portal/login" });
+
+    // First-time sign-ins (especially via OAuth) may not have a row in
+    // user_roles yet — provision a default `client` role server-side.
+    try {
+      await ensureMyRole();
+    } catch {
+      // Non-fatal: getMyRole below will surface a null role and the UI
+      // handles it gracefully.
+    }
 
     // Enforce TOTP 2FA for every portal user.
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();

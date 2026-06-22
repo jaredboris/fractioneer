@@ -23,6 +23,35 @@ export const getMyRole = createServerFn({ method: "GET" })
   });
 
 /**
+ * Ensures the authenticated caller has at least one row in `user_roles`.
+ * Called on every portal entry: first-time OAuth (e.g. Google) sign-ins
+ * land without any role row, so we default them to `client`. Admins can
+ * change the row manually afterwards. No-op if any role already exists.
+ */
+export const ensureMyRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: existing, error: readErr } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .limit(1);
+    if (readErr) throw new Error(readErr.message);
+    if (existing && existing.length > 0) {
+      return { role: existing[0].role as "admin" | "client", created: false };
+    }
+    // No role yet — provision default `client`. Insert requires service role
+    // because user_roles RLS does not grant self-insert.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: insErr } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: userId, role: "client" }, { onConflict: "user_id,role" });
+    if (insErr) throw new Error(insErr.message);
+    return { role: "client" as const, created: true };
+  });
+
+/**
  * Admin-only: create a brand-new client end-to-end.
  *  1. Create the auth user (email confirmed) via the service-role admin API
  *  2. Insert/upsert the profile row with company_name and full_name
