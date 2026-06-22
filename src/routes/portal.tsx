@@ -408,7 +408,7 @@ function AdminOverview({ role: _role }: { role: string }) {
 
   const totals = (() => {
     const list = rows ?? [];
-    const needsData = list.filter((r) => !r.dashboard_updated_at).length;
+    const needsData = list.filter((r) => r.period_count === 0).length;
     const needsDocs = list.filter((r) => r.period_count === 0).length;
     return { total: list.length, needsData, needsDocs };
   })();
@@ -548,7 +548,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                     </thead>
                     <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
                       {rows.map((r) => {
-                        const noData = !r.dashboard_updated_at;
+                        const noData = r.period_count === 0;
                         const noDocs = r.period_count === 0;
                         const needsAttention = noDocs;
                         return (
