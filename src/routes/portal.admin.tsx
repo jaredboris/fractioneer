@@ -4,7 +4,8 @@ import { ArrowLeft, Upload, FileText, Loader2, Plus, Trash2, LogOut } from "luci
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { getMyRole, createClientAccount } from "@/lib/portal.functions";
+import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, type ExtractedFinancials } from "@/lib/portal.functions";
+import * as XLSX from "xlsx";
 
 export const Route = createFileRoute("/portal/admin")({
   ssr: false,
