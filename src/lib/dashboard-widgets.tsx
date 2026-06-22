@@ -324,20 +324,17 @@ export function useWidgetPrefs() {
   };
 }
 
-// ---- Editable wrapper (iOS-style edit mode) ---------------------------------
+// ---- Editable wrapper (iOS-style edit mode, dnd-kit sortable) ---------------
+
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export function EditableWidget({
   id,
   index,
   editMode,
-  dragIndex,
-  overIndex,
   removing,
   onRemove,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
   onAnimationEnd,
   className,
   children,
@@ -345,86 +342,95 @@ export function EditableWidget({
   id: string;
   index: number;
   editMode: boolean;
-  dragIndex: number | null;
-  overIndex: number | null;
   removing: boolean;
   onRemove: (id: string) => void;
-  onDragStart: (idx: number) => void;
-  onDragOver: (idx: number) => void;
-  onDrop: () => void;
-  onDragEnd: () => void;
   onAnimationEnd?: () => void;
   className?: string;
   children: React.ReactNode;
 }) {
   const w = WIDGET_BY_ID[id];
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id,
+    disabled: !editMode || removing,
+    // Spring-y transition for items sliding out of the way.
+    transition: {
+      duration: 320,
+      easing: "cubic-bezier(0.22, 1.2, 0.36, 1)",
+    },
+  });
+
   if (!w) return null;
   const locked = !!w.locked;
-  const draggable = editMode;
 
-  const isDragging = dragIndex === index;
-  const isOver = overIndex === index && dragIndex !== null && dragIndex !== index;
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
-  let motionClass = "";
-  if (editMode && !removing) motionClass = index % 2 === 0 ? "widget-jiggle-a" : "widget-jiggle-b";
+  const jiggleClass = editMode && !removing && !isDragging
+    ? (index % 2 === 0 ? "widget-jiggle-a" : "widget-jiggle-b")
+    : "";
 
   return (
     <div
-      className={`relative ${className ?? ""} ${isOver ? "widget-drop-target" : ""}`}
-      draggable={draggable}
-      onDragStart={(e) => {
-        if (!draggable) return;
-        e.dataTransfer.effectAllowed = "move";
-        onDragStart(index);
-      }}
-      onDragOver={(e) => {
-        if (!editMode) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        onDragOver(index);
-      }}
-      onDrop={(e) => {
-        if (!editMode) return;
-        e.preventDefault();
-        onDrop();
-      }}
-      onDragEnd={onDragEnd}
+      ref={setNodeRef}
+      style={style}
+      className={`widget-sortable relative ${className ?? ""}`}
+      {...attributes}
+      {...(editMode && !removing ? listeners : {})}
     >
-      <div
-        className={`${motionClass} ${removing ? "widget-remove" : ""} ${isDragging ? "widget-dragging" : ""} ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
-        onAnimationEnd={removing ? onAnimationEnd : undefined}
-      >
-        {children}
-        {editMode && (
-          <>
-            {locked ? (
-              <span
-                className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729]"
-                aria-label="Locked"
-                title="Always on"
-              >
-                <Lock className="h-3 w-3" />
-              </span>
-            ) : (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(id);
-                }}
-                className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-600/80 text-white shadow-lg ring-2 ring-white hover:bg-slate-600 dark:bg-white/20 dark:ring-[#0F1729] dark:hover:bg-white/30 transition-colors"
-                aria-label={`Remove ${w.label}`}
-              >
-                <Minus className="h-3.5 w-3.5" strokeWidth={3} />
-              </button>
-            )}
-          </>
-        )}
-      </div>
+      {isDragging ? (
+        <div className="widget-placeholder" aria-hidden />
+      ) : (
+        <div
+          className={`${jiggleClass} ${removing ? "widget-remove" : ""} ${editMode ? "cursor-grab active:cursor-grabbing" : ""}`}
+          onAnimationEnd={removing ? onAnimationEnd : undefined}
+        >
+          {children}
+          {editMode && (
+            <>
+              {locked ? (
+                <span
+                  className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729]"
+                  aria-label="Locked"
+                  title="Always on"
+                >
+                  <Lock className="h-3 w-3" />
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove(id);
+                  }}
+                  className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-600/80 text-white shadow-lg ring-2 ring-white hover:bg-slate-600 dark:bg-white/20 dark:ring-[#0F1729] dark:hover:bg-white/30 transition-colors"
+                  aria-label={`Remove ${w.label}`}
+                >
+                  <Minus className="h-3.5 w-3.5" strokeWidth={3} />
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
-
   );
 }
+
+/** Visual shown inside <DragOverlay> while a widget is being dragged. */
+export function WidgetOverlay({ children }: { children: React.ReactNode }) {
+  return <div className="widget-overlay">{children}</div>;
+}
+
 
 
 export function AddWidgetModal({

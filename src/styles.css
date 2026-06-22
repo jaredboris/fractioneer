@@ -190,3 +190,35 @@
 }
 .widget-dragging { opacity: 0.4; }
 
+/* Drop placeholder shown in place of the actively dragged widget */
+.widget-placeholder {
+  border: 2px dashed rgb(59 130 246 / 0.7);
+  background: rgb(59 130 246 / 0.06);
+  border-radius: 1rem;
+  box-shadow: 0 0 0 4px rgb(59 130 246 / 0.12), 0 0 24px rgb(59 130 246 / 0.25) inset;
+  min-height: 100%;
+  height: 100%;
+  animation: placeholder-pulse 1.6s ease-in-out infinite;
+}
+@keyframes placeholder-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgb(59 130 246 / 0.12), 0 0 24px rgb(59 130 246 / 0.20) inset; }
+  50%      { box-shadow: 0 0 0 6px rgb(59 130 246 / 0.20), 0 0 32px rgb(59 130 246 / 0.35) inset; }
+}
+
+/* Lifted overlay for the widget being dragged */
+.widget-overlay {
+  transform: scale(1.05);
+  box-shadow:
+    0 24px 48px -12px rgb(0 0 0 / 0.45),
+    0 8px 16px -4px rgb(0 0 0 / 0.25);
+  border-radius: 1rem;
+  cursor: grabbing;
+  opacity: 0.98;
+}
+
+/* Spring transition applied by dnd-kit to non-active sortable items */
+.widget-sortable {
+  touch-action: manipulation;
+}
+
+
