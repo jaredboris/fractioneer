@@ -647,7 +647,8 @@ function AdminPage() {
             )}
           </section>
         )}
-        ) : (
+
+        {!selectedId && (
           <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center text-sm text-muted-foreground">
             Select a client above to manage their dashboard and documents.
           </div>
