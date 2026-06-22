@@ -668,6 +668,91 @@ function AdminPage() {
 
         {selectedId && (
           <section className="mt-6 rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground">Reporting periods</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Per-period financials power the Reports and Cash Flow tabs. Use one row per period end date.
+            </p>
+
+            <form onSubmit={handleSavePeriod} className="mt-5 grid grid-cols-2 gap-3 rounded-lg border border-border bg-background p-4 sm:grid-cols-4">
+              <NumField label="Period end" type="date" required value={periodForm.period_end} onChange={(v) => setPeriodForm({ ...periodForm, period_end: v })} />
+              <NumField label="Net revenue" value={periodForm.net_revenue} onChange={(v) => setPeriodForm({ ...periodForm, net_revenue: v })} />
+              <NumField label="Net income" value={periodForm.net_income} onChange={(v) => setPeriodForm({ ...periodForm, net_income: v })} />
+              <NumField label="Gross margin (% or 0–1)" value={periodForm.gross_margin} onChange={(v) => setPeriodForm({ ...periodForm, gross_margin: v })} />
+              <NumField label="Cash balance" value={periodForm.cash_balance} onChange={(v) => setPeriodForm({ ...periodForm, cash_balance: v })} />
+              <NumField label="Total AR" value={periodForm.total_ar} onChange={(v) => setPeriodForm({ ...periodForm, total_ar: v })} />
+              <NumField label="Total AP" value={periodForm.total_ap} onChange={(v) => setPeriodForm({ ...periodForm, total_ap: v })} />
+              <label className="block text-xs font-medium text-muted-foreground">
+                Source Excel
+                <select
+                  value={periodForm.document_id}
+                  onChange={(e) => setPeriodForm({ ...periodForm, document_id: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="">— none —</option>
+                  {documents.map((d) => (
+                    <option key={d.id} value={d.id}>{d.file_name}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="col-span-2 flex items-end justify-end sm:col-span-4">
+                <button
+                  type="submit"
+                  disabled={savingPeriod || !periodForm.period_end}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {savingPeriod && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Save period
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-5 overflow-x-auto rounded-md border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Period end</th>
+                    <th className="px-3 py-2 text-right font-medium">Net rev</th>
+                    <th className="px-3 py-2 text-right font-medium">Net inc</th>
+                    <th className="px-3 py-2 text-right font-medium">GM</th>
+                    <th className="px-3 py-2 text-right font-medium">Cash</th>
+                    <th className="px-3 py-2 text-right font-medium">AR</th>
+                    <th className="px-3 py-2 text-right font-medium">AP</th>
+                    <th className="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {periods.length === 0 && (
+                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No periods yet.</td></tr>
+                  )}
+                  {periods.map((p) => (
+                    <tr key={p.id} className="text-foreground">
+                      <td className="px-3 py-2">{p.period_end}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.net_revenue ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.net_income ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.gross_margin ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.cash_balance ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.total_ar ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.total_ap ?? "—"}</td>
+                      <td className="px-3 py-2 text-right">
+                        <button
+                          onClick={() => handleDeletePeriod(p.id, p.period_end)}
+                          className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          aria-label={`Delete period ${p.period_end}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+
+        {selectedId && (
+          <section className="mt-6 rounded-xl border border-border bg-card p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">Upload client financials</h2>
