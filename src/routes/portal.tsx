@@ -1052,11 +1052,19 @@ function ClientDashboard({ role }: { role: string | null }) {
 
         <div className="mb-3 flex items-center justify-end gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
           <button
-            onClick={() => setManageOpen((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+            onClick={() => {
+              setEditMode((v) => !v);
+              setDragIndex(null);
+              setOverIndex(null);
+            }}
+            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+              editMode
+                ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
+                : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+            }`}
           >
-            <SlidersHorizontal className="h-3.5 w-3.5" />
-            Manage Widgets
+            {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
+            {editMode ? "Done" : "Manage Widgets"}
           </button>
           <button
             onClick={() => setAddOpen(true)}
@@ -1067,15 +1075,6 @@ function ClientDashboard({ role }: { role: string | null }) {
           </button>
         </div>
 
-        {manageOpen && (
-          <ManageWidgetsPanel
-            ids={widgets.ids}
-            onMove={widgets.move}
-            onRemove={widgets.remove}
-            onClose={() => setManageOpen(false)}
-          />
-        )}
-
         {addOpen && (
           <AddWidgetModal
             ids={widgets.ids}
@@ -1084,20 +1083,51 @@ function ClientDashboard({ role }: { role: string | null }) {
           />
         )}
 
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
           {widgets.ids.map((id, idx) => {
             const def = WIDGET_BY_ID[id];
             if (!def) return null;
+            const isRemoving = removingId === id;
             return (
               <div
                 key={id}
                 className={`nb-rise ${def.kind === "chart" ? "sm:col-span-2 lg:col-span-4" : ""}`}
                 style={{ animationDelay: `${180 + idx * 80}ms` }}
               >
-                {def.render(widgetCtx)}
+                <EditableWidget
+                  id={id}
+                  index={idx}
+                  editMode={editMode}
+                  dragIndex={dragIndex}
+                  overIndex={overIndex}
+                  removing={isRemoving}
+                  onRemove={(rid) => setRemovingId(rid)}
+                  onDragStart={(i) => setDragIndex(i)}
+                  onDragOver={(i) => setOverIndex(i)}
+                  onDrop={() => {
+                    if (dragIndex != null && overIndex != null && dragIndex !== overIndex) {
+                      widgets.move(dragIndex, overIndex);
+                    }
+                    setDragIndex(null);
+                    setOverIndex(null);
+                  }}
+                  onDragEnd={() => {
+                    setDragIndex(null);
+                    setOverIndex(null);
+                  }}
+                  onAnimationEnd={() => {
+                    if (isRemoving) {
+                      widgets.remove(id);
+                      setRemovingId(null);
+                    }
+                  }}
+                >
+                  {def.render(widgetCtx)}
+                </EditableWidget>
               </div>
             );
           })}
+
         </section>
 
         <section className="mt-5">
