@@ -356,22 +356,26 @@ export function EditableWidget({
     transform,
     transition,
     isDragging,
+    isOver,
   } = useSortable({
     id,
     disabled: !editMode || removing,
     // Spring-y transition for items sliding out of the way.
     transition: {
-      duration: 320,
-      easing: "cubic-bezier(0.22, 1.2, 0.36, 1)",
+      duration: 450,
+      easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
     },
   });
 
   if (!w) return null;
   const locked = !!w.locked;
 
+  // The source item stays in its grid cell while a DragOverlay follows the
+  // cursor, so we hide the original content (opacity 0) to leave a clean gap.
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
+    transform: isDragging ? undefined : CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0 : undefined,
   };
 
   const jiggleClass = editMode && !removing && !isDragging
@@ -386,42 +390,41 @@ export function EditableWidget({
       {...attributes}
       {...(editMode && !removing ? listeners : {})}
     >
-      {isDragging ? (
-        <div className="widget-placeholder" aria-hidden />
-      ) : (
-        <div
-          className={`${jiggleClass} ${removing ? "widget-remove" : ""} ${editMode ? "cursor-grab active:cursor-grabbing" : ""}`}
-          onAnimationEnd={removing ? onAnimationEnd : undefined}
-        >
-          {children}
-          {editMode && (
-            <>
-              {locked ? (
-                <span
-                  className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729]"
-                  aria-label="Locked"
-                  title="Always on"
-                >
-                  <Lock className="h-3 w-3" />
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemove(id);
-                  }}
-                  className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-600/80 text-white shadow-lg ring-2 ring-white hover:bg-slate-600 dark:bg-white/20 dark:ring-[#0F1729] dark:hover:bg-white/30 transition-colors"
-                  aria-label={`Remove ${w.label}`}
-                >
-                  <Minus className="h-3.5 w-3.5" strokeWidth={3} />
-                </button>
-              )}
-            </>
-          )}
-        </div>
-      )}
+      <div
+        className={`relative ${jiggleClass} ${removing ? "widget-remove" : ""} ${editMode ? "cursor-grab active:cursor-grabbing" : ""}`}
+        onAnimationEnd={removing ? onAnimationEnd : undefined}
+      >
+        {children}
+        {isOver && !isDragging && (
+          <div className="widget-destination-highlight" aria-hidden />
+        )}
+        {editMode && (
+          <>
+            {locked ? (
+              <span
+                className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729]"
+                aria-label="Locked"
+                title="Always on"
+              >
+                <Lock className="h-3 w-3" />
+              </span>
+            ) : (
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(id);
+                }}
+                className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-600/80 text-white shadow-lg ring-2 ring-white hover:bg-slate-600 dark:bg-white/20 dark:ring-[#0F1729] dark:hover:bg-white/30 transition-colors"
+                aria-label={`Remove ${w.label}`}
+              >
+                <Minus className="h-3.5 w-3.5" strokeWidth={3} />
+              </button>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
