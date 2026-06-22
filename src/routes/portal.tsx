@@ -225,7 +225,7 @@ type ActivityItem = {
   created_at: string;
 };
 
-const AI_COST_PER_EXTRACTION = 0.02; // estimated USD per Excel extraction
+
 
 function AdminOverview({ role: _role }: { role: string }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
@@ -340,7 +340,7 @@ function AdminOverview({ role: _role }: { role: string }) {
     return { total: list.length, needsData, needsDocs };
   })();
 
-  const aiCostEstimate = (uploadsThisMonth * AI_COST_PER_EXTRACTION).toFixed(2);
+  
 
   return (
     <AdminShell email={user.email ?? null}>
@@ -418,9 +418,9 @@ function AdminOverview({ role: _role }: { role: string }) {
               icon={<Upload className="h-5 w-5" />}
             />
             <DarkStatCard
-              label="AI credits (month)"
-              value={`$${aiCostEstimate}`}
-              detail={`${uploadsThisMonth} upload${uploadsThisMonth === 1 ? "" : "s"} · est`}
+              label="AI spend (month)"
+              value={`$${aiSpendThisMonth.toFixed(aiSpendThisMonth < 1 ? 4 : 2)}`}
+              detail={`${aiCallsThisMonth} extraction${aiCallsThisMonth === 1 ? "" : "s"}`}
               tone="info"
               icon={<TrendingUp className="h-5 w-5" />}
             />
