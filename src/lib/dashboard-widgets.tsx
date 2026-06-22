@@ -362,8 +362,8 @@ export function EditableWidget({
     disabled: !editMode || removing,
     // Spring-y transition for items sliding out of the way.
     transition: {
-      duration: 450,
-      easing: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      duration: w?.kind === "chart" ? 640 : 560,
+      easing: "cubic-bezier(0.25, 1, 0.5, 1)",
     },
   });
 
@@ -379,7 +379,9 @@ export function EditableWidget({
   };
 
   const jiggleClass = editMode && !removing && !isDragging
-    ? (index % 2 === 0 ? "widget-jiggle-a" : "widget-jiggle-b")
+    ? w.kind === "chart"
+      ? (index % 2 === 0 ? "widget-jiggle-wide-a" : "widget-jiggle-wide-b")
+      : (index % 2 === 0 ? "widget-jiggle-a" : "widget-jiggle-b")
     : "";
 
   return (

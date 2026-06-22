@@ -167,8 +167,18 @@
   0%, 100% { transform: rotate(0.35deg) translate(0, 0); }
   50%      { transform: rotate(-0.35deg) translate(0, 0.5px); }
 }
+@keyframes widget-jiggle-wide-a {
+  0%, 100% { transform: rotate(-0.12deg) translate(0, 0); }
+  50%      { transform: rotate(0.12deg) translate(0, -0.25px); }
+}
+@keyframes widget-jiggle-wide-b {
+  0%, 100% { transform: rotate(0.12deg) translate(0, 0); }
+  50%      { transform: rotate(-0.12deg) translate(0, 0.25px); }
+}
 .widget-jiggle-a { animation: widget-jiggle-a 0.35s ease-in-out infinite; transform-origin: center; will-change: transform; }
 .widget-jiggle-b { animation: widget-jiggle-b 0.4s ease-in-out infinite; transform-origin: center; will-change: transform; }
+.widget-jiggle-wide-a { animation: widget-jiggle-wide-a 0.52s ease-in-out infinite; transform-origin: center; will-change: transform; }
+.widget-jiggle-wide-b { animation: widget-jiggle-wide-b 0.58s ease-in-out infinite; transform-origin: center; will-change: transform; }
 
 @keyframes widget-settle {
   0%   { transform: rotate(-0.6deg); }

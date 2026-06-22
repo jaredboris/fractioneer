@@ -409,7 +409,7 @@ function AdminOverview({ role: _role }: { role: string }) {
   const totals = (() => {
     const list = rows ?? [];
     const needsData = list.filter((r) => !r.dashboard_updated_at).length;
-    const needsDocs = list.filter((r) => r.document_count === 0 && r.period_count === 0).length;
+    const needsDocs = list.filter((r) => r.period_count === 0).length;
     return { total: list.length, needsData, needsDocs };
   })();
 
@@ -549,8 +549,8 @@ function AdminOverview({ role: _role }: { role: string }) {
                     <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
                       {rows.map((r) => {
                         const noData = !r.dashboard_updated_at;
-                        const noDocs = r.document_count === 0 && r.period_count === 0;
-                        const needsAttention = noData || noDocs;
+                        const noDocs = r.period_count === 0;
+                        const needsAttention = noDocs;
                         return (
                           <tr key={r.id} className={needsAttention ? "bg-rose-50/40 dark:bg-rose-500/[0.04]" : ""}>
                             <td className="px-5 py-4">
@@ -584,7 +584,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                                 {needsAttention ? (
                                   <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-1 text-[11px] font-medium text-rose-600 dark:text-rose-300">
                                     <AlertTriangle className="h-3 w-3" />
-                                    {noData && noDocs ? "Needs data & docs" : noData ? "Needs data" : "Needs docs"}
+                                    {noData && noDocs ? "Needs data & docs" : "Needs docs"}
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-300">
