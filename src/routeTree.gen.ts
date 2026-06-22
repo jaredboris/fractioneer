@@ -16,6 +16,7 @@ import { Route as OnepagerRouteImport } from './routes/onepager'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PortalSetup2faRouteImport } from './routes/portal.setup-2fa'
 import { Route as PortalLoginRouteImport } from './routes/portal.login'
 import { Route as PortalAdminRouteImport } from './routes/portal.admin'
 
@@ -54,6 +55,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalSetup2faRoute = PortalSetup2faRouteImport.update({
+  id: '/setup-2fa',
+  path: '/setup-2fa',
+  getParentRoute: () => PortalRoute,
+} as any)
 const PortalLoginRoute = PortalLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal/admin': typeof PortalAdminRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/setup-2fa': typeof PortalSetup2faRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal/admin': typeof PortalAdminRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/setup-2fa': typeof PortalSetup2faRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal/admin': typeof PortalAdminRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/setup-2fa': typeof PortalSetup2faRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/portal/admin'
     | '/portal/login'
+    | '/portal/setup-2fa'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/portal/admin'
     | '/portal/login'
+    | '/portal/setup-2fa'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/portal/admin'
     | '/portal/login'
+    | '/portal/setup-2fa'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -196,6 +208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portal/setup-2fa': {
+      id: '/portal/setup-2fa'
+      path: '/setup-2fa'
+      fullPath: '/portal/setup-2fa'
+      preLoaderRoute: typeof PortalSetup2faRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/portal/login': {
       id: '/portal/login'
       path: '/login'
@@ -216,11 +235,13 @@ declare module '@tanstack/react-router' {
 interface PortalRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
   PortalLoginRoute: typeof PortalLoginRoute
+  PortalSetup2faRoute: typeof PortalSetup2faRoute
 }
 
 const PortalRouteChildren: PortalRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
   PortalLoginRoute: PortalLoginRoute,
+  PortalSetup2faRoute: PortalSetup2faRoute,
 }
 
 const PortalRouteWithChildren =
