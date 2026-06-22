@@ -539,7 +539,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                     <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
                       {rows.map((r) => {
                         const noData = !r.dashboard_updated_at;
-                        const noDocs = r.document_count === 0;
+                        const noDocs = r.document_count === 0 && r.period_count === 0;
                         const needsAttention = noData || noDocs;
                         return (
                           <tr key={r.id} className={needsAttention ? "bg-rose-50/40 dark:bg-rose-500/[0.04]" : ""}>
