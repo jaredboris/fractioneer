@@ -664,7 +664,7 @@ function RevExpChart({ ctx }: { ctx: WidgetContext }) {
     [ctx.rows],
   );
   return (
-    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0}>
+    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0} sparse={data.length <= 1}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <defs>
