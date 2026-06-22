@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
   FileText,
@@ -15,7 +15,21 @@ import {
   Loader2,
   Eye,
   X,
+  SlidersHorizontal,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RTooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -675,29 +689,47 @@ function ClientPreview({ clientId, clientLabel }: { clientId: string; clientLabe
 function ClientDashboard({ role }: { role: string | null }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
   const [companyName, setCompanyName] = useState<string>("");
-  const [dashboard, setDashboard] = useState<{
-    monthly_close: string;
-    monthly_close_detail: string | null;
-    cash_position: string;
-    cash_position_detail: string | null;
-    ap_ar_status: string;
-    ap_ar_detail: string | null;
-  } | null>(null);
+  const [dashboardRows, setDashboardRows] = useState<DashboardFinancialRow[]>([]);
   const [docs, setDocs] = useState<
     { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
   >([]);
+
+  // Customization prefs (persisted in localStorage). Monthly Close + Cash are locked on.
+  const [prefs, setPrefs] = useState<{ ar: boolean; ap: boolean }>(() => {
+    if (typeof window === "undefined") return { ar: true, ap: true };
+    try {
+      const raw = window.localStorage.getItem("portal.statCardPrefs");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return { ar: parsed.ar !== false, ap: parsed.ap !== false };
+      }
+    } catch {}
+    return { ar: true, ap: true };
+  });
+  const [customizeOpen, setCustomizeOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem("portal.statCardPrefs", JSON.stringify(prefs));
+    } catch {}
+  }, [prefs]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const [{ data: profile }, { data: dash }, { data: documents }] = await Promise.all([
         supabase.from("profiles").select("company_name").eq("id", user.id).maybeSingle(),
-        supabase.from("dashboard_data").select("*").eq("client_id", user.id).maybeSingle(),
+        supabase
+          .from("dashboard_data")
+          .select("*")
+          .eq("client_id", user.id)
+          .order("period", { ascending: true }),
         supabase.from("documents").select("*").eq("client_id", user.id).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
       setCompanyName(profile?.company_name ?? "");
-      setDashboard(dash ?? null);
+      setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setDocs(documents ?? []);
     })();
     return () => { cancelled = true; };
@@ -725,35 +757,23 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const displayName = companyName || user.email || "Welcome";
 
-  const cards = dashboard
-    ? [
-        {
-          label: "Monthly Close",
-          value: dashboard.monthly_close,
-          detail: dashboard.monthly_close_detail ?? "",
-          tone: toneForMonthly(dashboard.monthly_close),
-          icon: <CheckCircle2 className="h-5 w-5" />,
-        },
-        {
-          label: "Cash Position",
-          value: dashboard.cash_position,
-          detail: dashboard.cash_position_detail ?? "",
-          tone: "info" as Tone,
-          icon: <Wallet className="h-5 w-5" />,
-        },
-        {
-          label: "AP / AR Status",
-          value: dashboard.ap_ar_status,
-          detail: dashboard.ap_ar_detail ?? "",
-          tone: toneForApAr(dashboard.ap_ar_status),
-          icon: <Receipt className="h-5 w-5" />,
-        },
-      ]
-    : [
-        { label: "Monthly Close", value: "—", detail: "Not set yet", tone: "info" as Tone, icon: <CheckCircle2 className="h-5 w-5" /> },
-        { label: "Cash Position", value: "—", detail: "Not set yet", tone: "info" as Tone, icon: <Wallet className="h-5 w-5" /> },
-        { label: "AP / AR Status", value: "—", detail: "Not set yet", tone: "info" as Tone, icon: <Receipt className="h-5 w-5" /> },
-      ];
+  // Latest row drives the stat cards + period summary
+  const latest = dashboardRows[dashboardRows.length - 1] ?? null;
+  const periodLabel = formatAsOf(latest?.period ?? null);
+
+  const chartData = useMemo(() => {
+    return dashboardRows
+      .filter((r) => r.period)
+      .map((r) => {
+        const rev = r.net_revenue ?? 0;
+        const ni = r.net_income ?? 0;
+        return {
+          month: formatMonthShort(r.period!),
+          Revenue: rev,
+          Expenses: Math.max(0, rev - ni),
+        };
+      });
+  }, [dashboardRows]);
 
   return (
     <div className="min-h-screen bg-muted/40">
@@ -769,25 +789,182 @@ function ClientDashboard({ role }: { role: string | null }) {
           </p>
         </div>
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((c) => (
-            <div
-              key={c.label}
-              className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)]"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  {c.label}
-                </span>
-                <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${toneClasses(c.tone)}`}>
-                  {c.icon}
-                </span>
+        <div className="mb-4 flex items-center justify-end">
+          <button
+            onClick={() => setCustomizeOpen((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            Customize
+          </button>
+        </div>
+
+        {customizeOpen && (
+          <div className="mb-4 rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Customize stat cards</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Choose which cards to display. Monthly Close and Cash Position are always shown.
+                </p>
               </div>
-              <div className="mt-4 text-2xl font-semibold text-foreground">{c.value}</div>
-              <div className="mt-1 text-xs text-muted-foreground">{c.detail}</div>
+              <button
+                onClick={() => setCustomizeOpen(false)}
+                className="rounded p-1 text-muted-foreground hover:bg-muted"
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-          ))}
+            <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <LockedToggle label="Monthly Close Status" />
+              <LockedToggle label="Cash Position" />
+              <PrefToggle
+                label="Accounts Receivable"
+                checked={prefs.ar}
+                onChange={(v) => setPrefs({ ...prefs, ar: v })}
+              />
+              <PrefToggle
+                label="Accounts Payable"
+                checked={prefs.ap}
+                onChange={(v) => setPrefs({ ...prefs, ap: v })}
+              />
+            </div>
+          </div>
+        )}
+
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label="Monthly Close"
+            value={latest?.monthly_close_status ?? latest?.monthly_close ?? "—"}
+            tone={
+              latest?.monthly_close_status === "closed"
+                ? "ok"
+                : latest?.monthly_close
+                  ? toneForMonthly(latest.monthly_close)
+                  : "info"
+            }
+            icon={<CheckCircle2 className="h-5 w-5" />}
+            periodLabel={periodLabel}
+          />
+          <StatCard
+            label="Cash Position"
+            value={formatCurrencyOrDash(latest?.cash_balance ?? null)}
+            tone="info"
+            icon={<Wallet className="h-5 w-5" />}
+            periodLabel={periodLabel}
+          />
+          {prefs.ar && (
+            <StatCard
+              label="Accounts Receivable"
+              value={formatCurrencyOrDash(latest?.total_ar ?? null)}
+              tone="info"
+              icon={<Receipt className="h-5 w-5" />}
+              periodLabel={periodLabel}
+            />
+          )}
+          {prefs.ap && (
+            <StatCard
+              label="Accounts Payable"
+              value={formatCurrencyOrDash(latest?.total_ap ?? null)}
+              tone="info"
+              icon={<Receipt className="h-5 w-5" />}
+              periodLabel={periodLabel}
+            />
+          )}
         </section>
+
+        <section className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-5">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-3">
+            <div className="mb-4">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Revenue vs Expenses
+              </h2>
+              <p className="text-xs text-muted-foreground">By month, based on submitted financials.</p>
+            </div>
+            {chartData.length === 0 ? (
+              <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+                No financial data available yet.
+              </div>
+            ) : (
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                    <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickFormatter={(v) => compactCurrency(Number(v))}
+                    />
+                    <RTooltip
+                      formatter={(v: number) => formatCurrencyOrDash(v)}
+                      contentStyle={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 12 }} />
+                    <Bar dataKey="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="Expenses" fill="hsl(var(--muted-foreground) / 0.35)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-2">
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              Period Summary
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {latest?.period ? formatMonthYear(latest.period) : "No period set"}
+            </p>
+
+            <dl className="mt-5 space-y-4">
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Net Revenue
+                </dt>
+                <dd className="mt-1 text-xl font-semibold text-foreground">
+                  {formatCurrencyOrDash(latest?.net_revenue ?? null)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Net Income
+                </dt>
+                <dd
+                  className={`mt-1 inline-flex items-center gap-1.5 text-xl font-semibold ${
+                    latest?.net_income == null
+                      ? "text-foreground"
+                      : latest.net_income < 0
+                        ? "text-destructive"
+                        : "text-accent"
+                  }`}
+                >
+                  {latest?.net_income != null &&
+                    (latest.net_income < 0 ? (
+                      <TrendingDown className="h-4 w-4" />
+                    ) : (
+                      <TrendingUp className="h-4 w-4" />
+                    ))}
+                  {formatCurrencyOrDash(latest?.net_income ?? null)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  AR vs AP
+                </dt>
+                <ArApBar ar={latest?.total_ar ?? null} ap={latest?.total_ap ?? null} />
+              </div>
+            </dl>
+          </div>
+        </section>
+
+
 
         <section className="mt-10">
           <div className="mb-4 flex items-end justify-between">
@@ -858,3 +1035,148 @@ function ClientDashboard({ role }: { role: string | null }) {
     </div>
   );
 }
+
+/* --------------------------- Dashboard helpers --------------------------- */
+
+type DashboardFinancialRow = {
+  client_id: string;
+  monthly_close: string;
+  monthly_close_detail: string | null;
+  monthly_close_status: string | null;
+  cash_position: string;
+  cash_balance: number | null;
+  total_ar: number | null;
+  total_ap: number | null;
+  net_revenue: number | null;
+  net_income: number | null;
+  period: string | null;
+};
+
+function formatCurrencyOrDash(v: number | null | undefined): string {
+  if (v === null || v === undefined || Number.isNaN(Number(v))) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number(v));
+}
+
+function compactCurrency(v: number): string {
+  if (!Number.isFinite(v)) return "";
+  const abs = Math.abs(v);
+  if (abs >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `$${(v / 1_000).toFixed(0)}k`;
+  return `$${v.toFixed(0)}`;
+}
+
+function parsePeriod(period: string): Date {
+  // period is YYYY-MM-DD; build as local date to avoid TZ shifts
+  const [y, m, d] = period.split("-").map(Number);
+  return new Date(y, (m ?? 1) - 1, d ?? 1);
+}
+
+function formatAsOf(period: string | null): string {
+  if (!period) return "";
+  return `As of ${parsePeriod(period).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  })}`;
+}
+
+function formatMonthShort(period: string): string {
+  return parsePeriod(period).toLocaleDateString("en-US", { month: "short", year: "2-digit" });
+}
+
+function formatMonthYear(period: string): string {
+  return parsePeriod(period).toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
+
+function StatCard({
+  label,
+  value,
+  tone,
+  icon,
+  periodLabel,
+}: {
+  label: string;
+  value: string;
+  tone: Tone;
+  icon: React.ReactNode;
+  periodLabel: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg ${toneClasses(tone)}`}>
+          {icon}
+        </span>
+      </div>
+      <div className="mt-4 text-2xl font-semibold text-foreground">{value}</div>
+      <div className="mt-1 text-xs text-muted-foreground">{periodLabel || "—"}</div>
+    </div>
+  );
+}
+
+function LockedToggle({ label }: { label: string }) {
+  return (
+    <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 py-2">
+      <span className="text-sm text-foreground">{label}</span>
+      <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Always on</span>
+    </div>
+  );
+}
+
+function PrefToggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between rounded-md border border-border bg-background px-3 py-2 hover:bg-muted/40">
+      <span className="text-sm text-foreground">{label}</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-4 w-4 cursor-pointer accent-primary"
+      />
+    </label>
+  );
+}
+
+function ArApBar({ ar, ap }: { ar: number | null; ap: number | null }) {
+  const arVal = ar ?? 0;
+  const apVal = ap ?? 0;
+  const total = arVal + apVal;
+  const arPct = total > 0 ? (arVal / total) * 100 : 0;
+  const apPct = total > 0 ? (apVal / total) * 100 : 0;
+  return (
+    <div className="mt-2">
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
+        {total > 0 && (
+          <>
+            <div style={{ width: `${arPct}%` }} className="h-full bg-primary" />
+            <div style={{ width: `${apPct}%` }} className="h-full bg-muted-foreground/40" />
+          </>
+        )}
+      </div>
+      <div className="mt-2 flex items-center justify-between text-xs">
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="inline-block h-2 w-2 rounded-sm bg-primary" />
+          AR <span className="font-medium text-foreground">{formatCurrencyOrDash(ar)}</span>
+        </span>
+        <span className="flex items-center gap-1.5 text-muted-foreground">
+          <span className="inline-block h-2 w-2 rounded-sm bg-muted-foreground/40" />
+          AP <span className="font-medium text-foreground">{formatCurrencyOrDash(ap)}</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
