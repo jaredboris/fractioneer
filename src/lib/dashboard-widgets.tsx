@@ -360,7 +360,8 @@ export function EditableWidget({
   const w = WIDGET_BY_ID[id];
   if (!w) return null;
   const locked = !!w.locked;
-  const draggable = editMode && !locked;
+  const draggable = editMode;
+
   const isDragging = dragIndex === index;
   const isOver = overIndex === index && dragIndex !== null && dragIndex !== index;
 
