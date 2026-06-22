@@ -380,8 +380,8 @@ function AdminOverview({ role: _role }: { role: string }) {
         </div>
       </div>
 
-      {false ? null : (
-        <>
+      <>
+
           <section className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <DarkStatCard
               label="Clients"
@@ -563,8 +563,8 @@ function AdminOverview({ role: _role }: { role: string }) {
               )}
             </section>
           </div>
-        </>
-      )}
+      </>
+
     </AdminShell>
   );
 }
