@@ -323,11 +323,14 @@ function AdminOverview({ role: _role }: { role: string }) {
         }
         return;
       }
-      const [{ data: profiles }, { data: dashboards }, { data: documents }, { data: periods }] = await Promise.all([
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const [{ data: profiles }, { data: dashboards }, { data: documents }, { data: periods }, { count: periodsMonthCount }] = await Promise.all([
         supabase.from("profiles").select("id, company_name, full_name").in("id", ids),
         supabase.from("dashboard_data").select("client_id, updated_at").in("client_id", ids),
         supabase.from("documents").select("id, client_id, file_name, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(200),
-        supabase.from("periods").select("id, client_id, period_end, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(500),
+        supabase.from("periods").select("id, client_id, period_end, created_at, updated_at").in("client_id", ids).order("updated_at", { ascending: false }).limit(500),
+        supabase.from("periods").select("id", { count: "exact", head: true }).in("client_id", ids).gte("created_at", monthStart.toISOString()),
       ]);
       if (cancelled) return;
 
@@ -336,16 +339,13 @@ function AdminOverview({ role: _role }: { role: string }) {
       );
 
       const dashMap = new Map<string, string | null>((dashboards ?? []).map((d) => [d.client_id, d.updated_at]));
-      const docMap = new Map<string, { count: number; last: string | null }>();
-      for (const d of documents ?? []) {
-        const cur = docMap.get(d.client_id) ?? { count: 0, last: null };
-        cur.count += 1;
-        if (!cur.last || new Date(d.created_at) > new Date(cur.last)) cur.last = d.created_at;
-        docMap.set(d.client_id, cur);
-      }
-      const perMap = new Map<string, number>();
+      const perMap = new Map<string, { count: number; last: string | null }>();
       for (const p of periods ?? []) {
-        perMap.set(p.client_id, (perMap.get(p.client_id) ?? 0) + 1);
+        const cur = perMap.get(p.client_id) ?? { count: 0, last: null };
+        cur.count += 1;
+        const lastTouched = p.updated_at ?? p.created_at;
+        if (!cur.last || new Date(lastTouched) > new Date(cur.last)) cur.last = lastTouched;
+        perMap.set(p.client_id, cur);
       }
 
       const merged: ClientRow[] = (profiles ?? []).map((p) => ({
@@ -353,23 +353,21 @@ function AdminOverview({ role: _role }: { role: string }) {
         company_name: p.company_name,
         full_name: p.full_name,
         dashboard_updated_at: dashMap.get(p.id) ?? null,
-        document_count: docMap.get(p.id)?.count ?? 0,
-        period_count: perMap.get(p.id) ?? 0,
-        last_upload_at: docMap.get(p.id)?.last ?? null,
+        document_count: perMap.get(p.id)?.count ?? 0,
+        period_count: perMap.get(p.id)?.count ?? 0,
+        last_upload_at: perMap.get(p.id)?.last ?? null,
       }));
       merged.sort((a, b) => {
-        const aNeeds = !a.dashboard_updated_at || (a.document_count === 0 && a.period_count === 0) ? 0 : 1;
-        const bNeeds = !b.dashboard_updated_at || (b.document_count === 0 && b.period_count === 0) ? 0 : 1;
+        const aNeeds = a.period_count === 0 ? 0 : 1;
+        const bNeeds = b.period_count === 0 ? 0 : 1;
         if (aNeeds !== bNeeds) return aNeeds - bNeeds;
         return (a.company_name || a.full_name || "").localeCompare(b.company_name || b.full_name || "");
       });
       setRows(merged);
 
-      // This-month counts
-      const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      // This-month counts: period rows are the source of truth for processed uploads.
       const uploadsMonth = (documents ?? []).filter((d) => new Date(d.created_at) >= monthStart).length;
-      const periodsMonth = (periods ?? []).filter((p) => new Date(p.created_at) >= monthStart).length;
+      const periodsMonth = periodsMonthCount ?? (periods ?? []).filter((p) => new Date(p.created_at) >= monthStart).length;
       setUploadsThisMonth(uploadsMonth);
       setPeriodsThisMonth(periodsMonth);
 
@@ -411,8 +409,8 @@ function AdminOverview({ role: _role }: { role: string }) {
 
   const totals = (() => {
     const list = rows ?? [];
-    const needsData = list.filter((r) => !r.dashboard_updated_at).length;
-    const needsDocs = list.filter((r) => r.document_count === 0 && r.period_count === 0).length;
+    const needsData = list.filter((r) => r.period_count === 0).length;
+    const needsDocs = list.filter((r) => r.period_count === 0).length;
     return { total: list.length, needsData, needsDocs };
   })();
 
@@ -551,9 +549,10 @@ function AdminOverview({ role: _role }: { role: string }) {
                     </thead>
                     <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
                       {rows.map((r) => {
-                        const noData = !r.dashboard_updated_at;
-                        const noDocs = r.document_count === 0 && r.period_count === 0;
-                        const needsAttention = noData || noDocs;
+                        const noData = r.period_count === 0;
+                        const noDocs = r.period_count === 0;
+                        const needsAttention = noDocs;
+                        const dashboardUpdatedAt = r.dashboard_updated_at ?? r.last_upload_at;
                         return (
                           <tr key={r.id} className={needsAttention ? "bg-rose-50/40 dark:bg-rose-500/[0.04]" : ""}>
                             <td className="px-5 py-4">
@@ -570,7 +569,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                                 </span>
                               ) : (
                                 <div className="text-xs text-slate-500 dark:text-[#9CA3AF]">
-                                  Updated {new Date(r.dashboard_updated_at!).toLocaleDateString()}
+                                  Updated {dashboardUpdatedAt ? new Date(dashboardUpdatedAt).toLocaleDateString() : "—"}
                                 </div>
                               )}
                             </td>
@@ -587,7 +586,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                                 {needsAttention ? (
                                   <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-1 text-[11px] font-medium text-rose-600 dark:text-rose-300">
                                     <AlertTriangle className="h-3 w-3" />
-                                    {noData && noDocs ? "Needs data & docs" : noData ? "Needs data" : "Needs docs"}
+                                    {noData && noDocs ? "Needs data & docs" : "Needs docs"}
                                   </span>
                                 ) : (
                                   <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-300">
@@ -1140,7 +1139,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                         setRemovingId(null);
                       }
                     }}
-                    className={`nb-rise ${colSpan}`}
+                    className={colSpan}
                   >
                     {def.render(widgetCtx)}
                   </EditableWidget>
