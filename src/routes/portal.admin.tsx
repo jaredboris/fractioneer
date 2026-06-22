@@ -241,6 +241,56 @@ function AdminPage() {
     loadClientData(selectedId);
   }
 
+  function parseNum(v: string): number | null {
+    if (v.trim() === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  async function handleSavePeriod(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedId || !periodForm.period_end) return;
+    setSavingPeriod(true);
+    setStatus(null);
+    const { error } = await supabase.from("periods").upsert(
+      {
+        client_id: selectedId,
+        period_end: periodForm.period_end,
+        net_revenue: parseNum(periodForm.net_revenue),
+        net_income: parseNum(periodForm.net_income),
+        gross_margin: parseNum(periodForm.gross_margin),
+        cash_balance: parseNum(periodForm.cash_balance),
+        total_ar: parseNum(periodForm.total_ar),
+        total_ap: parseNum(periodForm.total_ap),
+        document_id: periodForm.document_id || null,
+      },
+      { onConflict: "client_id,period_end" },
+    );
+    setSavingPeriod(false);
+    if (error) {
+      setStatus({ kind: "err", msg: error.message });
+      return;
+    }
+    setStatus({ kind: "ok", msg: "Period saved." });
+    setPeriodForm({
+      period_end: "",
+      net_revenue: "",
+      net_income: "",
+      gross_margin: "",
+      cash_balance: "",
+      total_ar: "",
+      total_ap: "",
+      document_id: "",
+    });
+    loadClientData(selectedId);
+  }
+
+  async function handleDeletePeriod(id: string, label: string) {
+    if (!confirm(`Delete period ${label}?`)) return;
+    await supabase.from("periods").delete().eq("id", id);
+    loadClientData(selectedId);
+  }
+
   const [addOpen, setAddOpen] = useState(false);
   const [addBusy, setAddBusy] = useState(false);
   const [addForm, setAddForm] = useState({
