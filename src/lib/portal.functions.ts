@@ -269,6 +269,21 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
         { onConflict: "client_id" },
       );
     if (error) throw new Error(error.message);
+    const { error: periodError } = await context.supabase
+      .from("periods")
+      .upsert(
+        {
+          client_id: data.client_id,
+          period_end: data.period,
+          cash_balance: data.cash_balance,
+          total_ar: data.total_ar,
+          total_ap: data.total_ap,
+          net_revenue: data.net_revenue,
+          net_income: data.net_income,
+        },
+        { onConflict: "client_id,period_end" },
+      );
+    if (periodError) throw new Error(periodError.message);
     return { ok: true };
   });
 
