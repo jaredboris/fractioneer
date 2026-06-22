@@ -1,14 +1,20 @@
-import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
-import { ArrowLeft, Upload, FileText, Loader2, Plus, Trash2, LogOut } from "lucide-react";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/fractioneer-logo.jpg";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AdminShell } from "@/components/portal/AdminSidebar";
 import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, type ExtractedFinancials } from "@/lib/portal.functions";
 import * as XLSX from "xlsx";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
+
+const adminSearchSchema = z.object({
+  tab: fallback(z.enum(["clients", "upload", "activity"]), "clients").default("clients"),
+});
 
 export const Route = createFileRoute("/portal/admin")({
   ssr: false,
+  validateSearch: zodValidator(adminSearchSchema),
   head: () => ({
     meta: [
       { title: "Admin — Fractioneer Client Portal" },
