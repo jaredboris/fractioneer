@@ -183,21 +183,15 @@
 }
 .widget-remove { animation: widget-remove 0.25s ease-in forwards; pointer-events: none; }
 
-.widget-drop-target {
-  outline: 2px dashed rgb(59 130 246 / 0.6);
-  outline-offset: 4px;
-  border-radius: 0.75rem;
-}
-.widget-dragging { opacity: 0.4; }
-
-/* Drop placeholder shown in place of the actively dragged widget */
-.widget-placeholder {
+/* Destination slot highlight — pulsing dashed outline where the dragged widget will land */
+.widget-destination-highlight {
+  position: absolute;
+  inset: 0;
   border: 2px dashed rgb(59 130 246 / 0.7);
-  background: rgb(59 130 246 / 0.06);
   border-radius: 1rem;
+  background: rgb(59 130 246 / 0.06);
   box-shadow: 0 0 0 4px rgb(59 130 246 / 0.12), 0 0 24px rgb(59 130 246 / 0.25) inset;
-  min-height: 100%;
-  height: 100%;
+  pointer-events: none;
   animation: placeholder-pulse 1.6s ease-in-out infinite;
 }
 @keyframes placeholder-pulse {
@@ -205,9 +199,9 @@
   50%      { box-shadow: 0 0 0 6px rgb(59 130 246 / 0.20), 0 0 32px rgb(59 130 246 / 0.35) inset; }
 }
 
-/* Lifted overlay for the widget being dragged */
+/* Lifted overlay for the widget being dragged: scale up, soft shadow, slight lift */
 .widget-overlay {
-  transform: scale(1.05);
+  transform: scale(1.05) translateY(-8px);
   box-shadow:
     0 24px 48px -12px rgb(0 0 0 / 0.45),
     0 8px 16px -4px rgb(0 0 0 / 0.25);
