@@ -105,3 +105,115 @@ export const createClientAccount = createServerFn({ method: "POST" })
     return { id: newUserId, email: data.email, company_name: data.company_name };
   });
 
+// ---------------------------------------------------------------------------
+// Admin-only: extract financials from Excel rows using Lovable AI.
+// The browser parses the .xlsx with SheetJS and sends row JSON here.
+// ---------------------------------------------------------------------------
+
+const ExtractedSchema = z.object({
+  cash_balance: z.number().nullable(),
+  total_ar: z.number().nullable(),
+  total_ap: z.number().nullable(),
+  net_revenue: z.number().nullable(),
+  monthly_close_status: z.enum(["open", "closed"]).nullable(),
+});
+
+export type ExtractedFinancials = z.infer<typeof ExtractedSchema>;
+
+async function assertAdmin(supabase: any, userId: string) {
+  const { data, error } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .eq("role", "admin")
+    .limit(1);
+  if (error) throw new Error(error.message);
+  if (!data || data.length === 0) throw new Error("Forbidden: admin role required");
+}
+
+export const extractFinancialsFromRows = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ rows: z.string().min(1).max(200_000) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+
+    const systemPrompt =
+      "You are a financial data extraction assistant. The user will provide rows from an Excel spreadsheet. Extract the following values if present: cash balance, total accounts receivable, total accounts payable, net revenue, and monthly close status (open or closed). Return ONLY a JSON object with these keys: cash_balance, total_ar, total_ap, net_revenue, monthly_close_status. Use null for any value not found. Numeric values must be numbers (no currency symbols or commas). monthly_close_status must be exactly \"open\" or \"closed\" or null. No explanation, no markdown, just raw JSON.";
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-pro",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: data.rows },
+        ],
+        response_format: { type: "json_object" },
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      if (res.status === 429) throw new Error("AI rate limit reached. Try again shortly.");
+      if (res.status === 402) throw new Error("AI credits exhausted. Add credits in workspace settings.");
+      throw new Error(`AI request failed (${res.status}): ${text.slice(0, 200)}`);
+    }
+
+    const payload = await res.json();
+    const content: string = payload?.choices?.[0]?.message?.content ?? "";
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      // Strip possible code fences
+      const stripped = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
+      parsed = JSON.parse(stripped);
+    }
+    return ExtractedSchema.parse(parsed);
+  });
+
+export const saveExtractedFinancials = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        client_id: z.string().uuid(),
+        period: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        cash_balance: z.number().nullable(),
+        total_ar: z.number().nullable(),
+        total_ap: z.number().nullable(),
+        net_revenue: z.number().nullable(),
+        monthly_close_status: z.enum(["open", "closed"]).nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { error } = await context.supabase
+      .from("dashboard_data")
+      .upsert(
+        {
+          client_id: data.client_id,
+          period: data.period,
+          cash_balance: data.cash_balance,
+          total_ar: data.total_ar,
+          total_ap: data.total_ap,
+          net_revenue: data.net_revenue,
+          monthly_close_status: data.monthly_close_status,
+        },
+        { onConflict: "client_id" },
+      );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+

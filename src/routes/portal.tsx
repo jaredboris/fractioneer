@@ -30,9 +30,28 @@ export const Route = createFileRoute("/portal")({
     ],
   }),
   beforeLoad: async ({ location }) => {
-    if (location.pathname === "/portal/login") return;
+    // These sub-routes manage their own auth bootstrap and must bypass the gate.
+    if (
+      location.pathname === "/portal/login" ||
+      location.pathname === "/portal/setup-2fa" ||
+      location.pathname === "/portal/verify-2fa"
+    ) {
+      return;
+    }
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/portal/login" });
+
+    // Enforce TOTP 2FA for every portal user.
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal) {
+      if (aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+        throw redirect({ to: "/portal/verify-2fa" });
+      }
+      if (aal.nextLevel === "aal1" && aal.currentLevel === "aal1") {
+        // No verified TOTP factor yet — force enrollment.
+        throw redirect({ to: "/portal/setup-2fa" });
+      }
+    }
     return { user: data.user };
   },
   component: PortalShell,
