@@ -48,6 +48,16 @@ let cachedPortalGate: {
 
 const PORTAL_GATE_CACHE_MS = 5 * 60 * 1000;
 
+// Invalidate the portal gate cache on every auth identity transition so a
+// fresh sign-in re-runs the AAL/2FA check instead of reusing a prior session.
+if (typeof window !== "undefined") {
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
+      cachedPortalGate = null;
+    }
+  });
+}
+
 export const Route = createFileRoute("/portal")({
   ssr: false,
   head: () => ({
