@@ -544,7 +544,7 @@ function AdminPage() {
           )}
         </section>
 
-        {selectedId ? (
+        {tab === "clients" && selectedId ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <section className="rounded-xl border border-border bg-card p-6">
               <h2 className="text-lg font-semibold text-foreground">Dashboard values</h2>
@@ -665,7 +665,7 @@ function AdminPage() {
           </div>
         ) : null}
 
-        {selectedId && (
+        {tab === "clients" && selectedId && (
           <section className="mt-6 rounded-xl border border-border bg-card p-6">
             <h2 className="text-lg font-semibold text-foreground">Reporting periods</h2>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -750,7 +750,7 @@ function AdminPage() {
         )}
 
 
-        {selectedId && (
+        {tab === "upload" && selectedId && (
           <section className="mt-6 rounded-xl border border-border bg-card p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -822,12 +822,13 @@ function AdminPage() {
         )}
 
         {!selectedId && (
-          <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center text-sm text-muted-foreground">
+          <div className="rounded-2xl border border-dashed border-[#E5E9F1] bg-white p-12 text-center text-sm text-slate-500 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-[#9CA3AF]">
             Select a client above to manage their dashboard and documents.
           </div>
         )}
-      </main>
-    </div>
+        </>
+      )}
+    </AdminShell>
   );
 }
 
