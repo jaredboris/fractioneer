@@ -885,3 +885,32 @@ function ExtractedRow({
     </div>
   );
 }
+
+function NumField({
+  label,
+  value,
+  onChange,
+  type = "number",
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: "number" | "date";
+  required?: boolean;
+}) {
+  return (
+    <label className="block text-xs font-medium text-muted-foreground">
+      {label}
+      <input
+        type={type}
+        step="any"
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+      />
+    </label>
+  );
+}
+
