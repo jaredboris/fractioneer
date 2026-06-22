@@ -18,6 +18,7 @@ import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortalVerify2faRouteImport } from './routes/portal.verify-2fa'
 import { Route as PortalSetup2faRouteImport } from './routes/portal.setup-2fa'
+import { Route as PortalSettingsRouteImport } from './routes/portal.settings'
 import { Route as PortalLoginRouteImport } from './routes/portal.login'
 import { Route as PortalDocumentsRouteImport } from './routes/portal.documents'
 import { Route as PortalAdminRouteImport } from './routes/portal.admin'
@@ -67,6 +68,11 @@ const PortalSetup2faRoute = PortalSetup2faRouteImport.update({
   path: '/setup-2fa',
   getParentRoute: () => PortalRoute,
 } as any)
+const PortalSettingsRoute = PortalSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => PortalRoute,
+} as any)
 const PortalLoginRoute = PortalLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/settings': typeof PortalSettingsRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
   '/portal/verify-2fa': typeof PortalVerify2faRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/settings': typeof PortalSettingsRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
   '/portal/verify-2fa': typeof PortalVerify2faRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/settings': typeof PortalSettingsRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
   '/portal/verify-2fa': typeof PortalVerify2faRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/documents'
     | '/portal/login'
+    | '/portal/settings'
     | '/portal/setup-2fa'
     | '/portal/verify-2fa'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/documents'
     | '/portal/login'
+    | '/portal/settings'
     | '/portal/setup-2fa'
     | '/portal/verify-2fa'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/documents'
     | '/portal/login'
+    | '/portal/settings'
     | '/portal/setup-2fa'
     | '/portal/verify-2fa'
   fileRoutesById: FileRoutesById
@@ -246,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalSetup2faRouteImport
       parentRoute: typeof PortalRoute
     }
+    '/portal/settings': {
+      id: '/portal/settings'
+      path: '/settings'
+      fullPath: '/portal/settings'
+      preLoaderRoute: typeof PortalSettingsRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/portal/login': {
       id: '/portal/login'
       path: '/login'
@@ -274,6 +293,7 @@ interface PortalRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
   PortalDocumentsRoute: typeof PortalDocumentsRoute
   PortalLoginRoute: typeof PortalLoginRoute
+  PortalSettingsRoute: typeof PortalSettingsRoute
   PortalSetup2faRoute: typeof PortalSetup2faRoute
   PortalVerify2faRoute: typeof PortalVerify2faRoute
 }
@@ -282,6 +302,7 @@ const PortalRouteChildren: PortalRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
   PortalDocumentsRoute: PortalDocumentsRoute,
   PortalLoginRoute: PortalLoginRoute,
+  PortalSettingsRoute: PortalSettingsRoute,
   PortalSetup2faRoute: PortalSetup2faRoute,
   PortalVerify2faRoute: PortalVerify2faRoute,
 }
