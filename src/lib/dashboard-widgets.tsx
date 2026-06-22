@@ -25,10 +25,12 @@ import {
   BarChart3,
   LineChart as LineIcon,
   Plus,
+  Minus,
   X,
   GripVertical,
   Trash2,
   Lock,
+
 } from "lucide-react";
 
 // ---- Types & Catalog ---------------------------------------------------------
