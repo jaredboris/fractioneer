@@ -1137,7 +1137,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                         setRemovingId(null);
                       }
                     }}
-                    className={`nb-rise ${colSpan}`}
+                    className={colSpan}
                   >
                     {def.render(widgetCtx)}
                   </EditableWidget>
