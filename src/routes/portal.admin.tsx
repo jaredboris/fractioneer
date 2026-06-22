@@ -578,6 +578,75 @@ function AdminPage() {
               </ul>
             </section>
           </div>
+        ) : null}
+
+        {selectedId && (
+          <section className="mt-6 rounded-xl border border-border bg-card p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Upload client financials</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Upload an Excel file (.xlsx). Lovable AI will extract cash, AR, AP, net revenue, and monthly close status, then you confirm before saving to the dashboard.
+                </p>
+              </div>
+            </div>
+
+            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+              {analyzing ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing {xlsxFileName ?? "spreadsheet"}…
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  {xlsxFileName && extracted ? `Replace (${xlsxFileName})` : "Click to upload .xlsx"}
+                </>
+              )}
+              <input
+                type="file"
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                className="hidden"
+                onChange={handleXlsxSelected}
+                disabled={analyzing || savingExtracted}
+              />
+            </label>
+
+            {extracted && (
+              <div className="mt-5 rounded-lg border border-border bg-background p-5">
+                <h3 className="text-sm font-semibold text-foreground">Extracted values</h3>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Review before saving. Missing fields came back as null — verify your source file if any of these look wrong.
+                </p>
+                <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <ExtractedRow label="Cash balance" value={extracted.cash_balance} kind="currency" />
+                  <ExtractedRow label="Total AR" value={extracted.total_ar} kind="currency" />
+                  <ExtractedRow label="Total AP" value={extracted.total_ap} kind="currency" />
+                  <ExtractedRow label="Net revenue" value={extracted.net_revenue} kind="currency" />
+                  <ExtractedRow label="Monthly close status" value={extracted.monthly_close_status} kind="text" />
+                </dl>
+                <div className="mt-5 flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setExtracted(null); setXlsxFileName(null); }}
+                    className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                  >
+                    Discard
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmExtracted}
+                    disabled={savingExtracted}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                  >
+                    {savingExtracted && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                    Confirm & save
+                  </button>
+                </div>
+              </div>
+            )}
+          </section>
+        )}
         ) : (
           <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center text-sm text-muted-foreground">
             Select a client above to manage their dashboard and documents.
