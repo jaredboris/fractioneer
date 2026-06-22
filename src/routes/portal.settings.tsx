@@ -87,7 +87,7 @@ function SettingsPage() {
               <div>
                 <dt className="text-xs text-slate-500 dark:text-[#6B7280]">Company</dt>
                 <dd className="mt-0.5 text-slate-900 dark:text-white">
-                  {companyName || "—"}
+                  {displayCompanyName || "—"}
                 </dd>
               </div>
               <div>
