@@ -4,6 +4,7 @@ import { Loader2, ShieldCheck, RefreshCw } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { AdminSidebar } from "@/components/portal/AdminSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
 import { useEffectiveClientId, useImpersonation } from "@/lib/impersonation";
@@ -57,9 +58,16 @@ function SettingsPage() {
     };
   }, [user.id]);
 
+  const isAdmin = !impersonation && role === "admin";
+  const displayCompanyName = impersonation ? companyName : (isAdmin ? "Fractioneer" : companyName);
+
   return (
     <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
-      <PortalSidebar companyName={companyName} email={displayEmail} role={impersonation ? "client" : role} />
+      {isAdmin ? (
+        <AdminSidebar email={displayEmail} />
+      ) : (
+        <PortalSidebar companyName={displayCompanyName} email={displayEmail} role={impersonation ? "client" : role} />
+      )}
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -79,7 +87,7 @@ function SettingsPage() {
               <div>
                 <dt className="text-xs text-slate-500 dark:text-[#6B7280]">Company</dt>
                 <dd className="mt-0.5 text-slate-900 dark:text-white">
-                  {companyName || "—"}
+                  {displayCompanyName || "—"}
                 </dd>
               </div>
               <div>
