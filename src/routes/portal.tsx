@@ -944,9 +944,26 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const displayName = companyName || (impersonation ? impersonation.label : user.email) || "Welcome";
 
-  // Latest row drives the stat cards + period summary
-  const latest = dashboardRows[dashboardRows.length - 1] ?? null;
-  const prev = dashboardRows.length >= 2 ? dashboardRows[dashboardRows.length - 2] : null;
+  // Normalized timeline merging periods (preferred) + dashboard_data (fallback).
+  const mergedRows = useMemo(
+    () =>
+      mergeRows(
+        periodsRows,
+        (dashboardRows as unknown as DashboardFinancialRow[]).map((r) => ({
+          period: r.period,
+          net_revenue: r.net_revenue,
+          net_income: r.net_income,
+          cash_balance: r.cash_balance,
+          total_ar: r.total_ar,
+          total_ap: r.total_ap,
+          monthly_close_status: r.monthly_close_status,
+          monthly_close: r.monthly_close,
+        })),
+      ),
+    [periodsRows, dashboardRows],
+  );
+  const latest: NormalizedRow | null = mergedRows[mergedRows.length - 1] ?? null;
+  const prev: NormalizedRow | null = mergedRows.length >= 2 ? mergedRows[mergedRows.length - 2] : null;
   const periodLabel = formatAsOf(latest?.period ?? null);
 
   function trendFor(curr: number | null | undefined, previous: number | null | undefined) {
@@ -962,23 +979,11 @@ function ClientDashboard({ role }: { role: string | null }) {
     () => docs.find((d) => /\.xlsx?$/i.test(d.file_name)) ?? null,
     [docs],
   );
+  const lastUploadAt = docs[0]?.created_at ?? null;
 
-  const chartData = useMemo(() => {
-    return dashboardRows
-      .filter((r) => r.period)
-      .map((r) => {
-        const rev = r.net_revenue ?? 0;
-        const ni = r.net_income ?? 0;
-        return {
-          month: formatMonthShort(r.period!),
-          Revenue: rev,
-          Expenses: Math.max(0, rev - ni),
-        };
-      });
-  }, [dashboardRows]);
-
-  // Gross margin for period summary
+  // Gross margin for the (non-widget) Period Summary panel.
   const grossMarginPct = (() => {
+    if (latest?.gross_margin != null) return Number(latest.gross_margin);
     const rev = latest?.net_revenue;
     const ni = latest?.net_income;
     if (rev == null || ni == null || rev === 0) return null;
@@ -987,13 +992,12 @@ function ClientDashboard({ role }: { role: string | null }) {
   })();
 
   const isDark = useIsDark();
-  const axisStroke = isDark ? "#6B7280" : "#94A3B8";
-  const gridStroke = isDark ? "#1E2A3A" : "#E5E9F1";
-  const expensesFill = isDark ? "#374151" : "#E2E8F0";
-  const tooltipBg = isDark ? "#111827" : "#FFFFFF";
-  const tooltipBorder = isDark ? "#1E2A3A" : "#E5E9F1";
-  const tooltipText = isDark ? "#E5E7EB" : "#0F172A";
-  const legendColor = isDark ? "#9CA3AF" : "#475569";
+
+  const widgetCtx = useMemo(
+    () => ({ rows: mergedRows, latest, prev, lastUploadAt, isDark }),
+    [mergedRows, latest, prev, lastUploadAt, isDark],
+  );
+
 
   return (
     <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
