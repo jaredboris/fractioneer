@@ -399,7 +399,7 @@ function AdminOverview({ role: _role }: { role: string }) {
   const totals = (() => {
     const list = rows ?? [];
     const needsData = list.filter((r) => !r.dashboard_updated_at).length;
-    const needsDocs = list.filter((r) => r.document_count === 0).length;
+    const needsDocs = list.filter((r) => r.document_count === 0 && r.period_count === 0).length;
     return { total: list.length, needsData, needsDocs };
   })();
 
