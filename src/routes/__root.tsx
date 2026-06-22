@@ -1,3 +1,4 @@
+import * as React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -118,7 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('fractioneer-portal-theme');var p=location.pathname.indexOf('/portal')===0;if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}if(p){document.body&&(document.body.style.backgroundColor=(t==='dark'?'#0A0F1E':'#EEF2FA'));}}catch(e){}})();`;
+const THEME_INIT_SCRIPT = `(function(){try{var p=location.pathname.indexOf('/portal')===0;if(!p)return;var t=localStorage.getItem('fractioneer-portal-theme');if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}document.body&&(document.body.style.backgroundColor=(t==='dark'?'#0A0F1E':'#EEF2FA'));}catch(e){}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
@@ -137,6 +138,19 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  React.useEffect(() => {
+    const sync = () => {
+      const isPortal = location.pathname.indexOf('/portal') === 0;
+      if (!isPortal) {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = '';
+      }
+    };
+    sync();
+    window.addEventListener('popstate', sync);
+    return () => window.removeEventListener('popstate', sync);
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
