@@ -800,21 +800,31 @@ function ClientDashboard({ role }: { role: string | null }) {
   })();
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#F8FAFC" }}>
+    <div className="min-h-screen" style={{ backgroundColor: "#0A0F1E" }}>
+      <style>{`
+        @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .nb-rise { animation: nb-rise 0.5s ease-out both; }
+        .nb-card { background-color: #111827; border: 1px solid #1E2A3A; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .nb-card:hover { transform: scale(1.01); box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+        .nb-chart-bar { filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.45)); }
+      `}</style>
       <PortalHeader displayName={displayName} email={user.email ?? null} role={role} showAdminLink={false} />
 
       <main className="mx-auto w-full max-w-6xl px-6 py-8">
-        <div className="mb-4">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
             Welcome back{companyName ? `, ${companyName}` : ""}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm" style={{ color: "#9CA3AF" }}>
             Here's the latest snapshot of your finance operations.
           </p>
         </div>
 
-        <div className="mb-4 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600" />
+        <div
+          className="mb-4 flex items-start gap-2 rounded-md px-3 py-2 text-xs nb-rise"
+          style={{ animationDelay: "60ms", backgroundColor: "#1C1500", border: "1px solid #92400E", color: "#FCD34D" }}
+        >
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: "#F59E0B" }} />
           <p>
             These figures are AI-extracted from your uploaded financials and may contain errors. For
             verified data,{" "}
@@ -822,41 +832,42 @@ function ClientDashboard({ role }: { role: string | null }) {
               <button
                 type="button"
                 onClick={() => handleDownload(latestExcel.file_path, latestExcel.file_name)}
-                className="font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950"
+                className="font-medium underline underline-offset-2"
+                style={{ color: "#FDE68A" }}
               >
                 download the source file
               </button>
             ) : (
-              <span className="font-medium opacity-70">download the source file</span>
+              <span className="font-medium opacity-60">download the source file</span>
             )}
             .
           </p>
         </div>
 
-        <div className="my-4 h-px w-full bg-slate-200" />
-
-        <div className="mb-3 flex items-center justify-end">
+        <div className="mb-3 flex items-center justify-end nb-rise" style={{ animationDelay: "120ms" }}>
           <button
             onClick={() => setCustomizeOpen((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
+            style={{ backgroundColor: "#111827", border: "1px solid #1E2A3A", color: "#E5E7EB" }}
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
-            Customize
+            Manage Widgets
           </button>
         </div>
 
         {customizeOpen && (
-          <div className="mb-3 rounded-xl border border-border bg-card p-4 shadow-[0_1px_2px_rgba(10,31,68,0.04)]">
+          <div className="mb-3 rounded-xl p-4 nb-card">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-foreground">Customize stat cards</h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <h3 className="text-sm font-semibold text-white">Customize stat cards</h3>
+                <p className="mt-0.5 text-xs" style={{ color: "#9CA3AF" }}>
                   Choose which cards to display. Monthly Close and Cash Position are always shown.
                 </p>
               </div>
               <button
                 onClick={() => setCustomizeOpen(false)}
-                className="rounded p-1 text-muted-foreground hover:bg-muted"
+                className="rounded p-1"
+                style={{ color: "#9CA3AF" }}
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
@@ -880,119 +891,185 @@ function ClientDashboard({ role }: { role: string | null }) {
         )}
 
         <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Monthly Close"
-            value={latest?.monthly_close_status ?? latest?.monthly_close ?? "—"}
-            tone={
-              latest?.monthly_close_status === "closed"
-                ? "ok"
-                : latest?.monthly_close
-                  ? toneForMonthly(latest.monthly_close)
-                  : "info"
-            }
-            icon={<CheckCircle2 className="h-5 w-5" />}
-            periodLabel={periodLabel}
-          />
-          <StatCard
-            label="Cash Position"
-            value={formatCurrencyOrDash(latest?.cash_balance ?? null)}
-            tone="info"
-            icon={<Wallet className="h-5 w-5" />}
-            periodLabel={periodLabel}
-            trend={trendFor(latest?.cash_balance, prev?.cash_balance)}
-          />
-          {prefs.ar && (
+          <div className="nb-rise" style={{ animationDelay: "180ms" }}>
             <StatCard
-              label="Accounts Receivable"
-              value={formatCurrencyOrDash(latest?.total_ar ?? null)}
-              tone="info"
-              icon={<Receipt className="h-5 w-5" />}
+              label="Monthly Close"
+              value={latest?.monthly_close_status ?? latest?.monthly_close ?? "—"}
+              tone={
+                latest?.monthly_close_status === "closed"
+                  ? "ok"
+                  : latest?.monthly_close
+                    ? toneForMonthly(latest.monthly_close)
+                    : "info"
+              }
+              icon={<CheckCircle2 className="h-5 w-5" />}
               periodLabel={periodLabel}
-              trend={trendFor(latest?.total_ar, prev?.total_ar)}
             />
+          </div>
+          <div className="nb-rise" style={{ animationDelay: "280ms" }}>
+            <StatCard
+              label="Cash Position"
+              value={formatCurrencyOrDash(latest?.cash_balance ?? null)}
+              numericValue={latest?.cash_balance ?? null}
+              tone="info"
+              icon={<Wallet className="h-5 w-5" />}
+              periodLabel={periodLabel}
+              trend={trendFor(latest?.cash_balance, prev?.cash_balance)}
+            />
+          </div>
+          {prefs.ar && (
+            <div className="nb-rise" style={{ animationDelay: "380ms" }}>
+              <StatCard
+                label="Accounts Receivable"
+                value={formatCurrencyOrDash(latest?.total_ar ?? null)}
+                numericValue={latest?.total_ar ?? null}
+                tone="info"
+                icon={<Receipt className="h-5 w-5" />}
+                periodLabel={periodLabel}
+                trend={trendFor(latest?.total_ar, prev?.total_ar)}
+              />
+            </div>
           )}
           {prefs.ap && (
-            <StatCard
-              label="Accounts Payable"
-              value={formatCurrencyOrDash(latest?.total_ap ?? null)}
-              tone="info"
-              icon={<Receipt className="h-5 w-5" />}
-              periodLabel={periodLabel}
-              trend={trendFor(latest?.total_ap, prev?.total_ap)}
-            />
+            <div className="nb-rise" style={{ animationDelay: "480ms" }}>
+              <StatCard
+                label="Accounts Payable"
+                value={formatCurrencyOrDash(latest?.total_ap ?? null)}
+                numericValue={latest?.total_ap ?? null}
+                tone="info"
+                icon={<Receipt className="h-5 w-5" />}
+                periodLabel={periodLabel}
+                trend={trendFor(latest?.total_ap, prev?.total_ap)}
+              />
+            </div>
           )}
         </section>
 
         <section className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-5">
-          <div className="flex min-h-[360px] flex-col rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-3">
+          <div
+            className="flex min-h-[360px] flex-col rounded-xl p-5 nb-card nb-rise lg:col-span-3"
+            style={{ animationDelay: "560ms" }}
+          >
             <div className="mb-4">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "#9CA3AF" }}>
                 Revenue vs Expenses
               </h2>
-              <p className="text-xs text-muted-foreground">By month, based on submitted financials.</p>
+              <p className="text-xs" style={{ color: "#6B7280" }}>By month, based on submitted financials.</p>
             </div>
             {chartData.length === 0 ? (
-              <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+              <div className="flex flex-1 items-center justify-center text-sm" style={{ color: "#6B7280" }}>
                 No financial data available yet.
               </div>
             ) : (
               <div className="h-64 w-full flex-1">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
-                    <XAxis dataKey="month" stroke="#64748B" fontSize={12} />
+                    <defs>
+                      <linearGradient id="nbRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#60A5FA" stopOpacity={1} />
+                        <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.85} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1E2A3A" vertical={false} />
+                    <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
                     <YAxis
-                      stroke="#64748B"
+                      stroke="#6B7280"
                       fontSize={12}
                       tickFormatter={(v) => compactCurrency(Number(v))}
                     />
                     <RTooltip
                       formatter={(v: number) => formatCurrencyOrDash(v)}
                       contentStyle={{
-                        background: "#ffffff",
-                        border: "1px solid #E2E8F0",
+                        background: "#111827",
+                        border: "1px solid #1E2A3A",
                         borderRadius: 8,
                         fontSize: 12,
+                        color: "#E5E7EB",
                       }}
+                      cursor={{ fill: "rgba(59,130,246,0.08)" }}
                     />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="Revenue" fill="#2563EB" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Expenses" fill="#E2E8F0" radius={[4, 4, 0, 0]} />
+                    <Legend wrapperStyle={{ fontSize: 12, color: "#9CA3AF" }} />
+                    <Bar
+                      dataKey="Revenue"
+                      fill="url(#nbRevenue)"
+                      radius={[4, 4, 0, 0]}
+                      className="nb-chart-bar"
+                      animationDuration={1100}
+                      animationEasing="ease-out"
+                    />
+                    <Bar
+                      dataKey="Expenses"
+                      fill="#374151"
+                      radius={[4, 4, 0, 0]}
+                      animationDuration={1100}
+                      animationBegin={150}
+                      animationEasing="ease-out"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             )}
           </div>
 
-          <div className="flex min-h-[360px] flex-col rounded-xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)] lg:col-span-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+          <div
+            className="relative flex min-h-[360px] flex-col overflow-hidden rounded-xl p-5 nb-card nb-rise lg:col-span-2"
+            style={{ animationDelay: "660ms" }}
+          >
+            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "#9CA3AF" }}>
               Period Summary
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs" style={{ color: "#6B7280" }}>
               {latest?.period ? formatMonthYear(latest.period) : "No period set"}
             </p>
 
-            <dl className="mt-5 space-y-4">
-              <div>
-                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Net Revenue
-                </dt>
-                <dd className="mt-1 text-xl font-semibold text-foreground">
-                  {formatCurrencyOrDash(latest?.net_revenue ?? null)}
-                </dd>
+            <div className="relative mt-5">
+              <div className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
+                Net Revenue
               </div>
+              <div className="mt-1 text-4xl font-bold tracking-tight text-white">
+                <CountUpValue value={latest?.net_revenue ?? null} format={(n) => formatCurrencyOrDash(n)} fallback="—" />
+              </div>
+              <svg
+                aria-hidden
+                className="pointer-events-none absolute -bottom-4 left-0 right-0 h-12 w-full opacity-70"
+                viewBox="0 0 200 40"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <linearGradient id="nbSpark" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M0,30 C30,22 50,28 75,18 C100,8 125,22 150,14 C175,8 190,18 200,12 L200,40 L0,40 Z"
+                  fill="url(#nbSpark)"
+                />
+                <path
+                  d="M0,30 C30,22 50,28 75,18 C100,8 125,22 150,14 C175,8 190,18 200,12"
+                  stroke="#3B82F6"
+                  strokeWidth="1.5"
+                  fill="none"
+                  style={{ filter: "drop-shadow(0 0 4px rgba(59,130,246,0.7))" }}
+                />
+              </svg>
+            </div>
+
+            <dl className="mt-10 space-y-4">
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <dt className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
                   Net Income
                 </dt>
                 <dd
-                  className={`mt-1 inline-flex items-center gap-1.5 text-xl font-semibold ${
-                    latest?.net_income == null
-                      ? "text-foreground"
-                      : latest.net_income < 0
-                        ? "text-destructive"
-                        : "text-accent"
-                  }`}
+                  className="mt-1 inline-flex items-center gap-1.5 text-xl font-semibold"
+                  style={{
+                    color:
+                      latest?.net_income == null
+                        ? "#E5E7EB"
+                        : latest.net_income < 0
+                          ? "#F87171"
+                          : "#34D399",
+                  }}
                 >
                   {latest?.net_income != null &&
                     (latest.net_income < 0 ? (
@@ -1004,23 +1081,25 @@ function ClientDashboard({ role }: { role: string | null }) {
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <dt className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
                   Gross Margin
                 </dt>
                 <dd
-                  className={`mt-1 text-xl font-semibold ${
-                    grossMarginPct == null
-                      ? "text-foreground"
-                      : grossMarginPct < 0
-                        ? "text-destructive"
-                        : "text-accent"
-                  }`}
+                  className="mt-1 text-xl font-semibold"
+                  style={{
+                    color:
+                      grossMarginPct == null
+                        ? "#E5E7EB"
+                        : grossMarginPct < 0
+                          ? "#F87171"
+                          : "#34D399",
+                  }}
                 >
                   {grossMarginPct == null ? "—" : `${grossMarginPct.toFixed(1)}%`}
                 </dd>
               </div>
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <dt className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
                   AR vs AP
                 </dt>
                 <ArApBar ar={latest?.total_ar ?? null} ap={latest?.total_ap ?? null} />
@@ -1028,6 +1107,7 @@ function ClientDashboard({ role }: { role: string | null }) {
             </dl>
           </div>
         </section>
+
 
 
 
