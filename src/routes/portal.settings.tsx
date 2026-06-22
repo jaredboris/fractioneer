@@ -30,6 +30,8 @@ function SettingsPage() {
   const impersonation = useImpersonation();
   const effectiveId = useEffectiveClientId(user.id)!;
   const companyName = useCompanyName(effectiveId);
+  const isAdmin = !impersonation && role === "admin";
+  const displayCompanyName = impersonation ? companyName : (isAdmin ? "Fractioneer" : companyName);
   const [impersonatedEmail, setImpersonatedEmail] = useState<string | null>(null);
   const displayEmail = impersonation ? impersonatedEmail : user.email ?? null;
   useEffect(() => {
