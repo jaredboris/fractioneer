@@ -409,56 +409,37 @@ function AdminPage() {
     navigate({ to: "/portal/login", replace: true });
   }
 
+  const titleByTab: Record<string, { title: string; sub: string }> = {
+    clients: { title: "Client management", sub: "Update dashboard metrics and manage documents for any client." },
+    upload: { title: "Upload financials", sub: "Drop in an Excel file — AI extracts cash, AR, AP, revenue, and close status." },
+    activity: { title: "Activity log", sub: "Every upload and AI extraction across all clients." },
+  };
+  const head = titleByTab[tab];
+
   return (
-    <div className="min-h-screen bg-muted/40">
-      <header className="border-b border-border bg-card">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Fractioneer" className="h-7 w-auto" />
-            <span className="hidden h-5 w-px bg-border sm:block" />
-            <span className="hidden text-xs font-medium uppercase tracking-wider text-muted-foreground sm:block">
-              Admin Console
-            </span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Link
-              to="/portal"
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to portal
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Log out
-            </button>
-          </div>
-        </div>
-      </header>
+    <AdminShell email={user.email ?? null}>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{head.title}</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">{head.sub}</p>
+      </div>
 
-      <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Client management</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Update dashboard metrics and manage documents for any client.
-          </p>
+      {status && (
+        <div
+          className={`mb-6 rounded-md border px-4 py-2 text-sm ${
+            status.kind === "ok"
+              ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-300"
+              : "border-rose-500/30 bg-rose-500/5 text-rose-600 dark:text-rose-300"
+          }`}
+        >
+          {status.msg}
         </div>
+      )}
 
-        {status && (
-          <div
-            className={`mb-6 rounded-md border px-4 py-2 text-sm ${
-              status.kind === "ok"
-                ? "border-accent/30 bg-accent/5 text-accent"
-                : "border-destructive/30 bg-destructive/5 text-destructive"
-            }`}
-          >
-            {status.msg}
-          </div>
-        )}
+      {tab === "activity" ? (
+        <ActivityLogPanel />
+      ) : (
+        <>
+
 
         <section className="mb-6 rounded-xl border border-border bg-card p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
