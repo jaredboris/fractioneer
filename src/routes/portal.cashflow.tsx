@@ -18,6 +18,7 @@ import { PortalEmptyState } from "@/components/portal/EmptyState";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
 import { useEffectiveClientId } from "@/lib/impersonation";
+import { getCached, setCached } from "@/lib/portal-cache";
 
 export const Route = createFileRoute("/portal/cashflow")({
   ssr: false,
@@ -57,12 +58,15 @@ function CashFlowPage() {
   };
   const effectiveId = useEffectiveClientId(user.id)!;
   const companyName = useCompanyName(effectiveId);
-  const [role, setRole] = useState<string | null>(null);
-  const [rows, setRows] = useState<Row[] | null>(null);
+  const [role, setRole] = useState<string | null>(() => getCached<string>("role", user.id) ?? null);
+  const [rows, setRows] = useState<Row[] | null>(
+    () => getCached<Row[]>("cashflow", effectiveId) ?? null,
+  );
 
   useEffect(() => {
     let cancelled = false;
-    setRows(null);
+    const cached = getCached<Row[]>("cashflow", effectiveId);
+    setRows(cached ?? null);
     (async () => {
       const { data } = await supabase
         .from("periods")
@@ -70,16 +74,20 @@ function CashFlowPage() {
         .eq("client_id", effectiveId)
         .order("period_end", { ascending: true });
       if (cancelled) return;
-      setRows((data ?? []) as Row[]);
+      const fresh = (data ?? []) as Row[];
+      setCached("cashflow", effectiveId, fresh);
+      setRows(fresh);
       try {
         const r = await getMyRole();
-        if (!cancelled) setRole(r.role);
+        if (cancelled) return;
+        setCached("role", user.id, r.role ?? "");
+        setRole(r.role);
       } catch {}
     })();
     return () => {
       cancelled = true;
     };
-  }, [effectiveId]);
+  }, [effectiveId, user.id]);
 
   const chartData = (rows ?? []).map((r) => ({
     period: fmtDateShort(r.period_end),

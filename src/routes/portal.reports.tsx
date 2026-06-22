@@ -8,6 +8,7 @@ import { PortalEmptyState } from "@/components/portal/EmptyState";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
 import { useEffectiveClientId } from "@/lib/impersonation";
+import { getCached, setCached } from "@/lib/portal-cache";
 
 export const Route = createFileRoute("/portal/reports")({
   ssr: false,
@@ -59,12 +60,15 @@ function ReportsPage() {
   };
   const effectiveId = useEffectiveClientId(user.id)!;
   const companyName = useCompanyName(effectiveId);
-  const [role, setRole] = useState<string | null>(null);
-  const [periods, setPeriods] = useState<PeriodRow[] | null>(null);
+  const [role, setRole] = useState<string | null>(() => getCached<string>("role", user.id) ?? null);
+  const [periods, setPeriods] = useState<PeriodRow[] | null>(
+    () => getCached<PeriodRow[]>("reports", effectiveId) ?? null,
+  );
 
   useEffect(() => {
     let cancelled = false;
-    setPeriods(null);
+    const cached = getCached<PeriodRow[]>("reports", effectiveId);
+    setPeriods(cached ?? null);
     (async () => {
       const { data } = await supabase
         .from("periods")
@@ -74,16 +78,20 @@ function ReportsPage() {
         .eq("client_id", effectiveId)
         .order("period_end", { ascending: false });
       if (cancelled) return;
-      setPeriods((data ?? []) as unknown as PeriodRow[]);
+      const fresh = (data ?? []) as unknown as PeriodRow[];
+      setCached("reports", effectiveId, fresh);
+      setPeriods(fresh);
       try {
         const r = await getMyRole();
-        if (!cancelled) setRole(r.role);
+        if (cancelled) return;
+        setCached("role", user.id, r.role ?? "");
+        setRole(r.role);
       } catch {}
     })();
     return () => {
       cancelled = true;
     };
-  }, [effectiveId]);
+  }, [effectiveId, user.id]);
 
   async function handleDownload(path: string, name: string) {
     const { data } = await supabase.storage

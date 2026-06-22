@@ -7,6 +7,7 @@ import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
 import { useEffectiveClientId, useImpersonation } from "@/lib/impersonation";
+import { getCached, setCached } from "@/lib/portal-cache";
 
 export const Route = createFileRoute("/portal/settings")({
   ssr: false,
@@ -40,14 +41,16 @@ function SettingsPage() {
     })();
     return () => { cancelled = true; };
   }, [impersonation, effectiveId]);
-  const [role, setRole] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(() => getCached<string>("role", user.id) ?? null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const r = await getMyRole();
-        if (!cancelled) setRole(r.role);
+        if (cancelled) return;
+        setCached("role", user.id, r.role ?? "");
+        setRole(r.role);
       } catch {}
     })();
     return () => {
