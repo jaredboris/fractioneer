@@ -102,6 +102,31 @@ function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
 
+  // Periods (Reports / Cash Flow)
+  type PeriodRow = {
+    id: string;
+    period_end: string;
+    net_revenue: number | null;
+    net_income: number | null;
+    gross_margin: number | null;
+    cash_balance: number | null;
+    total_ar: number | null;
+    total_ap: number | null;
+    document_id: string | null;
+  };
+  const [periods, setPeriods] = useState<PeriodRow[]>([]);
+  const [periodForm, setPeriodForm] = useState({
+    period_end: "",
+    net_revenue: "",
+    net_income: "",
+    gross_margin: "",
+    cash_balance: "",
+    total_ar: "",
+    total_ap: "",
+    document_id: "",
+  });
+  const [savingPeriod, setSavingPeriod] = useState(false);
+
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
       .from("user_roles")
@@ -127,9 +152,14 @@ function AdminPage() {
   }, [loadClients]);
 
   const loadClientData = useCallback(async (clientId: string) => {
-    const [{ data: dash }, { data: docs }] = await Promise.all([
+    const [{ data: dash }, { data: docs }, { data: pers }] = await Promise.all([
       supabase.from("dashboard_data").select("*").eq("client_id", clientId).maybeSingle(),
       supabase.from("documents").select("*").eq("client_id", clientId).order("created_at", { ascending: false }),
+      supabase
+        .from("periods")
+        .select("id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, document_id")
+        .eq("client_id", clientId)
+        .order("period_end", { ascending: false }),
     ]);
     if (dash) {
       setForm({
@@ -151,6 +181,7 @@ function AdminPage() {
       });
     }
     setDocuments(docs ?? []);
+    setPeriods((pers ?? []) as PeriodRow[]);
   }, []);
 
   useEffect(() => {
@@ -207,6 +238,56 @@ function AdminPage() {
     if (!confirm(`Delete ${doc.file_name}?`)) return;
     await supabase.storage.from("client-documents").remove([doc.file_path]);
     await supabase.from("documents").delete().eq("id", doc.id);
+    loadClientData(selectedId);
+  }
+
+  function parseNum(v: string): number | null {
+    if (v.trim() === "") return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  async function handleSavePeriod(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedId || !periodForm.period_end) return;
+    setSavingPeriod(true);
+    setStatus(null);
+    const { error } = await supabase.from("periods").upsert(
+      {
+        client_id: selectedId,
+        period_end: periodForm.period_end,
+        net_revenue: parseNum(periodForm.net_revenue),
+        net_income: parseNum(periodForm.net_income),
+        gross_margin: parseNum(periodForm.gross_margin),
+        cash_balance: parseNum(periodForm.cash_balance),
+        total_ar: parseNum(periodForm.total_ar),
+        total_ap: parseNum(periodForm.total_ap),
+        document_id: periodForm.document_id || null,
+      },
+      { onConflict: "client_id,period_end" },
+    );
+    setSavingPeriod(false);
+    if (error) {
+      setStatus({ kind: "err", msg: error.message });
+      return;
+    }
+    setStatus({ kind: "ok", msg: "Period saved." });
+    setPeriodForm({
+      period_end: "",
+      net_revenue: "",
+      net_income: "",
+      gross_margin: "",
+      cash_balance: "",
+      total_ar: "",
+      total_ap: "",
+      document_id: "",
+    });
+    loadClientData(selectedId);
+  }
+
+  async function handleDeletePeriod(id: string, label: string) {
+    if (!confirm(`Delete period ${label}?`)) return;
+    await supabase.from("periods").delete().eq("id", id);
     loadClientData(selectedId);
   }
 
@@ -587,6 +668,91 @@ function AdminPage() {
 
         {selectedId && (
           <section className="mt-6 rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground">Reporting periods</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Per-period financials power the Reports and Cash Flow tabs. Use one row per period end date.
+            </p>
+
+            <form onSubmit={handleSavePeriod} className="mt-5 grid grid-cols-2 gap-3 rounded-lg border border-border bg-background p-4 sm:grid-cols-4">
+              <NumField label="Period end" type="date" required value={periodForm.period_end} onChange={(v) => setPeriodForm({ ...periodForm, period_end: v })} />
+              <NumField label="Net revenue" value={periodForm.net_revenue} onChange={(v) => setPeriodForm({ ...periodForm, net_revenue: v })} />
+              <NumField label="Net income" value={periodForm.net_income} onChange={(v) => setPeriodForm({ ...periodForm, net_income: v })} />
+              <NumField label="Gross margin (% or 0–1)" value={periodForm.gross_margin} onChange={(v) => setPeriodForm({ ...periodForm, gross_margin: v })} />
+              <NumField label="Cash balance" value={periodForm.cash_balance} onChange={(v) => setPeriodForm({ ...periodForm, cash_balance: v })} />
+              <NumField label="Total AR" value={periodForm.total_ar} onChange={(v) => setPeriodForm({ ...periodForm, total_ar: v })} />
+              <NumField label="Total AP" value={periodForm.total_ap} onChange={(v) => setPeriodForm({ ...periodForm, total_ap: v })} />
+              <label className="block text-xs font-medium text-muted-foreground">
+                Source Excel
+                <select
+                  value={periodForm.document_id}
+                  onChange={(e) => setPeriodForm({ ...periodForm, document_id: e.target.value })}
+                  className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                >
+                  <option value="">— none —</option>
+                  {documents.map((d) => (
+                    <option key={d.id} value={d.id}>{d.file_name}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="col-span-2 flex items-end justify-end sm:col-span-4">
+                <button
+                  type="submit"
+                  disabled={savingPeriod || !periodForm.period_end}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {savingPeriod && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Save period
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-5 overflow-x-auto rounded-md border border-border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Period end</th>
+                    <th className="px-3 py-2 text-right font-medium">Net rev</th>
+                    <th className="px-3 py-2 text-right font-medium">Net inc</th>
+                    <th className="px-3 py-2 text-right font-medium">GM</th>
+                    <th className="px-3 py-2 text-right font-medium">Cash</th>
+                    <th className="px-3 py-2 text-right font-medium">AR</th>
+                    <th className="px-3 py-2 text-right font-medium">AP</th>
+                    <th className="px-3 py-2"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {periods.length === 0 && (
+                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No periods yet.</td></tr>
+                  )}
+                  {periods.map((p) => (
+                    <tr key={p.id} className="text-foreground">
+                      <td className="px-3 py-2">{p.period_end}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.net_revenue ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.net_income ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.gross_margin ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.cash_balance ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.total_ar ?? "—"}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{p.total_ap ?? "—"}</td>
+                      <td className="px-3 py-2 text-right">
+                        <button
+                          onClick={() => handleDeletePeriod(p.id, p.period_end)}
+                          className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                          aria-label={`Delete period ${p.period_end}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+
+        {selectedId && (
+          <section className="mt-6 rounded-xl border border-border bg-card p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-foreground">Upload client financials</h2>
@@ -719,3 +885,32 @@ function ExtractedRow({
     </div>
   );
 }
+
+function NumField({
+  label,
+  value,
+  onChange,
+  type = "number",
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: "number" | "date";
+  required?: boolean;
+}) {
+  return (
+    <label className="block text-xs font-medium text-muted-foreground">
+      {label}
+      <input
+        type={type}
+        step="any"
+        required={required}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+      />
+    </label>
+  );
+}
+

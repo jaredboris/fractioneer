@@ -159,6 +159,66 @@ export type Database = {
         }
         Relationships: []
       }
+      periods: {
+        Row: {
+          cash_balance: number | null
+          client_id: string
+          created_at: string
+          document_id: string | null
+          gross_margin: number | null
+          id: string
+          net_income: number | null
+          net_revenue: number | null
+          period_end: string
+          total_ap: number | null
+          total_ar: number | null
+          updated_at: string
+        }
+        Insert: {
+          cash_balance?: number | null
+          client_id: string
+          created_at?: string
+          document_id?: string | null
+          gross_margin?: number | null
+          id?: string
+          net_income?: number | null
+          net_revenue?: number | null
+          period_end: string
+          total_ap?: number | null
+          total_ar?: number | null
+          updated_at?: string
+        }
+        Update: {
+          cash_balance?: number | null
+          client_id?: string
+          created_at?: string
+          document_id?: string | null
+          gross_margin?: number | null
+          id?: string
+          net_income?: number | null
+          net_revenue?: number | null
+          period_end?: string
+          total_ap?: number | null
+          total_ar?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "periods_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "periods_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           company_name: string | null

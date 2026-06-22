@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutGrid, FileText, Settings as SettingsIcon, LogOut, Mail, Moon, Sun, Sparkles } from "lucide-react";
+import { LayoutGrid, FileText, Settings as SettingsIcon, LogOut, Mail, Moon, Sun, Sparkles, BarChart3, TrendingUp } from "lucide-react";
 
 import logoDark from "@/assets/fractioneer-logo-dark.svg";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
@@ -31,6 +31,8 @@ function useTheme() {
 
 const NAV = [
   { label: "Dashboard", to: "/portal", icon: LayoutGrid },
+  { label: "Reports", to: "/portal/reports", icon: BarChart3 },
+  { label: "Cash Flow", to: "/portal/cashflow", icon: TrendingUp },
   { label: "Documents", to: "/portal/documents", icon: FileText },
   { label: "Settings", to: "/portal/settings", icon: SettingsIcon },
 ] as const;
