@@ -493,7 +493,7 @@ function AdminOverview({ role: _role }: { role: string }) {
             />
             <DarkStatCard
               label="AI spend (month)"
-              value={`$${aiSpendThisMonth.toFixed(aiSpendThisMonth < 1 ? 4 : 2)}`}
+              value={`$${aiSpendThisMonth.toFixed(2)}`}
               detail={`${aiCallsThisMonth} extraction${aiCallsThisMonth === 1 ? "" : "s"}`}
               tone="info"
               icon={<TrendingUp className="h-5 w-5" />}
