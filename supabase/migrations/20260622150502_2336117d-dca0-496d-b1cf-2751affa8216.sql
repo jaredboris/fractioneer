@@ -1,0 +1,1 @@
+ALTER TABLE public.dashboard_data ADD COLUMN IF NOT EXISTS net_income numeric;

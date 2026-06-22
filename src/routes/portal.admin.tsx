@@ -261,11 +261,14 @@ function AdminPage() {
     try {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
-      const sheetName = wb.SheetNames[0];
-      if (!sheetName) throw new Error("Spreadsheet has no sheets.");
-      const sheet = wb.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: null });
-      const rowsStr = JSON.stringify(rows).slice(0, 180_000);
+      if (wb.SheetNames.length === 0) throw new Error("Spreadsheet has no sheets.");
+      const blocks: string[] = [];
+      for (const name of wb.SheetNames) {
+        const sheet = wb.Sheets[name];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: null, header: 1 });
+        blocks.push(`=== Sheet: ${name} ===\n${JSON.stringify(rows)}`);
+      }
+      const rowsStr = blocks.join("\n\n").slice(0, 180_000);
       const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
       setExtracted(result);
     } catch (err) {
@@ -281,12 +284,13 @@ function AdminPage() {
     setSavingExtracted(true);
     setStatus(null);
     try {
-      const today = new Date().toISOString().slice(0, 10);
+      const period = extracted.period_end ?? new Date().toISOString().slice(0, 10);
+      const { period_end: _omit, ...rest } = extracted;
       await saveExtractedFinancials({
         data: {
           client_id: selectedId,
-          period: today,
-          ...extracted,
+          period,
+          ...rest,
         },
       });
       setStatus({ kind: "ok", msg: "Saved extracted financials to the client's dashboard." });
@@ -299,6 +303,7 @@ function AdminPage() {
       setSavingExtracted(false);
     }
   }
+
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -623,7 +628,10 @@ function AdminPage() {
                   <ExtractedRow label="Total AR" value={extracted.total_ar} kind="currency" />
                   <ExtractedRow label="Total AP" value={extracted.total_ap} kind="currency" />
                   <ExtractedRow label="Net revenue" value={extracted.net_revenue} kind="currency" />
+                  <ExtractedRow label="Net income" value={extracted.net_income} kind="currency" />
+                  <ExtractedRow label="Period end" value={extracted.period_end} kind="text" />
                   <ExtractedRow label="Monthly close status" value={extracted.monthly_close_status} kind="text" />
+
                 </dl>
                 <div className="mt-5 flex items-center justify-end gap-2">
                   <button
