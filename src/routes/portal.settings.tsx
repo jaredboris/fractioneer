@@ -63,7 +63,11 @@ function SettingsPage() {
 
   return (
     <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
-      <PortalSidebar companyName={companyName} email={displayEmail} role={impersonation ? "client" : role} />
+      {isAdmin ? (
+        <AdminSidebar email={displayEmail} />
+      ) : (
+        <PortalSidebar companyName={displayCompanyName} email={displayEmail} role={impersonation ? "client" : role} />
+      )}
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
