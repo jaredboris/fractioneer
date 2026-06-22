@@ -7,6 +7,7 @@ import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
 import { useEffectiveClientId } from "@/lib/impersonation";
+import { getCached, setCached } from "@/lib/portal-cache";
 
 export const Route = createFileRoute("/portal/documents")({
   ssr: false,
@@ -36,12 +37,15 @@ function DocumentsPage() {
   };
   const effectiveId = useEffectiveClientId(user.id)!;
   const companyName = useCompanyName(effectiveId);
-  const [role, setRole] = useState<string | null>(null);
-  const [docs, setDocs] = useState<DocRow[] | null>(null);
+  const [role, setRole] = useState<string | null>(() => getCached<string>("role", user.id) ?? null);
+  const [docs, setDocs] = useState<DocRow[] | null>(
+    () => getCached<DocRow[]>("documents", effectiveId) ?? null,
+  );
 
   useEffect(() => {
     let cancelled = false;
-    setDocs(null);
+    const cached = getCached<DocRow[]>("documents", effectiveId);
+    setDocs(cached ?? null);
     (async () => {
       const { data: documents } = await supabase
         .from("documents")
@@ -49,16 +53,20 @@ function DocumentsPage() {
         .eq("client_id", effectiveId)
         .order("created_at", { ascending: false });
       if (cancelled) return;
-      setDocs(documents ?? []);
+      const fresh = documents ?? [];
+      setCached("documents", effectiveId, fresh);
+      setDocs(fresh);
       try {
         const r = await getMyRole();
-        if (!cancelled) setRole(r.role);
+        if (cancelled) return;
+        setCached("role", user.id, r.role ?? "");
+        setRole(r.role);
       } catch {}
     })();
     return () => {
       cancelled = true;
     };
-  }, [effectiveId]);
+  }, [effectiveId, user.id]);
 
   async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage
