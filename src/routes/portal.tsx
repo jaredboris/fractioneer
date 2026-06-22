@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate, Link, Outlet, useLocation } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   CheckCircle2,
@@ -39,6 +39,14 @@ import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 import { useImpersonation, startImpersonation } from "@/lib/impersonation";
+import { getCached, setCached } from "@/lib/portal-cache";
+
+let cachedPortalGate: {
+  user: { id: string; email?: string | null };
+  checkedAt: number;
+} | null = null;
+
+const PORTAL_GATE_CACHE_MS = 5 * 60 * 1000;
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
@@ -57,6 +65,10 @@ export const Route = createFileRoute("/portal")({
     ) {
       return;
     }
+    if (cachedPortalGate && Date.now() - cachedPortalGate.checkedAt < PORTAL_GATE_CACHE_MS) {
+      return { user: cachedPortalGate.user };
+    }
+
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/portal/login" });
 
@@ -80,8 +92,13 @@ export const Route = createFileRoute("/portal")({
         throw redirect({ to: "/portal/setup-2fa" });
       }
     }
-    return { user: data.user };
+    cachedPortalGate = {
+      user: { id: data.user.id, email: data.user.email ?? null },
+      checkedAt: Date.now(),
+    };
+    return { user: cachedPortalGate.user };
   },
+  pendingMs: Infinity,
   component: PortalShell,
 });
 
@@ -106,8 +123,10 @@ function toneClasses(tone: Tone) {
 }
 
 function PortalShell() {
-  const location = useLocation();
-  if (location.pathname !== "/portal") return <Outlet />;
+  const pathname = useRouterState({
+    select: (s) => s.resolvedLocation?.pathname ?? s.location.pathname,
+  });
+  if (pathname !== "/portal") return <Outlet />;
   return <PortalRouter />;
 }
 
@@ -119,7 +138,7 @@ function PortalRouter() {
   const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
   const impersonation = useImpersonation();
   const [role, setRole] = useState<"admin" | "client" | null | undefined>(() =>
-    user && cachedRole?.userId === user.id ? cachedRole.role : undefined,
+    user ? (getCached<"admin" | "client" | null>("role", user.id) ?? (cachedRole?.userId === user.id ? cachedRole.role : undefined)) : undefined,
   );
 
   useEffect(() => {
@@ -130,6 +149,7 @@ function PortalRouter() {
         const result = await getMyRole();
         if (cancelled) return;
         cachedRole = { userId: user.id, role: result.role };
+        setCached("role", user.id, result.role);
         setRole(result.role);
       } catch {
         if (!cancelled) setRole(null);

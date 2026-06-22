@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,13 +7,15 @@ import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtracte
 import * as XLSX from "xlsx";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
+import { getCached, setCached } from "@/lib/portal-cache";
 
 const adminSearchSchema = z.object({
   tab: fallback(z.enum(["clients", "upload", "activity"]), "clients").default("clients"),
 });
 
+const portalRouteApi = getRouteApi("/portal");
+
 export const Route = createFileRoute("/portal/admin")({
-  ssr: false,
   validateSearch: zodValidator(adminSearchSchema),
   head: () => ({
     meta: [
@@ -21,17 +23,15 @@ export const Route = createFileRoute("/portal/admin")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/portal/login" });
-    return { user: data.user };
-  },
   component: AdminGate,
 });
 
 function AdminGate() {
+  const { user } = portalRouteApi.useRouteContext() as { user?: { id: string; email?: string | null } };
   const navigate = useNavigate();
-  const [status, setStatus] = useState<"checking" | "ok" | "denied">("checking");
+  const [status, setStatus] = useState<"checking" | "ok" | "denied">(() =>
+    user ? (getCached<string | null>("role", user.id) === "client" ? "checking" : "ok") : "checking",
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +42,7 @@ function AdminGate() {
       try {
         const result = await getMyRole();
         if (cancelled) return;
+        setCached("role", user?.id ?? "current", result.role);
         if (result.role === "admin") setStatus("ok");
         else {
           setStatus("denied");
@@ -54,7 +55,7 @@ function AdminGate() {
       }
     })();
     return () => { cancelled = true; };
-  }, [navigate]);
+  }, [navigate, user?.id]);
 
   if (status !== "ok") {
     return (
@@ -98,7 +99,7 @@ type ActivityLogItem = {
 };
 
 function AdminPage() {
-  const { user } = Route.useRouteContext();
+  const { user } = portalRouteApi.useRouteContext() as { user: { id: string; email?: string | null } };
   const navigate = useNavigate();
   const search = Route.useSearch();
   const tab = search.tab;
