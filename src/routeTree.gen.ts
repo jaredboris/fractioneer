@@ -16,6 +16,7 @@ import { Route as OnepagerRouteImport } from './routes/onepager'
 import { Route as IndustriesRouteImport } from './routes/industries'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PortalVerify2faRouteImport } from './routes/portal.verify-2fa'
 import { Route as PortalSetup2faRouteImport } from './routes/portal.setup-2fa'
 import { Route as PortalLoginRouteImport } from './routes/portal.login'
 import { Route as PortalAdminRouteImport } from './routes/portal.admin'
@@ -55,6 +56,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalVerify2faRoute = PortalVerify2faRouteImport.update({
+  id: '/verify-2fa',
+  path: '/verify-2fa',
+  getParentRoute: () => PortalRoute,
+} as any)
 const PortalSetup2faRoute = PortalSetup2faRouteImport.update({
   id: '/setup-2fa',
   path: '/setup-2fa',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
+  '/portal/verify-2fa': typeof PortalVerify2faRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
+  '/portal/verify-2fa': typeof PortalVerify2faRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
+  '/portal/verify-2fa': typeof PortalVerify2faRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/login'
     | '/portal/setup-2fa'
+    | '/portal/verify-2fa'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/login'
     | '/portal/setup-2fa'
+    | '/portal/verify-2fa'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/login'
     | '/portal/setup-2fa'
+    | '/portal/verify-2fa'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portal/verify-2fa': {
+      id: '/portal/verify-2fa'
+      path: '/verify-2fa'
+      fullPath: '/portal/verify-2fa'
+      preLoaderRoute: typeof PortalVerify2faRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/portal/setup-2fa': {
       id: '/portal/setup-2fa'
       path: '/setup-2fa'
@@ -236,12 +255,14 @@ interface PortalRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
   PortalLoginRoute: typeof PortalLoginRoute
   PortalSetup2faRoute: typeof PortalSetup2faRoute
+  PortalVerify2faRoute: typeof PortalVerify2faRoute
 }
 
 const PortalRouteChildren: PortalRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
   PortalLoginRoute: PortalLoginRoute,
   PortalSetup2faRoute: PortalSetup2faRoute,
+  PortalVerify2faRoute: PortalVerify2faRoute,
 }
 
 const PortalRouteWithChildren =
