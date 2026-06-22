@@ -819,7 +819,9 @@ function ClientPreview({ clientId, clientLabel }: { clientId: string; clientLabe
 
 function ClientDashboard({ role }: { role: string | null }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
-  const companyName = useCompanyName(user.id);
+  const impersonation = useImpersonation();
+  const effectiveId = impersonation?.clientId ?? user.id;
+  const companyName = useCompanyName(effectiveId);
   const [dashboardRows, setDashboardRows] = useState<DashboardFinancialRow[]>([]);
   const [docs, setDocs] = useState<
     { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
@@ -848,21 +850,23 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   useEffect(() => {
     let cancelled = false;
+    setDashboardRows([]);
+    setDocs([]);
     (async () => {
       const [{ data: dash }, { data: documents }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
-          .eq("client_id", user.id)
+          .eq("client_id", effectiveId)
           .order("period", { ascending: true }),
-        supabase.from("documents").select("*").eq("client_id", user.id).order("created_at", { ascending: false }),
+        supabase.from("documents").select("*").eq("client_id", effectiveId).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setDocs(documents ?? []);
     })();
     return () => { cancelled = true; };
-  }, [user.id]);
+  }, [effectiveId]);
 
   async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage
