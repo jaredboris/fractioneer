@@ -34,6 +34,7 @@ import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 
@@ -690,7 +691,7 @@ function ClientPreview({ clientId, clientLabel }: { clientId: string; clientLabe
 
 function ClientDashboard({ role }: { role: string | null }) {
   const { user } = Route.useRouteContext() as { user: { id: string; email?: string | null } };
-  const [companyName, setCompanyName] = useState<string>("");
+  const companyName = useCompanyName(user.id);
   const [dashboardRows, setDashboardRows] = useState<DashboardFinancialRow[]>([]);
   const [docs, setDocs] = useState<
     { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
@@ -720,8 +721,7 @@ function ClientDashboard({ role }: { role: string | null }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [{ data: profile }, { data: dash }, { data: documents }] = await Promise.all([
-        supabase.from("profiles").select("company_name").eq("id", user.id).maybeSingle(),
+      const [{ data: dash }, { data: documents }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
@@ -730,7 +730,6 @@ function ClientDashboard({ role }: { role: string | null }) {
         supabase.from("documents").select("*").eq("client_id", user.id).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
-      setCompanyName(profile?.company_name ?? "");
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setDocs(documents ?? []);
     })();
