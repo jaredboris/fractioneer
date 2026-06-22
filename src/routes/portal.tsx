@@ -323,11 +323,14 @@ function AdminOverview({ role: _role }: { role: string }) {
         }
         return;
       }
-      const [{ data: profiles }, { data: dashboards }, { data: documents }, { data: periods }] = await Promise.all([
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const [{ data: profiles }, { data: dashboards }, { data: documents }, { data: periods }, { count: periodsMonthCount }] = await Promise.all([
         supabase.from("profiles").select("id, company_name, full_name").in("id", ids),
         supabase.from("dashboard_data").select("client_id, updated_at").in("client_id", ids),
         supabase.from("documents").select("id, client_id, file_name, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(200),
         supabase.from("periods").select("id, client_id, period_end, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(500),
+        supabase.from("periods").select("id", { count: "exact", head: true }).in("client_id", ids).gte("created_at", monthStart.toISOString()),
       ]);
       if (cancelled) return;
 
@@ -336,16 +339,12 @@ function AdminOverview({ role: _role }: { role: string }) {
       );
 
       const dashMap = new Map<string, string | null>((dashboards ?? []).map((d) => [d.client_id, d.updated_at]));
-      const docMap = new Map<string, { count: number; last: string | null }>();
-      for (const d of documents ?? []) {
-        const cur = docMap.get(d.client_id) ?? { count: 0, last: null };
-        cur.count += 1;
-        if (!cur.last || new Date(d.created_at) > new Date(cur.last)) cur.last = d.created_at;
-        docMap.set(d.client_id, cur);
-      }
-      const perMap = new Map<string, number>();
+      const perMap = new Map<string, { count: number; last: string | null }>();
       for (const p of periods ?? []) {
-        perMap.set(p.client_id, (perMap.get(p.client_id) ?? 0) + 1);
+        const cur = perMap.get(p.client_id) ?? { count: 0, last: null };
+        cur.count += 1;
+        if (!cur.last || new Date(p.created_at) > new Date(cur.last)) cur.last = p.created_at;
+        perMap.set(p.client_id, cur);
       }
 
       const merged: ClientRow[] = (profiles ?? []).map((p) => ({
@@ -353,23 +352,21 @@ function AdminOverview({ role: _role }: { role: string }) {
         company_name: p.company_name,
         full_name: p.full_name,
         dashboard_updated_at: dashMap.get(p.id) ?? null,
-        document_count: docMap.get(p.id)?.count ?? 0,
-        period_count: perMap.get(p.id) ?? 0,
-        last_upload_at: docMap.get(p.id)?.last ?? null,
+        document_count: perMap.get(p.id)?.count ?? 0,
+        period_count: perMap.get(p.id)?.count ?? 0,
+        last_upload_at: perMap.get(p.id)?.last ?? null,
       }));
       merged.sort((a, b) => {
-        const aNeeds = !a.dashboard_updated_at || (a.document_count === 0 && a.period_count === 0) ? 0 : 1;
-        const bNeeds = !b.dashboard_updated_at || (b.document_count === 0 && b.period_count === 0) ? 0 : 1;
+        const aNeeds = a.period_count === 0 ? 0 : 1;
+        const bNeeds = b.period_count === 0 ? 0 : 1;
         if (aNeeds !== bNeeds) return aNeeds - bNeeds;
         return (a.company_name || a.full_name || "").localeCompare(b.company_name || b.full_name || "");
       });
       setRows(merged);
 
-      // This-month counts
-      const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      // This-month counts: period rows are the source of truth for processed uploads.
       const uploadsMonth = (documents ?? []).filter((d) => new Date(d.created_at) >= monthStart).length;
-      const periodsMonth = (periods ?? []).filter((p) => new Date(p.created_at) >= monthStart).length;
+      const periodsMonth = periodsMonthCount ?? (periods ?? []).filter((p) => new Date(p.created_at) >= monthStart).length;
       setUploadsThisMonth(uploadsMonth);
       setPeriodsThisMonth(periodsMonth);
 
