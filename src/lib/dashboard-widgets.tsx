@@ -25,10 +25,12 @@ import {
   BarChart3,
   LineChart as LineIcon,
   Plus,
+  Minus,
   X,
   GripVertical,
   Trash2,
   Lock,
+
 } from "lucide-react";
 
 // ---- Types & Catalog ---------------------------------------------------------
@@ -322,92 +324,106 @@ export function useWidgetPrefs() {
   };
 }
 
-// ---- Manage panel & Add modal -----------------------------------------------
+// ---- Editable wrapper (iOS-style edit mode) ---------------------------------
 
-export function ManageWidgetsPanel({
-  ids,
-  onMove,
+export function EditableWidget({
+  id,
+  index,
+  editMode,
+  dragIndex,
+  overIndex,
+  removing,
   onRemove,
-  onClose,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
+  onAnimationEnd,
+  className,
+  children,
 }: {
-  ids: string[];
-  onMove: (from: number, to: number) => void;
+  id: string;
+  index: number;
+  editMode: boolean;
+  dragIndex: number | null;
+  overIndex: number | null;
+  removing: boolean;
   onRemove: (id: string) => void;
-  onClose: () => void;
+  onDragStart: (idx: number) => void;
+  onDragOver: (idx: number) => void;
+  onDrop: () => void;
+  onDragEnd: () => void;
+  onAnimationEnd?: () => void;
+  className?: string;
+  children: React.ReactNode;
 }) {
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const w = WIDGET_BY_ID[id];
+  if (!w) return null;
+  const locked = !!w.locked;
+  const draggable = editMode && !locked;
+  const isDragging = dragIndex === index;
+  const isOver = overIndex === index && dragIndex !== null && dragIndex !== index;
+
+  let motionClass = "";
+  if (editMode && !removing) motionClass = index % 2 === 0 ? "widget-jiggle-a" : "widget-jiggle-b";
+
   return (
-    <div className="mb-4 rounded-xl p-4 nb-card nb-rise" style={{ animationDelay: "0ms" }}>
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Manage widgets</h3>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-[#9CA3AF]">
-            Drag to reorder, click trash to remove. Monthly Close and Cash Position are always on.
-          </p>
-        </div>
-        <button
-          onClick={onClose}
-          className="rounded p-1 text-slate-500 dark:text-[#9CA3AF] hover:bg-slate-100 dark:hover:bg-[#1a2335]"
-          aria-label="Close"
-        >
-          <X className="h-4 w-4" />
-        </button>
+    <div
+      className={`relative ${className ?? ""} ${isOver ? "widget-drop-target" : ""}`}
+      draggable={draggable}
+      onDragStart={(e) => {
+        if (!draggable) return;
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart(index);
+      }}
+      onDragOver={(e) => {
+        if (!editMode) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        onDragOver(index);
+      }}
+      onDrop={(e) => {
+        if (!editMode) return;
+        e.preventDefault();
+        onDrop();
+      }}
+      onDragEnd={onDragEnd}
+    >
+      <div
+        className={`${motionClass} ${removing ? "widget-remove" : ""} ${isDragging ? "widget-dragging" : ""} ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+        onAnimationEnd={removing ? onAnimationEnd : undefined}
+      >
+        {children}
       </div>
-      <ul className="mt-4 space-y-1.5">
-        {ids.map((id, idx) => {
-          const w = WIDGET_BY_ID[id];
-          if (!w) return null;
-          const locked = !!w.locked;
-          return (
-            <li
-              key={id}
-              draggable={!locked}
-              onDragStart={() => setDragIdx(idx)}
-              onDragOver={(e) => {
-                e.preventDefault();
-                if (dragIdx == null || dragIdx === idx) return;
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                if (dragIdx != null && dragIdx !== idx) onMove(dragIdx, idx);
-                setDragIdx(null);
-              }}
-              onDragEnd={() => setDragIdx(null)}
-              className={`flex items-center justify-between gap-3 rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A] transition-opacity ${
-                dragIdx === idx ? "opacity-50" : "opacity-100"
-              } ${locked ? "" : "cursor-grab active:cursor-grabbing"}`}
+      {editMode && (
+        <>
+          {locked ? (
+            <span
+              className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729]"
+              aria-label="Locked"
+              title="Always on"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                {locked ? (
-                  <Lock className="h-3.5 w-3.5 text-slate-400 dark:text-[#6B7280]" />
-                ) : (
-                  <GripVertical className="h-4 w-4 text-slate-400 dark:text-[#6B7280]" />
-                )}
-                <span className="text-sm text-slate-700 dark:text-[#E5E7EB] truncate">{w.label}</span>
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
-                  {w.kind}
-                </span>
-              </div>
-              {locked ? (
-                <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
-                  Always on
-                </span>
-              ) : (
-                <button
-                  onClick={() => onRemove(id)}
-                  className="rounded p-1 text-slate-500 hover:text-red-500 dark:text-[#9CA3AF] dark:hover:text-red-400"
-                  aria-label={`Remove ${w.label}`}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+              <Lock className="h-3 w-3" />
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(id);
+              }}
+              className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729] hover:bg-red-600 transition-colors"
+              aria-label={`Remove ${w.label}`}
+            >
+              <Minus className="h-3.5 w-3.5" strokeWidth={3} />
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 }
+
 
 export function AddWidgetModal({
   ids,
