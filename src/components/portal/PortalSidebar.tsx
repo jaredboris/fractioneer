@@ -16,9 +16,12 @@ function useTheme() {
   });
   useEffect(() => {
     const root = document.documentElement;
+    root.classList.add("theme-transition");
     root.classList.toggle("dark", theme === "dark");
     root.style.colorScheme = theme;
     window.localStorage.setItem(THEME_KEY, theme);
+    const t = window.setTimeout(() => root.classList.remove("theme-transition"), 500);
+    return () => window.clearTimeout(t);
   }, [theme]);
   return { theme, setTheme };
 }
