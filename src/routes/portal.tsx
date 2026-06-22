@@ -1240,6 +1240,7 @@ function formatMonthYear(period: string): string {
 function StatCard({
   label,
   value,
+  numericValue,
   tone,
   icon,
   periodLabel,
@@ -1247,34 +1248,52 @@ function StatCard({
 }: {
   label: string;
   value: string;
+  numericValue?: number | null;
   tone: Tone;
   icon: React.ReactNode;
   periodLabel: string;
   trend?: { dir: "up" | "down"; pct: number };
 }) {
+  const iconBg =
+    tone === "ok"
+      ? "rgba(52, 211, 153, 0.12)"
+      : tone === "warn"
+        ? "rgba(248, 113, 113, 0.12)"
+        : "rgba(59, 130, 246, 0.12)";
+  const iconColor =
+    tone === "ok" ? "#34D399" : tone === "warn" ? "#F87171" : "#60A5FA";
   return (
-    <div
-      className="rounded-xl border border-border border-l-[3px] bg-card p-5 shadow-[0_1px_2px_rgba(10,31,68,0.04)]"
-      style={{ borderLeftColor: "#2563EB" }}
-    >
+    <div className="rounded-xl p-5 nb-card">
       <div className="flex items-start justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>
           {label}
         </span>
-        <span className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${toneClasses(tone)}`}>
+        <span
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg"
+          style={{
+            backgroundColor: iconBg,
+            color: iconColor,
+            boxShadow: `0 0 12px ${iconBg}`,
+          }}
+        >
           {icon}
         </span>
       </div>
-      <div className="mt-3 text-3xl font-bold tracking-tight text-foreground">{value}</div>
+      <div className="mt-3 text-3xl font-bold tracking-tight text-white">
+        {numericValue != null && Number.isFinite(numericValue) ? (
+          <CountUpValue value={numericValue} format={(n) => formatCurrencyOrDash(n)} fallback={value} />
+        ) : (
+          value
+        )}
+      </div>
       <div className="mt-2 flex items-center justify-between gap-2">
-        <span className="text-[11px]" style={{ color: "#94A3B8" }}>
+        <span className="text-[11px]" style={{ color: "#6B7280" }}>
           {periodLabel || "—"}
         </span>
         {trend && (
           <span
-            className={`inline-flex items-center gap-0.5 text-[11px] font-medium ${
-              trend.dir === "up" ? "text-emerald-600" : "text-rose-600"
-            }`}
+            className="inline-flex items-center gap-0.5 text-[11px] font-medium"
+            style={{ color: trend.dir === "up" ? "#34D399" : "#F87171" }}
           >
             {trend.dir === "up" ? (
               <TrendingUp className="h-3 w-3" />
@@ -1288,6 +1307,113 @@ function StatCard({
     </div>
   );
 }
+
+function CountUpValue({
+  value,
+  format,
+  fallback,
+  duration = 1200,
+}: {
+  value: number | null | undefined;
+  format: (n: number) => string;
+  fallback: string;
+  duration?: number;
+}) {
+  const [display, setDisplay] = useState<number | null>(value == null ? null : 0);
+  useEffect(() => {
+    if (value == null || !Number.isFinite(value)) {
+      setDisplay(null);
+      return;
+    }
+    const target = Number(value);
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(target * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  if (display == null) return <>{fallback}</>;
+  return <>{format(display)}</>;
+}
+
+function LockedToggle({ label }: { label: string }) {
+  return (
+    <div
+      className="flex items-center justify-between rounded-md px-3 py-2"
+      style={{ backgroundColor: "#0F1729", border: "1px solid #1E2A3A" }}
+    >
+      <span className="text-sm" style={{ color: "#E5E7EB" }}>{label}</span>
+      <span className="text-[10px] font-medium uppercase tracking-wider" style={{ color: "#6B7280" }}>Always on</span>
+    </div>
+  );
+}
+
+function PrefToggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label
+      className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2"
+      style={{ backgroundColor: "#0F1729", border: "1px solid #1E2A3A" }}
+    >
+      <span className="text-sm" style={{ color: "#E5E7EB" }}>{label}</span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-4 w-4 cursor-pointer accent-blue-500"
+      />
+    </label>
+  );
+}
+
+function ArApBar({ ar, ap }: { ar: number | null; ap: number | null }) {
+  const arVal = ar ?? 0;
+  const apVal = ap ?? 0;
+  const total = arVal + apVal;
+  const arPct = total > 0 ? (arVal / total) * 100 : 0;
+  const apPct = total > 0 ? (apVal / total) * 100 : 0;
+  return (
+    <div className="mt-2">
+      <div
+        className="flex h-2.5 w-full overflow-hidden rounded-full"
+        style={{ backgroundColor: "#1E2A3A" }}
+      >
+        {total > 0 && (
+          <>
+            <div
+              style={{ width: `${arPct}%`, backgroundColor: "#3B82F6", boxShadow: "0 0 8px rgba(59,130,246,0.6)" }}
+              className="h-full"
+            />
+            <div style={{ width: `${apPct}%`, backgroundColor: "#475569" }} className="h-full" />
+          </>
+        )}
+      </div>
+      <div className="mt-2 flex items-center justify-between text-xs">
+        <span className="flex items-center gap-1.5" style={{ color: "#9CA3AF" }}>
+          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#3B82F6" }} />
+          AR <span className="font-medium text-white">{formatCurrencyOrDash(ar)}</span>
+        </span>
+        <span className="flex items-center gap-1.5" style={{ color: "#9CA3AF" }}>
+          <span className="inline-block h-2 w-2 rounded-sm" style={{ backgroundColor: "#475569" }} />
+          AP <span className="font-medium text-white">{formatCurrencyOrDash(ap)}</span>
+        </span>
+      </div>
+    </div>
+  );
+}
+
 
 
 function LockedToggle({ label }: { label: string }) {
