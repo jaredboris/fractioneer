@@ -395,33 +395,34 @@ export function EditableWidget({
         onAnimationEnd={removing ? onAnimationEnd : undefined}
       >
         {children}
+        {editMode && (
+          <>
+            {locked ? (
+              <span
+                className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729]"
+                aria-label="Locked"
+                title="Always on"
+              >
+                <Lock className="h-3 w-3" />
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(id);
+                }}
+                className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-600/80 text-white shadow-lg ring-2 ring-white hover:bg-slate-600 dark:bg-white/20 dark:ring-[#0F1729] dark:hover:bg-white/30 transition-colors"
+                aria-label={`Remove ${w.label}`}
+              >
+                <Minus className="h-3.5 w-3.5" strokeWidth={3} />
+              </button>
+            )}
+          </>
+        )}
       </div>
-      {editMode && (
-        <>
-          {locked ? (
-            <span
-              className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729]"
-              aria-label="Locked"
-              title="Always on"
-            >
-              <Lock className="h-3 w-3" />
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove(id);
-              }}
-              className="absolute -top-2 -left-2 z-10 inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-lg ring-2 ring-white dark:ring-[#0F1729] hover:bg-red-600 transition-colors"
-              aria-label={`Remove ${w.label}`}
-            >
-              <Minus className="h-3.5 w-3.5" strokeWidth={3} />
-            </button>
-          )}
-        </>
-      )}
     </div>
+
   );
 }
 
