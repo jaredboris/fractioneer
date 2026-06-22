@@ -10,7 +10,6 @@ import { useEffectiveClientId, useImpersonation } from "@/lib/impersonation";
 import { getCached, setCached } from "@/lib/portal-cache";
 
 export const Route = createFileRoute("/portal/settings")({
-  ssr: false,
   head: () => ({
     meta: [
       { title: "Settings — Fractioneer" },
