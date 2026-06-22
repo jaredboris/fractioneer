@@ -1076,8 +1076,7 @@ function ClientDashboard({ role }: { role: string | null }) {
           <button
             onClick={() => {
               setEditMode((v) => !v);
-              setDragIndex(null);
-              setOverIndex(null);
+              setActiveId(null);
             }}
             className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
               editMode
