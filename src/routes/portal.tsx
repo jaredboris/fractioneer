@@ -898,18 +898,25 @@ function ClientDashboard({ role }: { role: string | null }) {
   useEffect(() => {
     let cancelled = false;
     setDashboardRows([]);
+    setPeriodsRows([]);
     setDocs([]);
     (async () => {
-      const [{ data: dash }, { data: documents }] = await Promise.all([
+      const [{ data: dash }, { data: pers }, { data: documents }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
           .eq("client_id", effectiveId)
           .order("period", { ascending: true }),
+        supabase
+          .from("periods")
+          .select("period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap")
+          .eq("client_id", effectiveId)
+          .order("period_end", { ascending: true }),
         supabase.from("documents").select("*").eq("client_id", effectiveId).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
+      setPeriodsRows((pers ?? []) as PeriodRow[]);
       setDocs(documents ?? []);
     })();
     return () => { cancelled = true; };
