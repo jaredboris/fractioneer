@@ -111,10 +111,16 @@ function PortalShell() {
   return <PortalRouter />;
 }
 
+// Module-level cache so navigating back to /portal doesn't re-flash the
+// full-screen loader while we re-fetch a role we already know.
+let cachedRole: { userId: string; role: "admin" | "client" | null } | null = null;
+
 function PortalRouter() {
   const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
   const impersonation = useImpersonation();
-  const [role, setRole] = useState<"admin" | "client" | null | undefined>(undefined);
+  const [role, setRole] = useState<"admin" | "client" | null | undefined>(() =>
+    user && cachedRole?.userId === user.id ? cachedRole.role : undefined,
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -123,6 +129,7 @@ function PortalRouter() {
       try {
         const result = await getMyRole();
         if (cancelled) return;
+        cachedRole = { userId: user.id, role: result.role };
         setRole(result.role);
       } catch {
         if (!cancelled) setRole(null);
