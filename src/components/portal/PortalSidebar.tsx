@@ -19,6 +19,9 @@ function useTheme() {
     root.classList.add("theme-transition");
     root.classList.toggle("dark", theme === "dark");
     root.style.colorScheme = theme;
+    // Paint the body to match the portal background so nothing flashes white
+    // (or navy) between route transitions.
+    document.body.style.backgroundColor = theme === "dark" ? "#0A0F1E" : "#EEF2FA";
     window.localStorage.setItem(THEME_KEY, theme);
     const t = window.setTimeout(() => root.classList.remove("theme-transition"), 500);
     return () => window.clearTimeout(t);

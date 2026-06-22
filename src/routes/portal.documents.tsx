@@ -5,6 +5,7 @@ import { FileText, Download, ExternalLink, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
+import { useCompanyName } from "@/hooks/useProfile";
 
 export const Route = createFileRoute("/portal/documents")({
   ssr: false,
@@ -46,23 +47,19 @@ function DocumentsPage() {
   const { user } = Route.useRouteContext() as {
     user: { id: string; email?: string | null };
   };
-  const [companyName, setCompanyName] = useState<string>("");
+  const companyName = useCompanyName(user.id);
   const [role, setRole] = useState<string | null>(null);
   const [docs, setDocs] = useState<DocRow[] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [{ data: profile }, { data: documents }] = await Promise.all([
-        supabase.from("profiles").select("company_name").eq("id", user.id).maybeSingle(),
-        supabase
-          .from("documents")
-          .select("id, file_name, file_path, file_size, created_at")
-          .eq("client_id", user.id)
-          .order("created_at", { ascending: false }),
-      ]);
+      const { data: documents } = await supabase
+        .from("documents")
+        .select("id, file_name, file_path, file_size, created_at")
+        .eq("client_id", user.id)
+        .order("created_at", { ascending: false });
       if (cancelled) return;
-      setCompanyName(profile?.company_name ?? "");
       setDocs(documents ?? []);
       try {
         const r = await getMyRole();

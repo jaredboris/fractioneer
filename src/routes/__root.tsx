@@ -118,6 +118,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('fractioneer-portal-theme');var p=location.pathname.indexOf('/portal')===0;if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}if(p){document.body&&(document.body.style.backgroundColor=(t==='dark'?'#0A0F1E':'#EEF2FA'));}}catch(e){}})();`;
+
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -125,6 +127,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         {children}
         <Scripts />
       </body>
