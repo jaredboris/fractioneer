@@ -890,26 +890,10 @@ function ClientDashboard({ role }: { role: string | null }) {
     { id: string; file_name: string; file_path: string; file_size: number | null; created_at: string }[]
   >([]);
 
-  // Customization prefs (persisted in localStorage). Monthly Close + Cash are locked on.
-  const [prefs, setPrefs] = useState<{ ar: boolean; ap: boolean }>(() => {
-    if (typeof window === "undefined") return { ar: true, ap: true };
-    try {
-      const raw = window.localStorage.getItem("portal.statCardPrefs");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        return { ar: parsed.ar !== false, ap: parsed.ap !== false };
-      }
-    } catch {}
-    return { ar: true, ap: true };
-  });
-  const [customizeOpen, setCustomizeOpen] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem("portal.statCardPrefs", JSON.stringify(prefs));
-    } catch {}
-  }, [prefs]);
+  const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
+  const widgets = useWidgetPrefs();
+  const [manageOpen, setManageOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
