@@ -1105,52 +1105,57 @@ function ClientDashboard({ role }: { role: string | null }) {
           />
         )}
 
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
-          {widgets.ids.map((id, idx) => {
-            const def = WIDGET_BY_ID[id];
-            if (!def) return null;
-            const isRemoving = removingId === id;
-            return (
-              <div
-                key={id}
-                className={`nb-rise ${def.kind === "chart" ? "sm:col-span-2 lg:col-span-4" : ""}`}
-                style={{ animationDelay: `${180 + idx * 80}ms` }}
-              >
-                <EditableWidget
-                  id={id}
-                  index={idx}
-                  editMode={editMode}
-                  dragIndex={dragIndex}
-                  overIndex={overIndex}
-                  removing={isRemoving}
-                  onRemove={(rid) => setRemovingId(rid)}
-                  onDragStart={(i) => setDragIndex(i)}
-                  onDragOver={(i) => setOverIndex(i)}
-                  onDrop={() => {
-                    if (dragIndex != null && overIndex != null && dragIndex !== overIndex) {
-                      widgets.move(dragIndex, overIndex);
-                    }
-                    setDragIndex(null);
-                    setOverIndex(null);
-                  }}
-                  onDragEnd={() => {
-                    setDragIndex(null);
-                    setOverIndex(null);
-                  }}
-                  onAnimationEnd={() => {
-                    if (isRemoving) {
-                      widgets.remove(id);
-                      setRemovingId(null);
-                    }
-                  }}
-                >
-                  {def.render(widgetCtx)}
-                </EditableWidget>
-              </div>
-            );
-          })}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={(e: DragStartEvent) => setActiveId(String(e.active.id))}
+          onDragCancel={() => setActiveId(null)}
+          onDragEnd={(e: DragEndEvent) => {
+            setActiveId(null);
+            const { active, over } = e;
+            if (!over || active.id === over.id) return;
+            const from = widgets.ids.indexOf(String(active.id));
+            const to = widgets.ids.indexOf(String(over.id));
+            if (from < 0 || to < 0) return;
+            widgets.setIds(arrayMove(widgets.ids, from, to));
+          }}
+        >
+          <SortableContext items={widgets.ids} strategy={rectSortingStrategy}>
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
+              {widgets.ids.map((id, idx) => {
+                const def = WIDGET_BY_ID[id];
+                if (!def) return null;
+                const isRemoving = removingId === id;
+                const colSpan = def.kind === "chart" ? "sm:col-span-2 lg:col-span-4" : "";
+                return (
+                  <EditableWidget
+                    key={id}
+                    id={id}
+                    index={idx}
+                    editMode={editMode}
+                    removing={isRemoving}
+                    onRemove={(rid) => setRemovingId(rid)}
+                    onAnimationEnd={() => {
+                      if (isRemoving) {
+                        widgets.remove(id);
+                        setRemovingId(null);
+                      }
+                    }}
+                    className={`nb-rise ${colSpan}`}
+                  >
+                    {def.render(widgetCtx)}
+                  </EditableWidget>
+                );
+              })}
+            </section>
+          </SortableContext>
+          <DragOverlay dropAnimation={{ duration: 320, easing: "cubic-bezier(0.22, 1.2, 0.36, 1)" }}>
+            {activeId && WIDGET_BY_ID[activeId] ? (
+              <WidgetOverlay>{WIDGET_BY_ID[activeId].render(widgetCtx)}</WidgetOverlay>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
 
-        </section>
 
         <section className="mt-5">
           <div
