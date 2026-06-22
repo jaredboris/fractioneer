@@ -22,6 +22,7 @@ import { Route as PortalSettingsRouteImport } from './routes/portal.settings'
 import { Route as PortalReportsRouteImport } from './routes/portal.reports'
 import { Route as PortalLoginRouteImport } from './routes/portal.login'
 import { Route as PortalDocumentsRouteImport } from './routes/portal.documents'
+import { Route as PortalCashflowRouteImport } from './routes/portal.cashflow'
 import { Route as PortalAdminRouteImport } from './routes/portal.admin'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -89,6 +90,11 @@ const PortalDocumentsRoute = PortalDocumentsRouteImport.update({
   path: '/documents',
   getParentRoute: () => PortalRoute,
 } as any)
+const PortalCashflowRoute = PortalCashflowRouteImport.update({
+  id: '/cashflow',
+  path: '/cashflow',
+  getParentRoute: () => PortalRoute,
+} as any)
 const PortalAdminRoute = PortalAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/portal': typeof PortalRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal/admin': typeof PortalAdminRoute
+  '/portal/cashflow': typeof PortalCashflowRoute
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/reports': typeof PortalReportsRoute
@@ -120,6 +127,7 @@ export interface FileRoutesByTo {
   '/portal': typeof PortalRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal/admin': typeof PortalAdminRoute
+  '/portal/cashflow': typeof PortalCashflowRoute
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/reports': typeof PortalReportsRoute
@@ -137,6 +145,7 @@ export interface FileRoutesById {
   '/portal': typeof PortalRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/portal/admin': typeof PortalAdminRoute
+  '/portal/cashflow': typeof PortalCashflowRoute
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/reports': typeof PortalReportsRoute
@@ -155,6 +164,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/sitemap.xml'
     | '/portal/admin'
+    | '/portal/cashflow'
     | '/portal/documents'
     | '/portal/login'
     | '/portal/reports'
@@ -171,6 +181,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/sitemap.xml'
     | '/portal/admin'
+    | '/portal/cashflow'
     | '/portal/documents'
     | '/portal/login'
     | '/portal/reports'
@@ -187,6 +198,7 @@ export interface FileRouteTypes {
     | '/portal'
     | '/sitemap.xml'
     | '/portal/admin'
+    | '/portal/cashflow'
     | '/portal/documents'
     | '/portal/login'
     | '/portal/reports'
@@ -298,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalDocumentsRouteImport
       parentRoute: typeof PortalRoute
     }
+    '/portal/cashflow': {
+      id: '/portal/cashflow'
+      path: '/cashflow'
+      fullPath: '/portal/cashflow'
+      preLoaderRoute: typeof PortalCashflowRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/portal/admin': {
       id: '/portal/admin'
       path: '/admin'
@@ -310,6 +329,7 @@ declare module '@tanstack/react-router' {
 
 interface PortalRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
+  PortalCashflowRoute: typeof PortalCashflowRoute
   PortalDocumentsRoute: typeof PortalDocumentsRoute
   PortalLoginRoute: typeof PortalLoginRoute
   PortalReportsRoute: typeof PortalReportsRoute
@@ -320,6 +340,7 @@ interface PortalRouteChildren {
 
 const PortalRouteChildren: PortalRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
+  PortalCashflowRoute: PortalCashflowRoute,
   PortalDocumentsRoute: PortalDocumentsRoute,
   PortalLoginRoute: PortalLoginRoute,
   PortalReportsRoute: PortalReportsRoute,

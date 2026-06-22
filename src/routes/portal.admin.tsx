@@ -102,6 +102,31 @@ function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
 
+  // Periods (Reports / Cash Flow)
+  type PeriodRow = {
+    id: string;
+    period_end: string;
+    net_revenue: number | null;
+    net_income: number | null;
+    gross_margin: number | null;
+    cash_balance: number | null;
+    total_ar: number | null;
+    total_ap: number | null;
+    document_id: string | null;
+  };
+  const [periods, setPeriods] = useState<PeriodRow[]>([]);
+  const [periodForm, setPeriodForm] = useState({
+    period_end: "",
+    net_revenue: "",
+    net_income: "",
+    gross_margin: "",
+    cash_balance: "",
+    total_ar: "",
+    total_ap: "",
+    document_id: "",
+  });
+  const [savingPeriod, setSavingPeriod] = useState(false);
+
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
       .from("user_roles")
