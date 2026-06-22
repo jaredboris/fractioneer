@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import logo from "@/assets/fractioneer-logo.jpg";
+import logo from "@/assets/fractioneer-logo-dark.svg";
 import { cn } from "@/lib/utils";
 import { BookACallButton } from "./BookACallButton";
 
