@@ -297,6 +297,17 @@ function AdminOverview({ role: _role }: { role: string }) {
       setUploadsThisMonth(uploadsMonth);
       setPeriodsThisMonth(periodsMonth);
 
+      // Real AI spend for the current month from the ai_usage log table.
+      const { data: aiRows } = await supabase
+        .from("ai_usage")
+        .select("estimated_cost_usd, total_tokens, created_at")
+        .gte("created_at", monthStart.toISOString());
+      if (!cancelled) {
+        const spend = (aiRows ?? []).reduce((sum, r) => sum + Number(r.estimated_cost_usd ?? 0), 0);
+        setAiSpendThisMonth(spend);
+        setAiCallsThisMonth((aiRows ?? []).length);
+      }
+
       // Recent activity: combine documents + periods
       const docItems: ActivityItem[] = (documents ?? []).map((d) => ({
         id: `doc-${d.id}`,
