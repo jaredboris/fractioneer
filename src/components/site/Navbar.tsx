@@ -37,8 +37,12 @@ export function Navbar() {
       )}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 h-16">
-        <a href="#top" className="flex items-center" aria-label="Fractioneer home">
-          <img src={logo} alt="Fractioneer Finance Operations" className="h-10 w-auto" />
+        <a href="#top" className="flex h-12 w-56 items-center overflow-hidden" aria-label="Fractioneer home">
+          <img
+            src={logo}
+            alt="Fractioneer Finance Operations"
+            className="h-auto w-full scale-[1.55]"
+          />
         </a>
 
         <nav className="hidden md:flex items-center gap-8">
