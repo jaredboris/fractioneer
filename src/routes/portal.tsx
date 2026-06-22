@@ -234,6 +234,8 @@ function AdminOverview({ role: _role }: { role: string }) {
   const [activity, setActivity] = useState<ActivityItem[]>([]);
   const [periodsThisMonth, setPeriodsThisMonth] = useState<number>(0);
   const [uploadsThisMonth, setUploadsThisMonth] = useState<number>(0);
+  const [aiSpendThisMonth, setAiSpendThisMonth] = useState<number>(0);
+  const [aiCallsThisMonth, setAiCallsThisMonth] = useState<number>(0);
 
   useEffect(() => {
     let cancelled = false;
