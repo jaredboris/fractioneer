@@ -144,6 +144,8 @@ const ExtractedSchema = z.object({
   total_ar: z.number().nullable(),
   total_ap: z.number().nullable(),
   net_revenue: z.number().nullable(),
+  net_income: z.number().nullable(),
+  period_end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   monthly_close_status: z.enum(["open", "closed"]).nullable(),
 });
 
@@ -172,7 +174,7 @@ export const extractFinancialsFromRows = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
     const systemPrompt =
-      "You are a financial data extraction assistant. The user will provide rows from an Excel spreadsheet. Extract the following values if present: cash balance, total accounts receivable, total accounts payable, net revenue, and monthly close status (open or closed). Return ONLY a JSON object with these keys: cash_balance, total_ar, total_ap, net_revenue, monthly_close_status. Use null for any value not found. Numeric values must be numbers (no currency symbols or commas). monthly_close_status must be exactly \"open\" or \"closed\" or null. No explanation, no markdown, just raw JSON.";
+      "You are a financial data extraction assistant analyzing accounting software exports (QuickBooks, Xero, etc). The data may span multiple sheets, typically an Income Statement (P&L) and a Balance Sheet, with monthly columns and indented subtotal rows. Extract these values, using the MOST RECENT period column when multiple months are present:\n\ncash_balance: the total of all cash and bank accounts. Look for a 'Total for Bank Accounts', 'Total Cash', or sum of checking/savings accounts on the Balance Sheet. Not individual accounts.\n\ntotal_ar: total accounts receivable. Look for 'Total for Accounts Receivable' or 'A/R' total on the Balance Sheet.\n\ntotal_ap: total accounts payable. Look for 'Total for Accounts Payable' or 'A/P' total on the Balance Sheet. If no liabilities section is present, return null.\n\nnet_revenue: total income for the full period shown. Use the 'Total' or 'Total for Income' column if a period total exists; otherwise sum the monthly income figures. Do NOT use a single month's value when a period total is available.\n\nnet_income: the bottom-line 'Net Income' figure for the full period.\n\nperiod_end: the date the statement covers (e.g. the 'As of' date or the last month column header), formatted YYYY-MM-DD.\n\nmonthly_close_status: 'closed' if the statement appears finalized, otherwise 'open'.\n\nReturn ONLY a raw JSON object with these exact keys: cash_balance, total_ar, total_ap, net_revenue, net_income, period_end, monthly_close_status. Use null for any value genuinely not present. Numbers only for financial fields (no currency symbols or commas). No explanation, no markdown.";
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -203,7 +205,6 @@ export const extractFinancialsFromRows = createServerFn({ method: "POST" })
     try {
       parsed = JSON.parse(content);
     } catch {
-      // Strip possible code fences
       const stripped = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
       parsed = JSON.parse(stripped);
     }
@@ -221,6 +222,7 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
         total_ar: z.number().nullable(),
         total_ap: z.number().nullable(),
         net_revenue: z.number().nullable(),
+        net_income: z.number().nullable(),
         monthly_close_status: z.enum(["open", "closed"]).nullable(),
       })
       .parse(input),
@@ -237,6 +239,7 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
           total_ar: data.total_ar,
           total_ap: data.total_ap,
           net_revenue: data.net_revenue,
+          net_income: data.net_income,
           monthly_close_status: data.monthly_close_status,
         },
         { onConflict: "client_id" },
@@ -244,5 +247,6 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
 
 
