@@ -37,7 +37,7 @@ export function Navbar() {
       )}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 h-16">
-        <a href="#top" className="flex h-[96px] items-center" aria-label="Fractioneer home">
+        <a href="#top" className="flex h-[144px] items-center" aria-label="Fractioneer home">
           <img
             src={logo}
             alt="Fractioneer Finance Operations"

@@ -1,10 +1,10 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { FileText, Download, ExternalLink, Loader2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
-import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
+import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
 
 export const Route = createFileRoute("/portal/documents")({
@@ -15,23 +15,9 @@ export const Route = createFileRoute("/portal/documents")({
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/portal/login" });
-    try {
-      await ensureMyRole();
-    } catch {}
-    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-    if (aal) {
-      if (aal.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
-        throw redirect({ to: "/portal/verify-2fa" });
-      }
-      if (aal.nextLevel === "aal1" && aal.currentLevel === "aal1") {
-        throw redirect({ to: "/portal/setup-2fa" });
-      }
-    }
-    return { user: data.user };
-  },
+  // Auth/MFA gating is handled by the parent `/portal` route. Re-running
+  // those async checks here caused a brief blank flash on every sidebar
+  // navigation — children inherit `{ user }` from the parent context.
   component: DocumentsPage,
 });
 
