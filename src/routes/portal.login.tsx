@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import logo from "@/assets/fractioneer-logo.jpg";
 
 export const Route = createFileRoute("/portal/login")({
@@ -35,6 +36,22 @@ function LoginPage() {
       setError(error.message);
       return;
     }
+    navigate({ to: "/portal", replace: true });
+  }
+
+  async function onGoogle() {
+    setError(null);
+    setLoading(true);
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/portal`,
+    });
+    if (result.error) {
+      setLoading(false);
+      setError(result.error.message ?? "Google sign-in failed");
+      return;
+    }
+    if (result.redirected) return; // browser will redirect
+    // Tokens received in-iframe — portal gate handles role + 2FA.
     navigate({ to: "/portal", replace: true });
   }
 
