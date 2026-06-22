@@ -270,6 +270,7 @@ type ClientRow = {
   full_name: string | null;
   dashboard_updated_at: string | null;
   document_count: number;
+  period_count: number;
   last_upload_at: string | null;
 };
 
@@ -312,8 +313,8 @@ function AdminOverview({ role: _role }: { role: string }) {
       const [{ data: profiles }, { data: dashboards }, { data: documents }, { data: periods }] = await Promise.all([
         supabase.from("profiles").select("id, company_name, full_name").in("id", ids),
         supabase.from("dashboard_data").select("client_id, updated_at").in("client_id", ids),
-        supabase.from("documents").select("id, client_id, file_name, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(50),
-        supabase.from("periods").select("id, client_id, period_end, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(50),
+        supabase.from("documents").select("id, client_id, file_name, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(200),
+        supabase.from("periods").select("id, client_id, period_end, created_at").in("client_id", ids).order("created_at", { ascending: false }).limit(500),
       ]);
       if (cancelled) return;
 
@@ -329,6 +330,10 @@ function AdminOverview({ role: _role }: { role: string }) {
         if (!cur.last || new Date(d.created_at) > new Date(cur.last)) cur.last = d.created_at;
         docMap.set(d.client_id, cur);
       }
+      const perMap = new Map<string, number>();
+      for (const p of periods ?? []) {
+        perMap.set(p.client_id, (perMap.get(p.client_id) ?? 0) + 1);
+      }
 
       const merged: ClientRow[] = (profiles ?? []).map((p) => ({
         id: p.id,
@@ -336,11 +341,12 @@ function AdminOverview({ role: _role }: { role: string }) {
         full_name: p.full_name,
         dashboard_updated_at: dashMap.get(p.id) ?? null,
         document_count: docMap.get(p.id)?.count ?? 0,
+        period_count: perMap.get(p.id) ?? 0,
         last_upload_at: docMap.get(p.id)?.last ?? null,
       }));
       merged.sort((a, b) => {
-        const aNeeds = !a.dashboard_updated_at || a.document_count === 0 ? 0 : 1;
-        const bNeeds = !b.dashboard_updated_at || b.document_count === 0 ? 0 : 1;
+        const aNeeds = !a.dashboard_updated_at || (a.document_count === 0 && a.period_count === 0) ? 0 : 1;
+        const bNeeds = !b.dashboard_updated_at || (b.document_count === 0 && b.period_count === 0) ? 0 : 1;
         if (aNeeds !== bNeeds) return aNeeds - bNeeds;
         return (a.company_name || a.full_name || "").localeCompare(b.company_name || b.full_name || "");
       });
@@ -393,7 +399,7 @@ function AdminOverview({ role: _role }: { role: string }) {
   const totals = (() => {
     const list = rows ?? [];
     const needsData = list.filter((r) => !r.dashboard_updated_at).length;
-    const needsDocs = list.filter((r) => r.document_count === 0).length;
+    const needsDocs = list.filter((r) => r.document_count === 0 && r.period_count === 0).length;
     return { total: list.length, needsData, needsDocs };
   })();
 
@@ -533,7 +539,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                     <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
                       {rows.map((r) => {
                         const noData = !r.dashboard_updated_at;
-                        const noDocs = r.document_count === 0;
+                        const noDocs = r.document_count === 0 && r.period_count === 0;
                         const needsAttention = noData || noDocs;
                         return (
                           <tr key={r.id} className={needsAttention ? "bg-rose-50/40 dark:bg-rose-500/[0.04]" : ""}>
