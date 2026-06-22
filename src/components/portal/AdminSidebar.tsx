@@ -15,6 +15,7 @@ import {
 import logoDark from "@/assets/fractioneer-logo-dark.svg";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
 import { supabase } from "@/integrations/supabase/client";
+import { ImpersonationBanner } from "@/components/portal/ImpersonationBanner";
 
 const THEME_KEY = "fractioneer-portal-theme";
 
@@ -74,6 +75,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
 
   return (
     <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#0A0F1E]">
+      <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
         <div className="relative h-[90px] w-[90px] shrink-0">
