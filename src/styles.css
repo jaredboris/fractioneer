@@ -142,6 +142,17 @@
     font-feature-settings: "cv11", "ss01";
   }
 
+  /* Smooth theme transitions */
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: background-color 400ms ease, border-color 400ms ease,
+      color 300ms ease, fill 300ms ease, stroke 300ms ease,
+      box-shadow 400ms ease !important;
+    transition-delay: 0 !important;
+  }
+
   h1, h2, h3, h4 {
     letter-spacing: -0.02em;
   }
