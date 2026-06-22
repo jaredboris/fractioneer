@@ -621,27 +621,30 @@ function ChartShell({
   title,
   subtitle,
   empty,
+  sparse,
   children,
 }: {
   title: string;
   subtitle: string;
   empty: boolean;
+  sparse?: boolean;
   children: React.ReactNode;
 }) {
+  const showPlaceholder = empty || sparse;
   return (
-    <div className="flex min-h-[320px] flex-col rounded-xl p-5 nb-card h-full">
-      <div className="mb-4">
+    <div className="flex min-h-[280px] flex-col rounded-xl p-4 nb-card h-full">
+      <div className="mb-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
           {title}
         </h2>
-        <p className="text-xs text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
+        <p className="text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
       </div>
-      {empty ? (
-        <div className="flex flex-1 items-center justify-center text-sm text-slate-400 dark:text-[#6B7280]">
-          No financial data available yet.
+      {showPlaceholder ? (
+        <div className="flex flex-1 items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
+          More data will appear as your Fractioneer team uploads monthly financials.
         </div>
       ) : (
-        <div className="h-64 w-full flex-1">{children}</div>
+        <div className="h-[200px] w-full flex-1">{children}</div>
       )}
     </div>
   );
@@ -661,7 +664,7 @@ function RevExpChart({ ctx }: { ctx: WidgetContext }) {
     [ctx.rows],
   );
   return (
-    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0}>
+    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0} sparse={data.length <= 1}>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <defs>
@@ -717,7 +720,7 @@ function CashFlowChart({ ctx }: { ctx: WidgetContext }) {
     [ctx.rows],
   );
   return (
-    <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0}>
+    <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0} sparse={data.length <= 1}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} vertical={false} />
@@ -765,7 +768,7 @@ function ArApChart({ ctx }: { ctx: WidgetContext }) {
     [ctx.rows],
   );
   return (
-    <ChartShell title="AR vs AP Over Time" subtitle="Accounts receivable vs payable by month." empty={data.length === 0}>
+    <ChartShell title="AR vs AP Over Time" subtitle="Accounts receivable vs payable by month." empty={data.length === 0} sparse={data.length <= 1}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} vertical={false} />
