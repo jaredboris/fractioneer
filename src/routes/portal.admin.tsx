@@ -419,6 +419,8 @@ function AdminPage() {
         a.period_end < b.period_end ? -1 : a.period_end > b.period_end ? 1 : 0,
       );
       setExtracted({ months: sortedMonths });
+      setExtractedSourceRows(rowsStr);
+
 
       // Fetch any existing rows for these periods so we can flag overwrites.
       if (sortedMonths.length > 0) {
