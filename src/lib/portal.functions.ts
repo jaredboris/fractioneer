@@ -146,17 +146,20 @@ export const createClientAccount = createServerFn({ method: "POST" })
 // The browser parses the .xlsx with SheetJS and sends row JSON here.
 // ---------------------------------------------------------------------------
 
-const ExtractedSchema = z.object({
+const MonthSchema = z.object({
+  period_end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   cash_balance: z.number().nullable(),
   total_ar: z.number().nullable(),
   total_ap: z.number().nullable(),
   net_revenue: z.number().nullable(),
   net_income: z.number().nullable(),
-  period_end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
   monthly_close_status: z.enum(["open", "closed"]).nullable(),
 });
+const ExtractedSchema = z.object({ months: z.array(MonthSchema) });
 
+export type ExtractedMonth = z.infer<typeof MonthSchema>;
 export type ExtractedFinancials = z.infer<typeof ExtractedSchema>;
+
 
 async function assertAdmin(supabase: any, userId: string) {
   const { data, error } = await supabase
@@ -181,7 +184,8 @@ export const extractFinancialsFromRows = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
     const systemPrompt =
-      "You are a financial data extraction assistant analyzing accounting software exports (QuickBooks, Xero, etc). The data may span multiple sheets, typically an Income Statement (P&L) and a Balance Sheet, often with monthly columns and indented subtotal rows. Extract these values:\n\ncash_balance: total of all cash and bank accounts. Look for 'Total for Bank Accounts', 'Total Cash', or sum of checking/savings accounts on the Balance Sheet. Not individual accounts. Use the MOST RECENT month column for point-in-time value.\n\ntotal_ar: total accounts receivable. 'Total for Accounts Receivable' or 'A/R' total on the Balance Sheet. Use the MOST RECENT month column.\n\ntotal_ap: total accounts payable. 'Total for Accounts Payable' or 'A/P' total on the Balance Sheet. Use the MOST RECENT month column. If no liabilities section is present, return null.\n\nnet_revenue: total income for the full period. The row labeled 'Total for Income' (or 'Total Income' / 'Total Revenue') on the Income Statement IS net_revenue. When monthly columns are present (e.g. Apr 2025 through Mar 2026), use the 'Total' column value from that row — NOT a single month. Only sum monthly values if no Total column exists.\n\nnet_income: the bottom-line 'Net Income' or 'Net Operating Income' row on the Income Statement. Use the 'Total' column value when monthly columns are present.\n\nperiod_end: the most recent month column header, formatted YYYY-MM-DD (use last day of that month).\n\nmonthly_close_status: 'closed' if the statement appears finalized, otherwise 'open'.\n\nReturn ONLY a raw JSON object with these exact keys: cash_balance, total_ar, total_ap, net_revenue, net_income, period_end, monthly_close_status. Use null for any value genuinely not present. Numbers only for financial fields (no currency symbols or commas). No explanation, no markdown.";
+      "You are a financial data extraction assistant analyzing accounting software exports (QuickBooks, Xero, etc). The data spans multiple sheets — typically an Income Statement (P&L) and a Balance Sheet — often with multiple monthly columns (e.g. Apr 2025, May 2025, … Mar 2026) and indented subtotal rows.\n\nYour task: emit ONE record per monthly column present in the data. Ignore 'Total' / YTD / cumulative columns — those are derived. A single-month export yields 1 record; a 12-month export yields 12 records.\n\nFor EACH month column, extract:\n- period_end: YYYY-MM-DD, the LAST day of that month (column header).\n- net_revenue: that month's value from the 'Total for Income' / 'Total Income' / 'Total Revenue' row on the Income Statement. Single-month value, NOT cumulative.\n- net_income: that month's value from the bottom-line 'Net Income' or 'Net Operating Income' row.\n- cash_balance: as of that month-end, the Balance Sheet 'Total for Bank Accounts' / 'Total Cash' / sum of checking+savings. Point-in-time. Null if Balance Sheet has no column for that month.\n- total_ar: as of that month-end, 'Total for Accounts Receivable' / 'A/R' total. Null if not present for that month.\n- total_ap: as of that month-end, 'Total for Accounts Payable' / 'A/P' total. Null if not present.\n- monthly_close_status: 'closed' if the statement appears finalized, else 'open'. Same value for every month.\n\nReturn ONLY a raw JSON object: { \"months\": [ { period_end, cash_balance, total_ar, total_ap, net_revenue, net_income, monthly_close_status }, ... ] }, sorted ascending by period_end. Numbers only (no currency symbols or commas). Use null for any value genuinely absent. No explanation, no markdown.";
+
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
