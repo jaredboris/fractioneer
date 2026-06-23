@@ -915,7 +915,7 @@ function ClientDashboard({ role }: { role: string | null }) {
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
-    readOnly: !!impersonation,
+    readOnly: !!impersonation && !override,
     overrideIds: impersonation && override ? DEFAULT_IDS : null,
   });
   const [editMode, setEditMode] = useState(false);

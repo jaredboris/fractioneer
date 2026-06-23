@@ -316,14 +316,32 @@ export function useWidgetPrefs(
   const overrideIds = opts?.overrideIds ?? null;
 
   const [ids, setIdsState] = useState<string[]>(() => loadFromCache(clientId));
+  // Track override transitions so we can seed state on enter and refetch on exit.
+  const prevOverrideRef = useRef<string[] | null>(null);
+  const [fetchNonce, setFetchNonce] = useState(0);
 
   // Re-hydrate cache when the target client changes (spy mode switch).
   useEffect(() => {
     setIdsState(loadFromCache(clientId));
   }, [clientId]);
 
-  // Pull authoritative prefs from the database.
+  // Handle override toggle:
+  //  - flipping ON seeds local state with the override list (no persist).
+  //  - flipping OFF triggers a server refetch to restore the client's saved layout.
   useEffect(() => {
+    const prev = prevOverrideRef.current;
+    if (overrideIds && !prev) {
+      setIdsState(normalize(overrideIds));
+    } else if (!overrideIds && prev) {
+      setFetchNonce((n) => n + 1);
+    }
+    prevOverrideRef.current = overrideIds;
+  }, [overrideIds]);
+
+  // Pull authoritative prefs from the database. Skipped while override is active
+  // so the admin's working draft isn't clobbered.
+  useEffect(() => {
+    if (overrideIds) return;
     let cancelled = false;
     (async () => {
       const { data, error } = await supabase
@@ -343,7 +361,7 @@ export function useWidgetPrefs(
     return () => {
       cancelled = true;
     };
-  }, [clientId]);
+  }, [clientId, overrideIds, fetchNonce]);
 
   // Persist on every change (cache + server) — unless we're read-only.
   function persist(next: string[]) {
@@ -365,23 +383,21 @@ export function useWidgetPrefs(
     });
   }
 
-  const effectiveIds = overrideIds ? normalize(overrideIds) : ids;
-
   return {
-    ids: effectiveIds,
-    readOnly: readOnly || !!overrideIds,
+    ids,
+    readOnly,
     setIds,
     add(id: string) {
-      if (readOnly || overrideIds) return;
+      if (readOnly) return;
       setIds((cur) => (cur.includes(id) ? cur : [...cur, id]));
     },
     remove(id: string) {
-      if (readOnly || overrideIds) return;
+      if (readOnly) return;
       if (LOCKED_IDS.includes(id)) return;
       setIds((cur) => cur.filter((x) => x !== id));
     },
     move(from: number, to: number) {
-      if (readOnly || overrideIds) return;
+      if (readOnly) return;
       setIds((cur) => {
         if (from === to || from < 0 || to < 0 || from >= cur.length || to >= cur.length) return cur;
         const next = [...cur];
@@ -392,6 +408,7 @@ export function useWidgetPrefs(
     },
   };
 }
+
 
 // ---- Editable wrapper (iOS-style edit mode, dnd-kit sortable) ---------------
 
