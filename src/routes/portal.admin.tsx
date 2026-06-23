@@ -1084,6 +1084,179 @@ function NumField({
   );
 }
 
+// ----- Period table helpers + detail sheet -----
+
+const moneyFmt = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+function fmtMoneyCompact(v: number | null | undefined) {
+  if (v === null || v === undefined) return "—";
+  return moneyFmt.format(v);
+}
+
+function fmtPercent(v: number | null | undefined) {
+  if (v === null || v === undefined || !Number.isFinite(v)) return "—";
+  return `${(v * 100).toFixed(1)}%`;
+}
+
+function fmtPeriodLabel(d: string) {
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+type PeriodSheetRow = {
+  id: string;
+  period_end: string;
+  net_revenue: number | null;
+  net_income: number | null;
+  gross_margin: number | null;
+  cash_balance: number | null;
+  total_ar: number | null;
+  total_ap: number | null;
+  document_id: string | null;
+};
+
+function PeriodDetailSheet({
+  period,
+  documents,
+  confirmingDelete,
+  setConfirmingDelete,
+  deleting,
+  onClose,
+  onDelete,
+  onDownload,
+  onReupload,
+}: {
+  period: PeriodSheetRow | null;
+  documents: Document[];
+  confirmingDelete: boolean;
+  setConfirmingDelete: (v: boolean) => void;
+  deleting: boolean;
+  onClose: () => void;
+  onDelete: (id: string) => void;
+  onDownload: (path: string, name: string) => void;
+  onReupload: (periodEnd: string) => void;
+}) {
+  if (!period) return null;
+  const gm = period.net_revenue && period.net_revenue !== 0
+    ? (period.net_income ?? 0) / period.net_revenue
+    : null;
+  const doc = documents.find((d) => d.id === period.document_id) ?? null;
+  const label = fmtPeriodLabel(period.period_end);
+
+  return (
+    <div className="fixed inset-0 z-50 flex">
+      <div
+        className="flex-1 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-label="Close panel"
+      />
+      <aside className="flex h-full w-full max-w-md flex-col border-l border-border bg-card shadow-2xl">
+        <header className="flex items-start justify-between gap-3 border-b border-border px-6 py-5">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Period ending
+            </div>
+            <h3 className="mt-0.5 text-lg font-semibold text-foreground">{label}</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          <dl className="space-y-3">
+            <DetailRow label="Net revenue" value={fmtMoneyCompact(period.net_revenue)} />
+            <DetailRow label="Net income" value={fmtMoneyCompact(period.net_income)} />
+            <DetailRow label="Gross margin" value={fmtPercent(gm)} />
+            <DetailRow label="Cash balance" value={fmtMoneyCompact(period.cash_balance)} />
+            <DetailRow label="Total AR" value={fmtMoneyCompact(period.total_ar)} />
+            <DetailRow label="Total AP" value={fmtMoneyCompact(period.total_ap)} />
+          </dl>
+
+          <div className="mt-6 border-t border-border pt-4">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Source file
+            </div>
+            {doc ? (
+              <button
+                onClick={() => onDownload(doc.file_path, doc.file_name)}
+                className="mt-2 inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted/40"
+              >
+                <Download className="h-4 w-4" />
+                {doc.file_name}
+              </button>
+            ) : (
+              <div className="mt-2 text-sm text-muted-foreground">No source file linked</div>
+            )}
+          </div>
+        </div>
+
+        <footer className="border-t border-border px-6 py-4">
+          {confirmingDelete ? (
+            <div>
+              <p className="text-sm text-foreground">
+                This will permanently remove <strong>{label}</strong> data from the client dashboard and charts. This cannot be undone.
+              </p>
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <button
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={deleting}
+                  className="rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => onDelete(period.id)}
+                  disabled={deleting}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:opacity-60"
+                >
+                  {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Delete permanently
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => onReupload(period.period_end)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40"
+              >
+                <Upload className="h-4 w-4" />
+                Re-upload
+              </button>
+              <button
+                onClick={() => setConfirmingDelete(true)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete period
+              </button>
+            </div>
+          )}
+        </footer>
+      </aside>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-semibold tabular-nums text-foreground">{value}</dd>
+    </div>
+  );
+}
+
+
 
 function ActivityLogPanel() {
   const [items, setItems] = useState<ActivityLogItem[] | null>(null);
