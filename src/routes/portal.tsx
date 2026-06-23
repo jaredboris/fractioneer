@@ -62,8 +62,9 @@ import { AdminShell } from "@/components/portal/AdminSidebar";
 import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
-import { useImpersonation, startImpersonation } from "@/lib/impersonation";
+import { useImpersonation, startImpersonation, useAdminOverride } from "@/lib/impersonation";
 import { getCached, setCached } from "@/lib/portal-cache";
+import { DEFAULT_IDS } from "@/lib/dashboard-widgets";
 import {
   clearMfaVerifiedThisSession,
   wasMfaVerifiedThisSession,
