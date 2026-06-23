@@ -349,6 +349,7 @@ function AdminPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [savingExtracted, setSavingExtracted] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
+  const [incomeStatementDetected, setIncomeStatementDetected] = useState(false);
 
   async function handleXlsxSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
