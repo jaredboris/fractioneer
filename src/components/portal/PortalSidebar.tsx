@@ -160,6 +160,13 @@ export function PortalSidebar({
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
+                  {item.to === "/portal/notes" && notesUnread && (
+                    <span
+                      aria-label="Unread notes"
+                      title="Unread notes"
+                      className="ml-auto h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.8)]"
+                    />
+                  )}
                 </Link>
               </li>
             );
