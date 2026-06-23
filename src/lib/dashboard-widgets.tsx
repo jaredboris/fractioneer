@@ -32,10 +32,11 @@ import {
   Lock,
 
 } from "lucide-react";
+import { NotesCard } from "@/components/portal/NotesCard";
 
 // ---- Types & Catalog ---------------------------------------------------------
 
-export type WidgetKind = "stat" | "chart";
+export type WidgetKind = "stat" | "chart" | "wide";
 
 export type NormalizedRow = {
   period: string | null; // YYYY-MM-DD
@@ -55,6 +56,9 @@ export type WidgetContext = {
   prev: NormalizedRow | null;
   lastUploadAt: string | null;
   isDark: boolean;
+  clientId: string;
+  viewerRole: "admin" | "client";
+  viewerId: string;
 };
 
 export type WidgetDef = {
@@ -264,6 +268,16 @@ export const WIDGET_CATALOG: WidgetDef[] = [
     label: "AR vs AP Over Time",
     kind: "chart",
     render: (ctx) => <ArApChart ctx={ctx} />,
+  },
+  {
+    id: "notes",
+    label: "Notes",
+    kind: "wide",
+    locked: true,
+    defaultOn: true,
+    render: (ctx) => (
+      <NotesCard clientId={ctx.clientId} viewerRole={ctx.viewerRole} viewerId={ctx.viewerId} />
+    ),
   },
 ];
 

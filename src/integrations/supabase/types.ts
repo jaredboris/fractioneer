@@ -198,6 +198,54 @@ export type Database = {
         }
         Relationships: []
       }
+      notes: {
+        Row: {
+          author_id: string
+          author_name: string | null
+          author_role: string
+          body: string
+          client_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          author_id: string
+          author_name?: string | null
+          author_role: string
+          body: string
+          client_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string | null
+          author_role?: string
+          body?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      notes_read_state: {
+        Row: {
+          client_id: string
+          last_read_at: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          last_read_at?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          last_read_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       periods: {
         Row: {
           cash_balance: number | null

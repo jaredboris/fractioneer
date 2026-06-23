@@ -1027,8 +1027,19 @@ function ClientDashboard({ role }: { role: string | null }) {
   const isDark = useIsDark();
 
   const widgetCtx = useMemo(
-    () => ({ rows: mergedRows, latest, prev, lastUploadAt, isDark }),
-    [mergedRows, latest, prev, lastUploadAt, isDark],
+    () => ({
+      rows: mergedRows,
+      latest,
+      prev,
+      lastUploadAt,
+      isDark,
+      clientId: effectiveId,
+      viewerId: user.id,
+      viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
+        | "admin"
+        | "client",
+    }),
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role],
   );
 
 
@@ -1132,6 +1143,7 @@ function ClientDashboard({ role }: { role: string | null }) {
             {(() => {
               const statIds = widgets.ids.filter((id) => WIDGET_BY_ID[id]?.kind === "stat");
               const chartIds = widgets.ids.filter((id) => WIDGET_BY_ID[id]?.kind === "chart");
+              const wideIds = widgets.ids.filter((id) => WIDGET_BY_ID[id]?.kind === "wide");
               const renderItem = (id: string, idx: number) => {
                 const def = WIDGET_BY_ID[id];
                 if (!def) return null;
@@ -1171,6 +1183,11 @@ function ClientDashboard({ role }: { role: string | null }) {
                   {chartIds.length > 0 && (
                     <section className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                       {chartIds.map((id, i) => renderItem(id, statIds.length + i))}
+                    </section>
+                  )}
+                  {wideIds.length > 0 && (
+                    <section className="mt-5 grid grid-cols-1 gap-3">
+                      {wideIds.map((id, i) => renderItem(id, statIds.length + chartIds.length + i))}
                     </section>
                   )}
                 </>
