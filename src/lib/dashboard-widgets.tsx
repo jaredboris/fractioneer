@@ -59,7 +59,9 @@ export type WidgetContext = {
   clientId: string;
   viewerRole: "admin" | "client";
   viewerId: string;
+  aiInsights?: { insight_text: string; category: string }[];
 };
+
 
 export type WidgetDef = {
   id: string;
