@@ -10,7 +10,9 @@ import {
   Moon,
   Sun,
   ShieldCheck,
+  MessageSquare,
 } from "lucide-react";
+import { useNotesUnread } from "@/hooks/useNotesUnread";
 
 import logoDark from "@/assets/fractioneer-logo-dark.svg";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
