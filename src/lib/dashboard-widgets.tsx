@@ -386,19 +386,28 @@ export function useWidgetPrefs(
     };
   }, [clientId, overrideIds]);
 
-  // Persist to the server — unless we're read-only.
-  function persist(next: string[]) {
+  // Persist to the server — unless we're read-only. After a successful write,
+  // bump fetchNonce so the canonical row is re-read from Supabase.
+  async function persist(next: string[]) {
     if (readOnly) return;
-    void supabase
+    const { error } = await supabase
       .from("widget_prefs")
-      .upsert({ user_id: clientId, widget_ids: next, updated_at: new Date().toISOString() });
+      .upsert(
+        { user_id: clientId, widget_ids: next, updated_at: new Date().toISOString() },
+        { onConflict: "user_id" },
+      );
+    if (error) {
+      console.error("[widget_prefs] persist failed", error);
+      return;
+    }
+    setFetchNonce((n) => n + 1);
   }
 
   function setIds(updater: string[] | ((prev: string[]) => string[])) {
     if (readOnly) return;
     setIdsState((cur) => {
       const next = typeof updater === "function" ? (updater as (p: string[]) => string[])(cur) : updater;
-      persist(next);
+      void persist(next);
       return next;
     });
   }
