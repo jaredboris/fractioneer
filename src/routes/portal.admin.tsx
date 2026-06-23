@@ -142,17 +142,10 @@ function AdminPage() {
     document_id: string | null;
   };
   const [periods, setPeriods] = useState<PeriodRow[]>([]);
-  const [periodForm, setPeriodForm] = useState({
-    period_end: "",
-    net_revenue: "",
-    net_income: "",
-    gross_margin: "",
-    cash_balance: "",
-    total_ar: "",
-    total_ap: "",
-    document_id: "",
-  });
-  const [savingPeriod, setSavingPeriod] = useState(false);
+  const [openPeriod, setOpenPeriod] = useState<PeriodRow | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deletingPeriod, setDeletingPeriod] = useState(false);
+  const [prefillPeriodEnd, setPrefillPeriodEnd] = useState<string | null>(null);
 
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
