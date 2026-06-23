@@ -471,10 +471,10 @@ function AdminPage() {
       void generateAiInsights({
         data: { client_id: selectedId, source_rows: sourceRows ?? undefined },
       })
-        .then((r) => {
+        .then((r: { count: number }) => {
           setStatus({ kind: "ok", msg: `Saved and generated ${r.count} AI insight${r.count === 1 ? "" : "s"}.` });
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           console.error("[ai_insights] generation failed", err);
         });
     } catch (err) {
