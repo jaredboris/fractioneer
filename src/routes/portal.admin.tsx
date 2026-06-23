@@ -473,6 +473,7 @@ function AdminPage() {
       setXlsxFileName(null);
       setUploadedFile(null);
       setIncomeStatementDetected(false);
+      setPrefillPeriodEnd(null);
       loadClientData(selectedId);
       // Fire-and-forget: regenerate AI insights for this client. Don't block the
       // save UX; surface errors quietly.
