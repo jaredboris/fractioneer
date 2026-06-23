@@ -483,6 +483,14 @@ function AdminPage() {
       setIncomeStatementDetected(false);
       setPrefillPeriodEnd(null);
       loadClientData(selectedId);
+      // Notify any open client dashboard that insights are regenerating so the
+      // AI Insights card can show a shimmer immediately.
+      const insightsChannel = supabase.channel(`ai_insights:${selectedId}`);
+      insightsChannel.subscribe((s) => {
+        if (s === "SUBSCRIBED") {
+          void insightsChannel.send({ type: "broadcast", event: "generating", payload: { state: "start" } });
+        }
+      });
       // Fire-and-forget: regenerate AI insights for this client. Don't block the
       // save UX; surface errors quietly.
       void generateAiInsights({
@@ -493,7 +501,12 @@ function AdminPage() {
         })
         .catch((err: unknown) => {
           console.error("[ai_insights] generation failed", err);
+        })
+        .finally(() => {
+          void insightsChannel.send({ type: "broadcast", event: "generating", payload: { state: "end" } });
+          setTimeout(() => { void supabase.removeChannel(insightsChannel); }, 1000);
         });
+
     } catch (err) {
       setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to save" });
     } finally {
