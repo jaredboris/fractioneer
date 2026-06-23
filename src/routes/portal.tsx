@@ -1131,7 +1131,7 @@ function ClientDashboard({ role }: { role: string | null }) {
     setDocs([]);
     setAiInsights([]);
     async function loadAll() {
-      const [{ data: dash }, { data: pers, error: persErr }, { data: documents }, { data: insights }] = await Promise.all([
+      const [{ data: dash }, { data: pers }, { data: documents }, { data: insights }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
