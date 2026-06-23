@@ -1,46 +1,47 @@
-## Move Notes from widget to a dedicated sidebar tab
+## Diagnosis (no code changed yet)
 
-Notes is currently a locked dashboard widget. Move it out of the widget system entirely and make it a first-class page at `/portal/notes`, available to both clients and admins, with unread badges in the sidebar.
+I checked the database and the chart code paths directly. Here's what I found:
 
-### 1. Remove Notes from the widget system
+**1. The data is saved correctly.**
+- `periods` table has **12 rows** for client `afba6a7c-5352-44ea-99ac-30915986dd48`, spanning `2025-04-30 → 2026-03-31`.
+- Schema matches exactly what the charts read: `period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap`.
 
-**`src/lib/dashboard-widgets.tsx`**
-- Delete the `notes` widget definition (the locked card that renders `NotesCard`).
-- Remove it from the default widget list, the Add Widget menu source, and any "locked widgets" array so it cannot appear on the dashboard or be re-added.
+**2. The chart code is already correct.**
+- `ClientDashboard` queries `periods` filtered by `effectiveId`, ordered by `period_end asc` (portal.tsx ~944).
+- `mergeRows` keys by `period_end` and the chart widgets read `r.net_revenue`, `r.cash_balance`, `r.total_ar`, `r.total_ap` off the merged rows. All field names match.
 
-**`src/routes/portal.tsx`**
-- Remove the `notes` entry from default widget prefs / locked-widgets handling so existing users whose saved prefs include `notes` silently drop it on load.
+**3. RLS is fine *for the right user*.**
+- Policy: `is_aal2() AND auth.uid() = client_id` for clients, `is_aal2() AND has_role(...,'admin')` for admins. Both gated by MFA.
+- Since you've completed 2FA and other widgets/KPIs load, `is_aal2()` is satisfied.
 
-`NotesCard.tsx` stays — we'll reuse its thread + composer UI inside the new page (or extract the thread list/composer into the new page directly; either way the same `notes` table queries are reused).
+**4. The most likely cause: `effectiveId` is not that client's id.**
+- Only **one** client has any periods data (`afba6a7c…`). If you're logged in as the **admin** and viewing your own dashboard (not impersonating that client), `effectiveId = your admin user.id`, which has **0 periods rows** → charts empty. KPIs would also be empty/blank in that case (which matches "completely empty").
+- If you're impersonating, `effectiveId` comes from the impersonation context — needs to actually equal `afba6a7c…`.
 
-### 2. New route `/portal/notes`
+**5. Notes widget still showing / no sidebar tab.**
+- Confirmed: the prior "move Notes to sidebar" change did not land. Notes is still registered in `dashboard-widgets.tsx` and there's no `/portal/notes` route or sidebar entry.
 
-**`src/routes/portal.notes.tsx`** (new, under the same auth shell pattern as other portal routes)
-- Detects role via `has_role` / existing profile lookup the portal already uses.
-- **Client view**: loads `notes` for `client_id = auth.uid()` ordered `created_at desc`. Renders each note with author name, an `ADMIN` or `CLIENT` badge (uses `Badge` variants matching dark theme), and a localized timestamp. Bottom composer: `Textarea` + "Post note" button → inserts a row with `author_role='client'`, `author_id=auth.uid()`, `client_id=auth.uid()`, `author_name=profile.full_name || email`.
-- **Admin view**: top bar with a client `Select` (loads from `profiles` joined to `user_roles` where role='client'). On select, loads that client's thread the same way. Composer posts with `author_role='admin'`, `author_id=auth.uid()`, `client_id=selectedClientId`, `author_name=admin profile name`. Admin does NOT need impersonation; this works under their own session because RLS already allows admins to read/insert via `has_role(auth.uid(),'admin')`.
-- On thread view (client view mount, or admin selecting a client), upsert into `notes_read_state` with `client_id, user_id=auth.uid(), last_read_at=now()` to clear the unread indicator for that thread.
-- Realtime subscription on `notes` filtered by `client_id` so new posts appear without refresh.
+## Proposed Plan
 
-### 3. Sidebar nav + unread badge
+### A. Add a diagnostic log (one-time, easy to remove)
+In `ClientDashboard`'s data-load effect, log:
+```
+[charts] effectiveId=<id> viewerRole=<…> impersonating=<bool>
+[charts] periods rows=<n> dashboard rows=<n>
+```
+This will instantly distinguish: (a) wrong client id, (b) RLS blocking, (c) data present but render bug.
 
-**`src/components/portal/PortalSidebar.tsx`** — add `{ label: "Notes", to: "/portal/notes", icon: MessageSquare }` to the `NAV` array (between Documents and Settings).
+### B. Confirm the actual cause from the log, then:
+- **If `periods rows = 0` and `effectiveId ≠ afba6a7c…`** → the issue is "admin viewing own dashboard". Fix by either: (i) auto-impersonating the most recent client when an admin opens `/portal`, or (ii) showing a clear "No client selected — pick a client to view their data" empty state with a client picker. I'd recommend option (ii) — explicit and matches the admin impersonation flow already in place.
+- **If `periods rows = 0` and `effectiveId == afba6a7c…`** → RLS issue; we'll re-check the session's `aal` claim and policies. (Unlikely based on schema review.)
+- **If `periods rows = 12`** → render bug in `mergeRows` / chart memo; we'll trace there.
 
-**`src/components/portal/AdminSidebar.tsx`** — add the same `Notes` nav item (top-level, not under `/portal/admin?tab=...`); active when `pathname === "/portal/notes"`.
+### C. Re-apply the Notes → sidebar move (separately)
+This was confirmed not applied. I'll redo it in the same pass:
+- Remove `notes` from `dashboard-widgets.tsx` widget registry, defaults, and Add Widget menu.
+- Add `/portal/notes` route with the thread UI (client view + admin client-selector).
+- Add "Notes" item to `PortalSidebar` and `AdminSidebar` with unread badge backed by `notes_read_state`.
 
-**Unread logic (shared hook `useNotesUnread`)** placed alongside the sidebars or in `src/hooks/`:
-- Client: unread = exists a `notes` row where `client_id = auth.uid()`, `author_role = 'admin'`, and `created_at > coalesce(last_read_at for this user+thread, epoch)`.
-- Admin: unread = exists ANY `notes` row where `author_role = 'client'` and `created_at > coalesce(last_read_at for admin+that client_id, epoch)`. Iterates client_ids the admin sees.
-- Hook returns a boolean; sidebar renders a small dot badge on the Notes nav item when true.
-- Subscribes to realtime `notes` inserts to flip badge live; also re-evaluates on route change.
+### D. Remove the diagnostic log once the root cause is confirmed and fixed.
 
-### 4. Backend
-
-`notes` and `notes_read_state` tables + RLS already exist and stay as-is (already gated by `is_aal2`, `client_id = auth.uid()` for clients, `has_role(...,'admin')` for admins). No migration needed.
-
-### Verification
-
-- Dashboard: no Notes card; Add Widget menu has no Notes entry; existing prefs containing `notes` load cleanly.
-- `/portal/notes` as a client: shows own thread, can post, badge clears after viewing.
-- `/portal/notes` as an admin: client selector works, can read & post to any client's thread without impersonation, badge clears per-thread.
-- Sidebar badge appears on the other party's first post and disappears on visit.
+Want me to proceed with A+C now so the next run produces the diagnostic output and the Notes move is in place?
