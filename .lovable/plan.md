@@ -1,27 +1,33 @@
-## Make widget preferences sync live across admin and client
+## Status: mostly already implemented — verify + harden
 
-The `widget_prefs` table (per-user `widget_ids text[]`) already exists, and `useWidgetPrefs` already upserts to it. The reason changes don't appear across browsers:
+The previous turn already moved widget prefs to Supabase: `useWidgetPrefs` in `src/lib/dashboard-widgets.tsx` reads from `widget_prefs`, writes via `upsert`, subscribes to realtime changes filtered by `user_id`, and wipes legacy `localStorage` keys on mount. RLS already covers both sides (`Users manage their own widget prefs` on `auth.uid() = user_id`, plus `Admins can manage all widget prefs` via `has_role`), and `widget_prefs` is in the `supabase_realtime` publication. No other file in `src/` references widget storage.
 
-1. `useWidgetPrefs` keeps a `localStorage` cache (`portal.dashboard.widgets.v2:{clientId}`) that's used as the initial state and updated on every write. On the *other* browser, the cache holds the stale layout and only the one-shot fetch on mount reconciles it. Until that fetch resolves, the stale cache flashes; after it resolves, no further updates arrive unless the user refreshes.
-2. There's no realtime subscription, so a change made in the admin's tab never pushes into the client's tab (and vice versa) without a manual reload.
+So the three symptoms you describe shouldn't be happening against the current code. Most likely cause: the browser tab you tested in was still running pre-refactor code (the realtime + RLS migration only took effect last turn). Two small hardening changes will also make the persistence path bulletproof.
 
-### Changes
+### Changes to `src/lib/dashboard-widgets.tsx`
 
-**`src/lib/dashboard-widgets.tsx` — `useWidgetPrefs`**
-- Remove the localStorage cache entirely: delete `LEGACY_STORAGE_KEY`, `cacheKey`, `loadFromCache`, and every `window.localStorage.*` call in the hook. Initial state becomes `DEFAULT_IDS` until the server row resolves.
-- Keep the existing fetch effect (keyed on `clientId` and `overrideIds`) as the initial load.
-- Add a Supabase realtime subscription on `widget_prefs` filtered to `user_id=eq.{clientId}`, listening for `INSERT` and `UPDATE`. On each event, normalize `new.widget_ids` and `setIdsState(next)` — but skip while `overrideIds` is active so an admin's working draft isn't clobbered by their own write echo.
-- The persist path stays the same upsert; no local cache write.
+1. **Explicit upsert conflict target + error surfacing.** Change `persist()` to:
+   ```ts
+   const { error } = await supabase
+     .from("widget_prefs")
+     .upsert(
+       { user_id: clientId, widget_ids: next, updated_at: new Date().toISOString() },
+       { onConflict: "user_id" },
+     );
+   if (error) console.error("[widget_prefs] persist failed", error);
+   ```
+   Make `persist` `async`, await it inside `setIds`, and after a successful write trigger a `setFetchNonce((n) => n + 1)` so the canonical row is re-read from the server (matches your "refetch after save" requirement and guarantees the UI shows exactly what's persisted).
 
-**No schema or RLS changes.** The existing `widget_prefs` table, the owner-write policy, and the admin-write policy from the last migration already cover both sides.
+2. **Drop the optimistic local update path that could mask a write failure.** Keep `setIdsState(next)` for instant feedback, but rely on the post-write refetch (and realtime echo on other tabs) as the source of truth.
 
-### Behavior after the change
+### Verification steps after the change
 
-- Client edits a widget → upsert to `widget_prefs` → admin's open spy-mode tab receives the realtime UPDATE and re-renders with the new order.
-- Admin in spy mode with Admin Override edits a widget → upsert to the *client's* `widget_prefs` row → client's open dashboard receives the realtime UPDATE and re-renders.
-- First paint shows the default layout briefly before the server row resolves (single small fetch, no flash of someone else's stale cache).
-- No more cross-browser drift, no manual refresh required.
+- Hard-refresh both the admin and client tabs (clears any stale bundles).
+- Client adds a widget → refresh → widget persists. Check Network for a 200 on `POST /widget_prefs`.
+- Client edits → admin's open spy-mode tab updates within ~1s (realtime).
+- Admin in spy mode with Admin Override edits → client's open tab updates within ~1s.
+- Confirm `localStorage` has no `portal.dashboard.widgets.*` keys (cleanup runs on mount).
 
-### File touched
+### Files touched
 
-- `src/lib/dashboard-widgets.tsx`
+- `src/lib/dashboard-widgets.tsx` — `persist()` + `setIds()` only. No schema or RLS changes; existing migration already enabled realtime and admin write policy.
