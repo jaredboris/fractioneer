@@ -913,6 +913,8 @@ function ClientDashboard({ role }: { role: string | null }) {
   >([]);
 
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
+  const [aiInsights, setAiInsights] = useState<{ insight_text: string; category: string }[]>([]);
+
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
     readOnly: !!impersonation && !override,
