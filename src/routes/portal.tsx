@@ -1012,7 +1012,10 @@ function ClientDashboard({ role }: { role: string | null }) {
     () => docs.find((d) => /\.xlsx?$/i.test(d.file_name)) ?? null,
     [docs],
   );
-  const lastUploadAt = docs[0]?.created_at ?? null;
+  // Last upload date = most recent period_end from the periods table.
+  const lastUploadAt = periodsRows.length
+    ? periodsRows[periodsRows.length - 1]?.period_end ?? null
+    : null;
 
   // Gross margin for the (non-widget) Period Summary panel.
   const grossMarginPct = (() => {

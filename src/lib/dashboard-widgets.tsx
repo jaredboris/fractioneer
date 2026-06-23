@@ -233,23 +233,25 @@ export const WIDGET_CATALOG: WidgetDef[] = [
     id: "last_upload",
     label: "Last Upload Date",
     kind: "stat",
-    render: (ctx) => (
-      <StatCard
-        label="Last Upload"
-        value={
-          ctx.lastUploadAt
-            ? new Date(ctx.lastUploadAt).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })
-            : "—"
-        }
-        tone="info"
-        icon={<Calendar className="h-5 w-5" />}
-        periodLabel={ctx.lastUploadAt ? "Source file" : ""}
-      />
-    ),
+    render: (ctx) => {
+      const v = ctx.lastUploadAt;
+      let display = "—";
+      if (v) {
+        // v is a YYYY-MM-DD period_end string; parse without timezone shift.
+        const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v);
+        const d = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(v);
+        display = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+      }
+      return (
+        <StatCard
+          label="Last Upload"
+          value={display}
+          tone="info"
+          icon={<Calendar className="h-5 w-5" />}
+          periodLabel={v ? "Most recent period" : ""}
+        />
+      );
+    },
   },
   {
     id: "chart_rev_exp",
