@@ -357,19 +357,51 @@ function AdminPage() {
     if (!file || !selectedId) return;
     setStatus(null);
     setExtracted(null);
+    setIncomeStatementDetected(false);
     setAnalyzing(true);
     setXlsxFileName(file.name);
     try {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       if (wb.SheetNames.length === 0) throw new Error("Spreadsheet has no sheets.");
-      const blocks: string[] = [];
-      for (const name of wb.SheetNames) {
-        const sheet = wb.Sheets[name];
-        const rows = XLSX.utils.sheet_to_json(sheet, { defval: null, header: 1 });
-        blocks.push(`=== Sheet: ${name} ===\n${JSON.stringify(rows)}`);
+
+      const SKIP_SUBSTR = ["gl", "general ledger", "detail", "invoices", "payments"];
+      const PRIORITY_SUBSTR = ["income statement", "p&l", "pnl", "profit and loss", "balance sheet", "cash flow", "aging"];
+      const PRIORITY_TOKEN = ["is", "bs", "ar", "ap"];
+      const MAX_ROWS = 600;
+
+      type Parsed = { name: string; rows: unknown[][]; priority: boolean; isIncomeStmt: boolean };
+      const parsed: Parsed[] = wb.SheetNames.map((name) => {
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], { defval: null, header: 1 }) as unknown[][];
+        const lower = name.toLowerCase();
+        const tokens = lower.split(/[^a-z0-9&]+/).filter(Boolean);
+        const isPriority =
+          PRIORITY_SUBSTR.some((s) => lower.includes(s)) ||
+          PRIORITY_TOKEN.some((t) => tokens.includes(t));
+        const isIncomeStmt =
+          lower.includes("income statement") ||
+          lower.includes("p&l") ||
+          lower.includes("pnl") ||
+          lower.includes("profit and loss") ||
+          tokens.includes("is");
+        return { name, rows, priority: isPriority, isIncomeStmt };
+      });
+
+      const isSkipped = (p: Parsed) =>
+        SKIP_SUBSTR.some((s) => p.name.toLowerCase().includes(s)) || p.rows.length > MAX_ROWS;
+
+      let chosen = parsed.filter((p) => !isSkipped(p));
+      // Fallback: if filter wiped everything, send smallest sheets
+      if (chosen.length === 0) {
+        chosen = [...parsed].sort((a, b) => a.rows.length - b.rows.length).slice(0, 3);
       }
-      const rowsStr = blocks.join("\n\n").slice(0, 180_000);
+      // Priority first
+      chosen.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
+
+      setIncomeStatementDetected(chosen.some((p) => p.isIncomeStmt));
+
+      const blocks = chosen.map((p) => `=== Sheet: ${p.name} ===\n${JSON.stringify(p.rows)}`);
+      const rowsStr = blocks.join("\n\n").slice(0, 400_000);
       const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
       setExtracted(result);
     } catch (err) {
