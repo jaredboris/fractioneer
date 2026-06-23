@@ -252,52 +252,49 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
     z
       .object({
         client_id: z.string().uuid(),
-        period: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-        cash_balance: z.number().nullable(),
-        total_ar: z.number().nullable(),
-        total_ap: z.number().nullable(),
-        net_revenue: z.number().nullable(),
-        net_income: z.number().nullable(),
-        monthly_close_status: z.enum(["open", "closed"]).nullable(),
+        months: z.array(MonthSchema).min(1),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
+
+    // Upsert every month into periods (most-recent-upload-wins per month).
+    const periodRows = data.months.map((m) => ({
+      client_id: data.client_id,
+      period_end: m.period_end,
+      cash_balance: m.cash_balance,
+      total_ar: m.total_ar,
+      total_ap: m.total_ap,
+      net_revenue: m.net_revenue,
+      net_income: m.net_income,
+    }));
+    const { error: periodError } = await context.supabase
+      .from("periods")
+      .upsert(periodRows, { onConflict: "client_id,period_end" });
+    if (periodError) throw new Error(periodError.message);
+
+    // Latest month drives the live client dashboard snapshot.
+    const latest = [...data.months].sort((a, b) =>
+      a.period_end < b.period_end ? 1 : a.period_end > b.period_end ? -1 : 0,
+    )[0];
     const { error } = await context.supabase
       .from("dashboard_data")
       .upsert(
         {
           client_id: data.client_id,
-          period: data.period,
-          cash_balance: data.cash_balance,
-          total_ar: data.total_ar,
-          total_ap: data.total_ap,
-          net_revenue: data.net_revenue,
-          net_income: data.net_income,
-          monthly_close_status: data.monthly_close_status,
+          period: latest.period_end,
+          cash_balance: latest.cash_balance,
+          total_ar: latest.total_ar,
+          total_ap: latest.total_ap,
+          net_revenue: latest.net_revenue,
+          net_income: latest.net_income,
+          monthly_close_status: latest.monthly_close_status,
         },
         { onConflict: "client_id" },
       );
     if (error) throw new Error(error.message);
-    const { error: periodError } = await context.supabase
-      .from("periods")
-      .upsert(
-        {
-          client_id: data.client_id,
-          period_end: data.period,
-          cash_balance: data.cash_balance,
-          total_ar: data.total_ar,
-          total_ap: data.total_ap,
-          net_revenue: data.net_revenue,
-          net_income: data.net_income,
-        },
-        { onConflict: "client_id,period_end" },
-      );
-    if (periodError) throw new Error(periodError.message);
 
-    // Log a flat $0.03 AI spend entry per successful extraction save so the
-    // admin overview's "AI spend (month)" card reflects real activity.
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin.from("ai_usage").insert({
@@ -310,8 +307,9 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
     } catch {
       /* logging failure must not block the save */
     }
-    return { ok: true };
+    return { ok: true, saved: data.months.length };
   });
+
 
 
 
