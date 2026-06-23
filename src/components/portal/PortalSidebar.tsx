@@ -23,7 +23,7 @@ function useTheme() {
     root.style.colorScheme = theme;
     // Paint the body to match the portal background so nothing flashes white
     // (or navy) between route transitions.
-    document.body.style.backgroundColor = theme === "dark" ? "#0A0F1E" : "#EEF2FA";
+    document.body.style.backgroundColor = theme === "dark" ? "#05070D" : "#EEF2FA";
     window.localStorage.setItem(THEME_KEY, theme);
     const t = window.setTimeout(() => root.classList.remove("theme-transition"), 500);
     return () => window.clearTimeout(t);
@@ -72,7 +72,7 @@ export function PortalSidebar({
   const displayName = companyName || email || "Welcome";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#0A0F1E]">
+    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#05070D]">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">

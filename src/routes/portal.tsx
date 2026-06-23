@@ -1273,7 +1273,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
 
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
+    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
@@ -1396,30 +1396,24 @@ function ClientDashboard({ role }: { role: string | null }) {
                   </EditableWidget>
                 );
               };
+              const ordered = [...statIds, ...chartIds, ...wideIds];
+              const spanClass = (kind: string | undefined) =>
+                kind === "stat"
+                  ? "col-span-12 sm:col-span-6 lg:col-span-3"
+                  : kind === "chart"
+                    ? "col-span-12 lg:col-span-6"
+                    : "col-span-12";
               return (
-                <>
-                  {statIds.length > 0 && (
-                    <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 pt-2">
-                      {statIds.map((id, i) => renderItem(id, i))}
-                    </section>
-                  )}
-                  {statIds.length > 0 && chartIds.length > 0 && (
-                    <div
-                      className="my-5 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-[#1E2A3A]"
-                      aria-hidden
-                    />
-                  )}
-                  {chartIds.length > 0 && (
-                    <section className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                      {chartIds.map((id, i) => renderItem(id, statIds.length + i))}
-                    </section>
-                  )}
-                  {wideIds.length > 0 && (
-                    <section className="mt-5 grid grid-cols-1 gap-3">
-                      {wideIds.map((id, i) => renderItem(id, statIds.length + chartIds.length + i))}
-                    </section>
-                  )}
-                </>
+                <section className="grid grid-cols-12 gap-4 pt-2">
+                  {ordered.map((id, i) => {
+                    const def = WIDGET_BY_ID[id];
+                    return (
+                      <div key={id} className={spanClass(def?.kind)}>
+                        {renderItem(id, i)}
+                      </div>
+                    );
+                  })}
+                </section>
               );
             })()}
           </SortableContext>
