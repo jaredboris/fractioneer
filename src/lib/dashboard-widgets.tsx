@@ -760,7 +760,6 @@ function ChartShell({
   title,
   subtitle,
   empty,
-  sparse,
   children,
 }: {
   title: string;
@@ -769,7 +768,6 @@ function ChartShell({
   sparse?: boolean;
   children: React.ReactNode;
 }) {
-  const showPlaceholder = empty || sparse;
   return (
     <div className="flex min-h-[280px] flex-col rounded-xl p-4 nb-card h-full">
       <div className="mb-3">
@@ -778,7 +776,7 @@ function ChartShell({
         </h2>
         <p className="text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
       </div>
-      {showPlaceholder ? (
+      {empty ? (
         <div className="flex flex-1 items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
           More data will appear as your Fractioneer team uploads monthly financials.
         </div>
@@ -788,6 +786,7 @@ function ChartShell({
     </div>
   );
 }
+
 
 function RevExpChart({ ctx }: { ctx: WidgetContext }) {
   const t = chartTheme(ctx.isDark);
