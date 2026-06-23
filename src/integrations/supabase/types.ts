@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           id: string
           insight_text: string
+          period_end: string | null
         }
         Insert: {
           category: string
@@ -28,6 +29,7 @@ export type Database = {
           created_at?: string
           id?: string
           insight_text: string
+          period_end?: string | null
         }
         Update: {
           category?: string
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           id?: string
           insight_text?: string
+          period_end?: string | null
         }
         Relationships: []
       }
