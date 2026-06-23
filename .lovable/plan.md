@@ -1,73 +1,54 @@
-# Add AI Insights card to client dashboard
+## What this changes
 
-## What
+Two related fixes around the financial Excel upload.
 
-A new "AI Insights" card on the client dashboard that cycles through 4–6 plain-English, descriptive-only insights generated from each client's financials. Styled like the reference (dark panel, soft blue glow, insight text, carousel dots at the bottom). Generated once when financials are uploaded — cached in the database, not regenerated on page loads.
+### 1. Persist the uploaded source file
 
-## Insight types (descriptive only — never advice)
+Today the admin upload parses the .xlsx in the browser, sends rows to AI, and discards the file. Nothing reaches Storage, so `periods.document_id` is always null and the Reports download button never appears.
 
-1. **Payment speed** — slowest / fastest customers + average collection period (from invoice/payment dates in the source file, if present).
-2. **Revenue concentration** — % from top customer and top 5 (from the source file, if present).
-3. **Cash runway** — months of coverage at average burn in down months (from `periods`).
-4. **Overdue AR** — total $ and customer count in 91+ day aging bucket (from the source file, if present).
-5. **Trend / seasonality** — highest and lowest revenue months (from `periods`).
-6. **Margin trend** — gross margin direction MoM (from `periods`).
+**Upload flow change** (`src/routes/portal.admin.tsx → handleConfirmExtracted`):
 
-Guardrail enforced in the system prompt and a post-generation regex: no advisory language ("should", "recommend", "consider", "we suggest"). Statements are facts only.
+After AI extraction succeeds and the admin clicks "Confirm save":
+1. Upload the original `File` to `client-documents/{client_id}/source/{timestamp}-{filename}` via `supabase.storage`.
+2. Call a new server function `saveExtractedFinancials` extension that also receives `{ file_name, file_path, file_size }`, inserts one row in `public.documents`, and stamps `periods.document_id` for every month in the upload.
+3. Keep the file object in component state (`uploadedFile`) from `handleXlsxSelected` so it's available at confirm time.
 
-If a given insight has insufficient data (e.g. no invoice-level rows in the source file), the model omits it rather than fabricating. Minimum 3 insights to render the card.
+**Server function update** (`src/lib/portal.functions.ts`):
 
-## Where it lives in the UI
+Extend `saveExtractedFinancials` input with an optional `document: { file_name, file_path, file_size }`. Inside the handler:
+- Insert into `public.documents` (returns `id`).
+- Include `document_id` in every period upsert row.
 
-- New entry in `WIDGET_CATALOG` in `src/lib/dashboard-widgets.tsx`: `id: "ai_insights"`, `kind: "wide"`, `defaultOn: true`. Renders on the dashboard alongside the existing widgets — user can hide/show like any other widget.
-- Card matches the reference image: dark surface, subtle blue radial glow background, "AI Insights" label top-left with a small sparkle icon, large insight text, carousel dots bottom-left, auto-advance every 6s with manual click-to-jump. Tiny footer text: "AI-generated, may contain errors."
+No new bucket, no new table — `client-documents` and `documents` already exist with correct RLS. The bucket-side admin policy already gates inserts; client-side reads are gated by the existing `documents` row check.
 
-## Data model
+**AI Insights card disclaimer** (`src/lib/dashboard-widgets.tsx`):
 
-New table `public.ai_insights`:
+Replace the bare "AI-generated, may contain errors" line with the same text plus a "Download source file" link. The widget context already has `effectiveId`; the link queries the latest `documents` row for that client and triggers `supabase.storage.from("client-documents").createSignedUrl(path, 60, { download })`. Hidden when no document exists.
 
-```text
-id           uuid pk
-client_id    uuid  → references the client user
-insight_text text
-category     text  (payment_speed | concentration | runway | overdue_ar | seasonality | margin)
-created_at   timestamptz
-```
+**Reports page**: no code change needed — it already reads `periods.documents(file_name, file_path)` and renders the Download button when present. It just hasn't been getting data because nothing was uploading.
 
-Indexed on `client_id`. RLS:
-- Clients can SELECT their own rows.
-- Admins can SELECT all.
-- Only admin-side server functions (service role) INSERT/DELETE. Same AAL2 gating as the other client-data tables.
-- GRANTs to `authenticated` and `service_role`.
+### 2. Feed transaction-level data to AI Insights
 
-## Generation flow
+Today `handleXlsxSelected` builds `rowsStr` after **dropping** any sheet whose name matches `gl / general ledger / detail / invoices / payments`. That string is what's passed to both `extractFinancialsFromRows` and `generateAiInsights`. So insights like "slowest paying customers" and "revenue concentration by customer" have no source data and are silently skipped.
 
-Extend the existing extraction path in `src/lib/portal.functions.ts`:
+**Fix**:
+- Build a second blob, `insightsSourceRows`, that **keeps** the invoices/payments/AR-aging tabs (drops only the truly huge GL when `rows > MAX_ROWS`). Cap at 380KB (same as the model handler).
+- Store this in `extractedSourceRows` instead of the extraction-narrowed string.
+- The extraction call keeps using the narrow `rowsStr` (it only needs IS + BS for the period summary).
+- `generateAiInsights` receives the wider blob, so payment-speed / concentration / overdue-AR-by-customer categories have real input. The existing advisory-language scrub and per-category dedupe stay.
 
-1. After `saveExtractedFinancials` writes the new periods, kick off a new server function `generateAiInsights({ client_id, source_rows })`.
-2. That function:
-   - Loads the client's full `periods` history (for runway / seasonality / margin trend).
-   - Receives the original Excel row JSON (already in scope at upload time) for customer-level insights.
-   - Calls Lovable AI (`google/gemini-2.5-pro`, same setup as extraction) with a strict system prompt: "Return 4–6 short factual insight strings. Each ≤ 140 chars. Descriptive only — never advice. Omit any category lacking data. JSON: `{ insights: [{ category, text }] }`."
-   - Validates with Zod, scrubs anything containing advisory keywords.
-   - Deletes existing rows for that `client_id`, inserts the new set.
-   - Logs the call in `ai_usage` (same pattern as extraction).
-3. The admin upload UI calls this right after save; the dashboard re-reads on focus/realtime.
+No prompt changes — the system prompt already names the categories that need the source file rows.
 
-## Dashboard read
+## Technical detail
 
-`ClientDashboard` (in `src/routes/portal.tsx`) gains a small query: `select * from ai_insights where client_id = effectiveId order by created_at desc`. Passed into `WidgetContext` as `aiInsights: { text, category }[]`. The new widget reads this array; if empty, shows a quiet empty state ("No insights yet — upload financials to generate.").
-
-## Technical notes
-
-- Reuses the existing `LOVABLE_API_KEY` + `ai.gateway.lovable.dev` setup — no new secrets.
-- Generation runs server-side only; never from the client.
-- Insights are cached in `ai_insights` — page loads never trigger model calls.
-- Carousel uses simple `useState` index + `setInterval`, no extra dependency.
-- Style uses existing semantic tokens; the blue glow is a CSS radial-gradient overlay matching the reference.
+- New migration: none (schema already supports this).
+- New server function: none — extend `saveExtractedFinancials` signature; add an optional `document` field validated by Zod.
+- Storage path convention: `{client_id}/source/{ISO-timestamp}-{sanitized-filename}.xlsx`. Putting it under `{client_id}/…` keeps it inside the existing admin/client RLS folder check.
+- `documents.file_path` is `UNIQUE` — using a timestamp prefix avoids collisions on re-upload of the same filename.
+- AI Insights card: add a small `useEffect` (or inline `useQuery`) inside `AiInsightsCard` that fetches `select id, file_path, file_name from documents where client_id = effectiveId order by created_at desc limit 1` once on mount.
 
 ## Out of scope
 
-- Editing or rating insights.
-- Per-insight drill-through.
-- Streaming generation UI (it runs in the background after upload).
+- Replacing or de-duplicating existing documents for re-uploads (new upload = new file, old one stays).
+- Showing a list of past uploads on the admin page.
+- Streaming or progress UI for the storage upload step.
