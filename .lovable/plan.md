@@ -1,39 +1,46 @@
-## Fix charts + Last Upload to read from `periods`
+## Move Notes from widget to a dedicated sidebar tab
 
-The three timeline charts and the Last Upload Date stat aren't reflecting the 12 monthly rows that the new extractor writes to `public.periods`. Today the charts read from a merge of `dashboard_data` + `periods`, and Last Upload Date reads from the `documents` table's most recent upload — neither matches what the user wants.
+Notes is currently a locked dashboard widget. Move it out of the widget system entirely and make it a first-class page at `/portal/notes`, available to both clients and admins, with unread badges in the sidebar.
 
-### Changes
+### 1. Remove Notes from the widget system
 
-**`src/routes/portal.tsx` — `ClientDashboard` data load + widget context**
+**`src/lib/dashboard-widgets.tsx`**
+- Delete the `notes` widget definition (the locked card that renders `NotesCard`).
+- Remove it from the default widget list, the Add Widget menu source, and any "locked widgets" array so it cannot appear on the dashboard or be re-added.
 
-- Fetch periods with the same fields already needed by the charts, ordered ascending:
-  ```ts
-  supabase
-    .from("periods")
-    .select("period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap")
-    .eq("client_id", effectiveId)
-    .order("period_end", { ascending: true });
-  ```
-- Build `mergedRows` from periods rows directly (one normalized row per `period_end`, ascending). Keep `dashboard_data` only as a fallback source for `monthly_close` / `monthly_close_status` on the matching `period_end`, since those fields don't exist on `periods`. This removes the current behavior where a stale `dashboard_data` row could mask period values.
-- Replace `lastUploadAt = docs[0]?.created_at` with the most recent `period_end` from periods:
-  ```ts
-  const lastUploadAt = periodsRows.length
-    ? periodsRows[periodsRows.length - 1].period_end
-    : null;
-  ```
-  (Periods are already sorted ascending, so the last entry is the most recent.)
+**`src/routes/portal.tsx`**
+- Remove the `notes` entry from default widget prefs / locked-widgets handling so existing users whose saved prefs include `notes` silently drop it on load.
 
-**`src/lib/dashboard-widgets.tsx` — chart widgets**
+`NotesCard.tsx` stays — we'll reuse its thread + composer UI inside the new page (or extract the thread list/composer into the new page directly; either way the same `notes` table queries are reused).
 
-- Chart widgets (`RevExpChart`, `CashFlowChart`, `ArApChart`) already iterate `ctx.rows`. No change needed beyond ensuring rows are populated from periods (done above). Verify each chart's `data` array length matches the number of periods (12 in the current data) so the "more data will appear…" placeholder no longer shows.
-- `last_upload` widget already reads `ctx.lastUploadAt`. Update its `periodLabel` from `"Source file"` to `"Most recent period"` to reflect the new source.
+### 2. New route `/portal/notes`
+
+**`src/routes/portal.notes.tsx`** (new, under the same auth shell pattern as other portal routes)
+- Detects role via `has_role` / existing profile lookup the portal already uses.
+- **Client view**: loads `notes` for `client_id = auth.uid()` ordered `created_at desc`. Renders each note with author name, an `ADMIN` or `CLIENT` badge (uses `Badge` variants matching dark theme), and a localized timestamp. Bottom composer: `Textarea` + "Post note" button → inserts a row with `author_role='client'`, `author_id=auth.uid()`, `client_id=auth.uid()`, `author_name=profile.full_name || email`.
+- **Admin view**: top bar with a client `Select` (loads from `profiles` joined to `user_roles` where role='client'). On select, loads that client's thread the same way. Composer posts with `author_role='admin'`, `author_id=auth.uid()`, `client_id=selectedClientId`, `author_name=admin profile name`. Admin does NOT need impersonation; this works under their own session because RLS already allows admins to read/insert via `has_role(auth.uid(),'admin')`.
+- On thread view (client view mount, or admin selecting a client), upsert into `notes_read_state` with `client_id, user_id=auth.uid(), last_read_at=now()` to clear the unread indicator for that thread.
+- Realtime subscription on `notes` filtered by `client_id` so new posts appear without refresh.
+
+### 3. Sidebar nav + unread badge
+
+**`src/components/portal/PortalSidebar.tsx`** — add `{ label: "Notes", to: "/portal/notes", icon: MessageSquare }` to the `NAV` array (between Documents and Settings).
+
+**`src/components/portal/AdminSidebar.tsx`** — add the same `Notes` nav item (top-level, not under `/portal/admin?tab=...`); active when `pathname === "/portal/notes"`.
+
+**Unread logic (shared hook `useNotesUnread`)** placed alongside the sidebars or in `src/hooks/`:
+- Client: unread = exists a `notes` row where `client_id = auth.uid()`, `author_role = 'admin'`, and `created_at > coalesce(last_read_at for this user+thread, epoch)`.
+- Admin: unread = exists ANY `notes` row where `author_role = 'client'` and `created_at > coalesce(last_read_at for admin+that client_id, epoch)`. Iterates client_ids the admin sees.
+- Hook returns a boolean; sidebar renders a small dot badge on the Notes nav item when true.
+- Subscribes to realtime `notes` inserts to flip badge live; also re-evaluates on route change.
+
+### 4. Backend
+
+`notes` and `notes_read_state` tables + RLS already exist and stay as-is (already gated by `is_aal2`, `client_id = auth.uid()` for clients, `has_role(...,'admin')` for admins). No migration needed.
 
 ### Verification
 
-After the fix, with the existing 12 rows in `periods` for the test client (`afba6a7c-…`, period_ends Apr 2025 → Mar 2026):
-- Revenue vs Expenses bar chart shows 12 month bars.
-- Cash Flow line chart shows 12 points.
-- AR vs AP line chart shows 12 points for each series.
-- Last Upload Date shows "Mar 31, 2026".
-
-No schema or backend changes; this is a frontend data-source fix.
+- Dashboard: no Notes card; Add Widget menu has no Notes entry; existing prefs containing `notes` load cleanly.
+- `/portal/notes` as a client: shows own thread, can post, badge clears after viewing.
+- `/portal/notes` as an admin: client selector works, can read & post to any client's thread without impersonation, badge clears per-thread.
+- Sidebar badge appears on the other party's first post and disappears on visit.

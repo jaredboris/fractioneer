@@ -21,6 +21,7 @@ import { Route as PortalSetup2faRouteImport } from './routes/portal.setup-2fa'
 import { Route as PortalSettingsRouteImport } from './routes/portal.settings'
 import { Route as PortalResetPasswordRouteImport } from './routes/portal.reset-password'
 import { Route as PortalReportsRouteImport } from './routes/portal.reports'
+import { Route as PortalNotesRouteImport } from './routes/portal.notes'
 import { Route as PortalLoginRouteImport } from './routes/portal.login'
 import { Route as PortalForgotPasswordRouteImport } from './routes/portal.forgot-password'
 import { Route as PortalDocumentsRouteImport } from './routes/portal.documents'
@@ -87,6 +88,11 @@ const PortalReportsRoute = PortalReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => PortalRoute,
 } as any)
+const PortalNotesRoute = PortalNotesRouteImport.update({
+  id: '/notes',
+  path: '/notes',
+  getParentRoute: () => PortalRoute,
+} as any)
 const PortalLoginRoute = PortalLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -126,6 +132,7 @@ export interface FileRoutesByFullPath {
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/forgot-password': typeof PortalForgotPasswordRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/notes': typeof PortalNotesRoute
   '/portal/reports': typeof PortalReportsRoute
   '/portal/reset-password': typeof PortalResetPasswordRoute
   '/portal/settings': typeof PortalSettingsRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByTo {
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/forgot-password': typeof PortalForgotPasswordRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/notes': typeof PortalNotesRoute
   '/portal/reports': typeof PortalReportsRoute
   '/portal/reset-password': typeof PortalResetPasswordRoute
   '/portal/settings': typeof PortalSettingsRoute
@@ -165,6 +173,7 @@ export interface FileRoutesById {
   '/portal/documents': typeof PortalDocumentsRoute
   '/portal/forgot-password': typeof PortalForgotPasswordRoute
   '/portal/login': typeof PortalLoginRoute
+  '/portal/notes': typeof PortalNotesRoute
   '/portal/reports': typeof PortalReportsRoute
   '/portal/reset-password': typeof PortalResetPasswordRoute
   '/portal/settings': typeof PortalSettingsRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/portal/documents'
     | '/portal/forgot-password'
     | '/portal/login'
+    | '/portal/notes'
     | '/portal/reports'
     | '/portal/reset-password'
     | '/portal/settings'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/portal/documents'
     | '/portal/forgot-password'
     | '/portal/login'
+    | '/portal/notes'
     | '/portal/reports'
     | '/portal/reset-password'
     | '/portal/settings'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/portal/documents'
     | '/portal/forgot-password'
     | '/portal/login'
+    | '/portal/notes'
     | '/portal/reports'
     | '/portal/reset-password'
     | '/portal/settings'
@@ -327,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalReportsRouteImport
       parentRoute: typeof PortalRoute
     }
+    '/portal/notes': {
+      id: '/portal/notes'
+      path: '/notes'
+      fullPath: '/portal/notes'
+      preLoaderRoute: typeof PortalNotesRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/portal/login': {
       id: '/portal/login'
       path: '/login'
@@ -371,6 +390,7 @@ interface PortalRouteChildren {
   PortalDocumentsRoute: typeof PortalDocumentsRoute
   PortalForgotPasswordRoute: typeof PortalForgotPasswordRoute
   PortalLoginRoute: typeof PortalLoginRoute
+  PortalNotesRoute: typeof PortalNotesRoute
   PortalReportsRoute: typeof PortalReportsRoute
   PortalResetPasswordRoute: typeof PortalResetPasswordRoute
   PortalSettingsRoute: typeof PortalSettingsRoute
@@ -384,6 +404,7 @@ const PortalRouteChildren: PortalRouteChildren = {
   PortalDocumentsRoute: PortalDocumentsRoute,
   PortalForgotPasswordRoute: PortalForgotPasswordRoute,
   PortalLoginRoute: PortalLoginRoute,
+  PortalNotesRoute: PortalNotesRoute,
   PortalReportsRoute: PortalReportsRoute,
   PortalResetPasswordRoute: PortalResetPasswordRoute,
   PortalSettingsRoute: PortalSettingsRoute,

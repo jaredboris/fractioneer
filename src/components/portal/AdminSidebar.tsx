@@ -10,7 +10,9 @@ import {
   Moon,
   Sun,
   ShieldCheck,
+  MessageSquare,
 } from "lucide-react";
+import { useNotesUnread } from "@/hooks/useNotesUnread";
 
 import logoDark from "@/assets/fractioneer-logo-dark.svg";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
@@ -51,6 +53,7 @@ const NAV: ReadonlyArray<NavItem> = [
   { label: "Clients", to: "/portal/admin", search: { tab: "clients" }, icon: Users, matchTab: "clients" },
   { label: "Upload Financials", to: "/portal/admin", search: { tab: "upload" }, icon: Upload, matchTab: "upload" },
   { label: "Activity Log", to: "/portal/admin", search: { tab: "activity" }, icon: ScrollText, matchTab: "activity" },
+  { label: "Notes", to: "/portal/notes", icon: MessageSquare },
   { label: "Settings", to: "/portal/settings", icon: SettingsIcon },
 ];
 
@@ -65,6 +68,11 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const search = useRouterState({ select: (s) => s.location.search as Record<string, string> });
   const { theme, setTheme } = useTheme();
+  const [viewerId, setViewerId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setViewerId(data.user?.id ?? null));
+  }, []);
+  const notesUnread = useNotesUnread(viewerId, "admin");
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -160,6 +168,13 @@ export function AdminSidebar({ email }: { email: string | null }) {
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
+                  {item.to === "/portal/notes" && notesUnread && (
+                    <span
+                      aria-label="Unread notes"
+                      title="Unread notes"
+                      className="ml-auto h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.8)]"
+                    />
+                  )}
                 </Link>
               </li>
             );

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { LayoutGrid, FileText, Settings as SettingsIcon, LogOut, Mail, Moon, Sun, Sparkles, BarChart3, TrendingUp } from "lucide-react";
+import { LayoutGrid, FileText, Settings as SettingsIcon, LogOut, Mail, Moon, Sun, Sparkles, BarChart3, TrendingUp, MessageSquare } from "lucide-react";
+import { useNotesUnread } from "@/hooks/useNotesUnread";
 
 import logoDark from "@/assets/fractioneer-logo-dark.svg";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
@@ -35,6 +36,7 @@ const NAV = [
   { label: "Reports", to: "/portal/reports", icon: BarChart3 },
   { label: "Cash Flow", to: "/portal/cashflow", icon: TrendingUp },
   { label: "Documents", to: "/portal/documents", icon: FileText },
+  { label: "Notes", to: "/portal/notes", icon: MessageSquare },
   { label: "Settings", to: "/portal/settings", icon: SettingsIcon },
 ] as const;
 
@@ -56,6 +58,11 @@ export function PortalSidebar({
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { theme, setTheme } = useTheme();
+  const [viewerId, setViewerId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setViewerId(data.user?.id ?? null));
+  }, []);
+  const notesUnread = useNotesUnread(viewerId, role === "admin" ? "admin" : "client");
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -153,6 +160,13 @@ export function PortalSidebar({
                 >
                   <Icon className="h-4 w-4" />
                   <span>{item.label}</span>
+                  {item.to === "/portal/notes" && notesUnread && (
+                    <span
+                      aria-label="Unread notes"
+                      title="Unread notes"
+                      className="ml-auto h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.8)]"
+                    />
+                  )}
                 </Link>
               </li>
             );
