@@ -35,7 +35,7 @@ import {
 
 // ---- Types & Catalog ---------------------------------------------------------
 
-export type WidgetKind = "stat" | "chart";
+export type WidgetKind = "stat" | "chart" | "wide";
 
 export type NormalizedRow = {
   period: string | null; // YYYY-MM-DD
@@ -55,6 +55,9 @@ export type WidgetContext = {
   prev: NormalizedRow | null;
   lastUploadAt: string | null;
   isDark: boolean;
+  clientId: string;
+  viewerRole: "admin" | "client";
+  viewerId: string;
 };
 
 export type WidgetDef = {
