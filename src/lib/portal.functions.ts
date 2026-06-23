@@ -31,25 +31,32 @@ export const getMyRole = createServerFn({ method: "GET" })
 export const ensureMyRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data: existing, error: readErr } = await supabase
+    const { userId } = context;
+    // IMPORTANT: read existing roles via the service-role client. The
+    // user-context client is subject to the `user_roles` RLS policies, which
+    // require `is_aal2()`. This handler runs in the portal gate BEFORE the
+    // user has completed TOTP, so an RLS-scoped SELECT returns empty even
+    // when roles already exist — causing us to incorrectly upsert a duplicate
+    // `client` row for admins on every fresh login.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing, error: readErr } = await supabaseAdmin
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .limit(1);
+      .eq("user_id", userId);
     if (readErr) throw new Error(readErr.message);
     if (existing && existing.length > 0) {
-      return { role: existing[0].role as "admin" | "client", created: false };
+      // Prefer admin if present; otherwise return the first role.
+      const role = existing.some((r) => r.role === "admin") ? "admin" : (existing[0].role as "admin" | "client");
+      return { role, created: false };
     }
-    // No role yet — provision default `client`. Insert requires service role
-    // because user_roles RLS does not grant self-insert.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // No role yet — provision default `client`.
     const { error: insErr } = await supabaseAdmin
       .from("user_roles")
       .upsert({ user_id: userId, role: "client" }, { onConflict: "user_id,role" });
     if (insErr) throw new Error(insErr.message);
     return { role: "client" as const, created: true };
   });
+
 
 /**
  * Admin-only: create a brand-new client end-to-end.
