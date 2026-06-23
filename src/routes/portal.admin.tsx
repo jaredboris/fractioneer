@@ -344,12 +344,14 @@ function AdminPage() {
     setExistingByPeriod({});
     setIncomeStatementDetected(false);
     setAnalyzing(true);
+    setAnalyzePhase("reading");
     setXlsxFileName(file.name);
     setUploadedFile(file);
     try {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       if (wb.SheetNames.length === 0) throw new Error("Spreadsheet has no sheets.");
+
 
       // Extraction can safely drop high-volume transaction sheets — it only
       // needs the IS/BS summary. Insights NEED the transaction tabs (invoices,
