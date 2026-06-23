@@ -67,7 +67,22 @@ function Verify2FAPage() {
       setCode("");
       return;
     }
-    
+
+    // Fire-and-forget login notification (does not block navigation).
+    try {
+      void supabase.functions.invoke("notify-login", {
+        body: {
+          user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+          timezone:
+            typeof Intl !== "undefined"
+              ? Intl.DateTimeFormat().resolvedOptions().timeZone
+              : "UTC",
+        },
+      });
+    } catch {
+      /* never block sign-in on email failure */
+    }
+
     navigate({ to: "/portal", replace: true });
   }
 
