@@ -846,6 +846,21 @@ function AdminPage() {
               </div>
             </div>
 
+            {prefillPeriodEnd && (
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-blue-500/30 bg-blue-500/5 px-3 py-2 text-xs text-blue-700 dark:text-blue-300">
+                <span>
+                  Re-uploading <strong>{fmtPeriodLabel(prefillPeriodEnd)}</strong> — new data will overwrite this row.
+                </span>
+                <button
+                  onClick={() => setPrefillPeriodEnd(null)}
+                  className="rounded px-2 py-0.5 text-blue-700/80 transition-colors hover:bg-blue-500/10 dark:text-blue-300/80"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+
+
             <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
               {analyzing ? (
                 <>
