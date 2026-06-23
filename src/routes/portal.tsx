@@ -230,7 +230,7 @@ function PortalHeader({
 }) {
   const navigate = useNavigate();
   async function handleLogout() {
-    clearMfaVerifiedThisSession();
+    
     await supabase.auth.signOut();
     navigate({ to: "/portal/login", replace: true });
   }
