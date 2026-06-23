@@ -746,11 +746,11 @@ function CountUpValue({
 
 function chartTheme(isDark: boolean) {
   return {
-    axisStroke: isDark ? "#6B7280" : "#94A3B8",
-    gridStroke: isDark ? "#1E2A3A" : "#E5E9F1",
-    expensesFill: isDark ? "#374151" : "#E2E8F0",
-    tooltipBg: isDark ? "#111827" : "#FFFFFF",
-    tooltipBorder: isDark ? "#1E2A3A" : "#E5E9F1",
+    axisStroke: isDark ? "#4B5563" : "#94A3B8",
+    gridStroke: isDark ? "rgba(255,255,255,0.05)" : "#E5E9F1",
+    expensesFill: isDark ? "#1F2937" : "#E2E8F0",
+    tooltipBg: isDark ? "#0A0E18" : "#FFFFFF",
+    tooltipBorder: isDark ? "rgba(96,165,250,0.35)" : "#E5E9F1",
     tooltipText: isDark ? "#E5E7EB" : "#0F172A",
     legendColor: isDark ? "#9CA3AF" : "#475569",
   };
