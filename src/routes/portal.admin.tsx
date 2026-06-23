@@ -359,6 +359,7 @@ function AdminPage() {
     if (!file || !selectedId) return;
     setStatus(null);
     setExtracted(null);
+    setExistingByPeriod({});
     setIncomeStatementDetected(false);
     setAnalyzing(true);
     setXlsxFileName(file.name);
@@ -393,11 +394,9 @@ function AdminPage() {
         SKIP_SUBSTR.some((s) => p.name.toLowerCase().includes(s)) || p.rows.length > MAX_ROWS;
 
       let chosen = parsed.filter((p) => !isSkipped(p));
-      // Fallback: if filter wiped everything, send smallest sheets
       if (chosen.length === 0) {
         chosen = [...parsed].sort((a, b) => a.rows.length - b.rows.length).slice(0, 3);
       }
-      // Priority first
       chosen.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
 
       setIncomeStatementDetected(chosen.some((p) => p.isIncomeStmt));
@@ -405,7 +404,31 @@ function AdminPage() {
       const blocks = chosen.map((p) => `=== Sheet: ${p.name} ===\n${JSON.stringify(p.rows)}`);
       const rowsStr = blocks.join("\n\n").slice(0, 400_000);
       const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
-      setExtracted(result);
+      const sortedMonths = [...result.months].sort((a, b) =>
+        a.period_end < b.period_end ? -1 : a.period_end > b.period_end ? 1 : 0,
+      );
+      setExtracted({ months: sortedMonths });
+
+      // Fetch any existing rows for these periods so we can flag overwrites.
+      if (sortedMonths.length > 0) {
+        const periodList = sortedMonths.map((m) => m.period_end);
+        const { data: existingRows } = await supabase
+          .from("periods")
+          .select("period_end, cash_balance, total_ar, total_ap, net_revenue, net_income")
+          .eq("client_id", selectedId)
+          .in("period_end", periodList);
+        const map: Record<string, ExistingPeriod> = {};
+        for (const r of existingRows ?? []) {
+          map[r.period_end as string] = {
+            cash_balance: r.cash_balance as number | null,
+            total_ar: r.total_ar as number | null,
+            total_ap: r.total_ap as number | null,
+            net_revenue: r.net_revenue as number | null,
+            net_income: r.net_income as number | null,
+          };
+        }
+        setExistingByPeriod(map);
+      }
     } catch (err) {
       setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to analyze spreadsheet" });
       setXlsxFileName(null);
@@ -415,21 +438,16 @@ function AdminPage() {
   }
 
   async function handleConfirmExtracted() {
-    if (!extracted || !selectedId) return;
+    if (!extracted || extracted.months.length === 0 || !selectedId) return;
     setSavingExtracted(true);
     setStatus(null);
     try {
-      const period = extracted.period_end ?? new Date().toISOString().slice(0, 10);
-      const { period_end: _omit, ...rest } = extracted;
       await saveExtractedFinancials({
-        data: {
-          client_id: selectedId,
-          period,
-          ...rest,
-        },
+        data: { client_id: selectedId, months: extracted.months },
       });
-      setStatus({ kind: "ok", msg: "Saved extracted financials to the client's dashboard." });
+      setStatus({ kind: "ok", msg: `Saved ${extracted.months.length} month${extracted.months.length === 1 ? "" : "s"} to the client's dashboard.` });
       setExtracted(null);
+      setExistingByPeriod({});
       setXlsxFileName(null);
       setIncomeStatementDetected(false);
       loadClientData(selectedId);
@@ -439,6 +457,7 @@ function AdminPage() {
       setSavingExtracted(false);
     }
   }
+
 
 
   async function handleLogout() {
