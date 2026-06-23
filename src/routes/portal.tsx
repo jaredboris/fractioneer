@@ -495,13 +495,20 @@ function AdminOverview({ role: _role }: { role: string }) {
               tone={totals.needsDocs === 0 ? "ok" : "warn"}
               icon={<Upload className="h-5 w-5" />}
             />
-            <DarkStatCard
-              label="AI spend (month)"
-              value={`$${aiSpendThisMonth.toFixed(2)}`}
-              detail={`${aiCallsThisMonth} extraction${aiCallsThisMonth === 1 ? "" : "s"}`}
-              tone="info"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
+            <button
+              type="button"
+              onClick={() => setAiSpendOpen(true)}
+              className="text-left transition hover:-translate-y-0.5"
+            >
+              <DarkStatCard
+                label="AI spend (month)"
+                value={`$${aiSpendThisMonth.toFixed(2)}`}
+                detail={`${aiCallsThisMonth} operation${aiCallsThisMonth === 1 ? "" : "s"} · click for breakdown`}
+                tone="info"
+                icon={<TrendingUp className="h-5 w-5" />}
+              />
+            </button>
+
             <DarkStatCard
               label="Periods (month)"
               value={String(periodsThisMonth)}
