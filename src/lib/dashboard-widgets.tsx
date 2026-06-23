@@ -258,8 +258,16 @@ export const WIDGET_CATALOG: WidgetDef[] = [
     },
   },
   {
+    id: "ai_insights",
+    label: "AI Insights",
+    kind: "wide",
+    defaultOn: true,
+    render: (ctx) => <AiInsightsCard ctx={ctx} />,
+  },
+  {
     id: "chart_rev_exp",
     label: "Revenue vs Expenses",
+
     kind: "chart",
     render: (ctx) => <RevExpChart ctx={ctx} />,
   },
