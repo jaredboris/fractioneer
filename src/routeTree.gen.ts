@@ -19,8 +19,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PortalVerify2faRouteImport } from './routes/portal.verify-2fa'
 import { Route as PortalSetup2faRouteImport } from './routes/portal.setup-2fa'
 import { Route as PortalSettingsRouteImport } from './routes/portal.settings'
+import { Route as PortalResetPasswordRouteImport } from './routes/portal.reset-password'
 import { Route as PortalReportsRouteImport } from './routes/portal.reports'
 import { Route as PortalLoginRouteImport } from './routes/portal.login'
+import { Route as PortalForgotPasswordRouteImport } from './routes/portal.forgot-password'
 import { Route as PortalDocumentsRouteImport } from './routes/portal.documents'
 import { Route as PortalCashflowRouteImport } from './routes/portal.cashflow'
 import { Route as PortalAdminRouteImport } from './routes/portal.admin'
@@ -75,6 +77,11 @@ const PortalSettingsRoute = PortalSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => PortalRoute,
 } as any)
+const PortalResetPasswordRoute = PortalResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => PortalRoute,
+} as any)
 const PortalReportsRoute = PortalReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
@@ -83,6 +90,11 @@ const PortalReportsRoute = PortalReportsRouteImport.update({
 const PortalLoginRoute = PortalLoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => PortalRoute,
+} as any)
+const PortalForgotPasswordRoute = PortalForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => PortalRoute,
 } as any)
 const PortalDocumentsRoute = PortalDocumentsRouteImport.update({
@@ -112,8 +124,10 @@ export interface FileRoutesByFullPath {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/cashflow': typeof PortalCashflowRoute
   '/portal/documents': typeof PortalDocumentsRoute
+  '/portal/forgot-password': typeof PortalForgotPasswordRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/reports': typeof PortalReportsRoute
+  '/portal/reset-password': typeof PortalResetPasswordRoute
   '/portal/settings': typeof PortalSettingsRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
   '/portal/verify-2fa': typeof PortalVerify2faRoute
@@ -129,8 +143,10 @@ export interface FileRoutesByTo {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/cashflow': typeof PortalCashflowRoute
   '/portal/documents': typeof PortalDocumentsRoute
+  '/portal/forgot-password': typeof PortalForgotPasswordRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/reports': typeof PortalReportsRoute
+  '/portal/reset-password': typeof PortalResetPasswordRoute
   '/portal/settings': typeof PortalSettingsRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
   '/portal/verify-2fa': typeof PortalVerify2faRoute
@@ -147,8 +163,10 @@ export interface FileRoutesById {
   '/portal/admin': typeof PortalAdminRoute
   '/portal/cashflow': typeof PortalCashflowRoute
   '/portal/documents': typeof PortalDocumentsRoute
+  '/portal/forgot-password': typeof PortalForgotPasswordRoute
   '/portal/login': typeof PortalLoginRoute
   '/portal/reports': typeof PortalReportsRoute
+  '/portal/reset-password': typeof PortalResetPasswordRoute
   '/portal/settings': typeof PortalSettingsRoute
   '/portal/setup-2fa': typeof PortalSetup2faRoute
   '/portal/verify-2fa': typeof PortalVerify2faRoute
@@ -166,8 +184,10 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/cashflow'
     | '/portal/documents'
+    | '/portal/forgot-password'
     | '/portal/login'
     | '/portal/reports'
+    | '/portal/reset-password'
     | '/portal/settings'
     | '/portal/setup-2fa'
     | '/portal/verify-2fa'
@@ -183,8 +203,10 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/cashflow'
     | '/portal/documents'
+    | '/portal/forgot-password'
     | '/portal/login'
     | '/portal/reports'
+    | '/portal/reset-password'
     | '/portal/settings'
     | '/portal/setup-2fa'
     | '/portal/verify-2fa'
@@ -200,8 +222,10 @@ export interface FileRouteTypes {
     | '/portal/admin'
     | '/portal/cashflow'
     | '/portal/documents'
+    | '/portal/forgot-password'
     | '/portal/login'
     | '/portal/reports'
+    | '/portal/reset-password'
     | '/portal/settings'
     | '/portal/setup-2fa'
     | '/portal/verify-2fa'
@@ -289,6 +313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalSettingsRouteImport
       parentRoute: typeof PortalRoute
     }
+    '/portal/reset-password': {
+      id: '/portal/reset-password'
+      path: '/reset-password'
+      fullPath: '/portal/reset-password'
+      preLoaderRoute: typeof PortalResetPasswordRouteImport
+      parentRoute: typeof PortalRoute
+    }
     '/portal/reports': {
       id: '/portal/reports'
       path: '/reports'
@@ -301,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/portal/login'
       preLoaderRoute: typeof PortalLoginRouteImport
+      parentRoute: typeof PortalRoute
+    }
+    '/portal/forgot-password': {
+      id: '/portal/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/portal/forgot-password'
+      preLoaderRoute: typeof PortalForgotPasswordRouteImport
       parentRoute: typeof PortalRoute
     }
     '/portal/documents': {
@@ -331,8 +369,10 @@ interface PortalRouteChildren {
   PortalAdminRoute: typeof PortalAdminRoute
   PortalCashflowRoute: typeof PortalCashflowRoute
   PortalDocumentsRoute: typeof PortalDocumentsRoute
+  PortalForgotPasswordRoute: typeof PortalForgotPasswordRoute
   PortalLoginRoute: typeof PortalLoginRoute
   PortalReportsRoute: typeof PortalReportsRoute
+  PortalResetPasswordRoute: typeof PortalResetPasswordRoute
   PortalSettingsRoute: typeof PortalSettingsRoute
   PortalSetup2faRoute: typeof PortalSetup2faRoute
   PortalVerify2faRoute: typeof PortalVerify2faRoute
@@ -342,8 +382,10 @@ const PortalRouteChildren: PortalRouteChildren = {
   PortalAdminRoute: PortalAdminRoute,
   PortalCashflowRoute: PortalCashflowRoute,
   PortalDocumentsRoute: PortalDocumentsRoute,
+  PortalForgotPasswordRoute: PortalForgotPasswordRoute,
   PortalLoginRoute: PortalLoginRoute,
   PortalReportsRoute: PortalReportsRoute,
+  PortalResetPasswordRoute: PortalResetPasswordRoute,
   PortalSettingsRoute: PortalSettingsRoute,
   PortalSetup2faRoute: PortalSetup2faRoute,
   PortalVerify2faRoute: PortalVerify2faRoute,
