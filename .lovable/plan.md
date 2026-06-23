@@ -1,57 +1,70 @@
-## Reporting Periods table redesign (admin → Clients tab)
+# Five Fixes
 
-All in `src/routes/portal.admin.tsx`, no schema changes.
+## 1. Empty charts — diagnose then fix
 
-### Removed
+The same `periodsRows` array feeds both the stat cards (which work) and the three charts. Three likely culprits:
 
-- The `<form onSubmit={handleSavePeriod}>` manual-entry grid above the table (lines ~799-830) and its supporting state: `periodForm`, `setPeriodForm`, `savingPeriod`, `handleSavePeriod`, `parseNum` (still used here only).
-- The per-row `Trash2` button and `handleDeletePeriod`'s `confirm()`-based flow (replaced by the modal's stronger confirm).
-- Subtitle wording about "Use one row per period end date" — replaced with "Uploaded via the Upload tab. Click a row to view, re-upload, or delete."
+- RLS on `periods` requires `is_aal2()` — if the viewing client hasn't passed 2FA, `SELECT` returns 0 rows silently. Stat cards would also show "—".
+- `mergeRows` keyed by `period_end` may collide with a `dashboard_data.period` of different format, dropping rows.
+- `ChartShell` shows the placeholder when `data.length <= 1`, so a single-row dataset looks identical to "empty".
 
-### Table rows become clickable
+### Changes (`src/lib/dashboard-widgets.tsx`, `src/routes/portal.tsx`)
 
-Each `<tr>` gets `onClick={() => setOpenPeriod(p)}`, `role="button"`, hover styles, and a focus ring. Trailing chevron icon in a new last column hints at the drill-in. The GM column now renders the computed margin (see below).
+- In `ClientDashboard.loadAll`, after the four parallel queries, `console.info("[dashboard] periods", pers?.length, "dashboard_data", dash?.length, "insights", insights?.length, "for", effectiveId)` plus the first row of each. Temporary; clearly labeled.
+- In each chart component (`RevExpChart`, `CashFlowChart`, `ArApChart`), `console.info("[chart:<name>] rows", ctx.rows.length, "non-null period rows", data.length)` once per render.
+- Distinguish "no data" from "one period" in `ChartShell`: keep the placeholder only when `empty`; when `sparse`, render the chart anyway (a single point/bar is informative, not broken). Update the three callers to drop the `sparse` placeholder branch.
+- If the diagnostic shows `pers` = 0 while stat cards do show numbers, the bug is RLS/aal2 and we'll widen the SELECT policy (drop `is_aal2()` from the client read, keep it on admin writes) — but only after the log confirms.  
+  
+On the RLS fix in step 1: do NOT simply drop is_aal2() from the periods read policy, since that reopens the security hole where a pre-2FA token could read financial data. Instead, first confirm whether the viewing session has actually reached aal2. If the session IS aal2 but the read still fails, the policy logic is wrong and should be corrected. If the session is NOT reaching aal2 when it should be, fix the session elevation instead. Only widen the policy as a last resort, and if you do, apply the same aal2 read requirement consistently to BOTH periods and dashboard_data so the two tables have matching security — right now dashboard_data appears to lack the aal2 requirement, which is itself an inconsistency to flag.
+- Remove the diagnostic logs in the same pass after the fix is verified.
 
-### Slide-out detail panel
+## 2. AI Insights card — readable, no auto-advance
 
-New `<PeriodDetailDialog>` rendered inside the same section. Built on the existing shadcn `Sheet` component (already in the project — same dark theme as everything else). Shows when `openPeriod` is set.
+`src/lib/dashboard-widgets.tsx` `AiInsightsCard`:
 
-Contents:
-- Header: "Period ending {fmtDate(p.period_end)}".
-- Definition list of every stored field: Net revenue, Net income, Gross margin (computed), Cash balance, Total AR, Total AP, all currency-formatted with `Intl.NumberFormat`.
-- Source file row: if `p.document_id`, show the linked file name with a download button (signed URL via `client-documents` bucket, same pattern as Reports page). If null, show "No source file linked".
-- Footer with two buttons:
-  - **Re-upload** (secondary): closes the panel, switches `tab` to `"upload"`, sets a new `prefillPeriodEnd` state, and the existing Upload card pre-fills the date and shows a small "Re-uploading {period_end} — new data will overwrite this row" banner. The actual file-pick flow is unchanged; `saveExtractedFinancials` already upserts by `(client_id, period_end)` so re-upload simply replaces. No new server function.
-  - **Delete period** (destructive red, `bg-destructive`): triggers an inline two-step confirm inside the panel — replaces the buttons with the warning copy verbatim:
+- Delete the `setInterval` auto-advance effect.
+- Keep the one-at-a-time layout and dark styling, but add large left/right arrow buttons (lucide `ChevronLeft`/`ChevronRight`) flanking the insight text, disabled at the ends, with `aria-label`s. Keep the dots as a position indicator, still clickable.
+- Show `Insight {idx+1} of {insights.length}` as a small counter next to the dots.
 
-    > This will permanently remove **{fmtDate(p.period_end)}** data from the client dashboard and charts. This cannot be undone.
+## 3. Generate insights in the background
 
-    plus a "Cancel" button and a final red **"Delete permanently"** button. Only the second click runs `supabase.from("periods").delete().eq("id", p.id)`, reloads, and closes the panel. No native `confirm()`.
+`src/routes/portal.admin.tsx` `handleConfirmExtracted` already fires `generateAiInsights` without awaiting. Tighten the UX:
 
-### Gross margin column fix
+- Immediately after `saveExtractedFinancials` resolves, set a success status ("Saved. Insights generating in the background.") and clear the extraction state so the upload screen returns to idle — already happens; verify no `await` blocks here.
+- Add a `generatingInsights` boolean on `ClientDashboard` and listen via the existing `ai_insights` realtime channel: when `count == 0` for this client and a recent confirm just happened, show a subtle "Generating insights…" shimmer inside `AiInsightsCard`. Pass `generating?: boolean` through `WidgetContext` (new optional field). Source the flag from a lightweight `ai_usage` poll (most recent `created_at` for `operation='generate_ai_insights'` within last 2 minutes and no insights yet), or simpler: set it locally when the admin confirms (broadcast via Supabase channel `ai_insights:<client>` `system` event). Use the latter for simplicity.
+- `AiInsightsCard` renders the shimmer when `ctx.generating && insights.length === 0`.
 
-`periods` has `net_revenue` and `net_income` but no `total_expenses` column. The requested formula `(net_revenue - total_expenses) / net_revenue` is algebraically `net_income / net_revenue`, so compute it client-side from the two values we already have:
+## 4. Extraction progress sequence
 
-```ts
-const gm = p.net_revenue && p.net_revenue !== 0
-  ? (p.net_income ?? 0) / p.net_revenue
-  : null;
-```
+`src/routes/portal.admin.tsx` `handleXlsxSelected`:
 
-Format as `%` with one decimal (`42.3%`), em-dash when null or revenue is zero. Applies to both the table cell and the detail panel. The stored `gross_margin` column is left untouched (other places like Reports still read it; that's a separate concern).
+- Replace the boolean `analyzing` with a `phase` state: `"reading" | "extracting" | "finalizing" | null`.
+- Set `"reading"` before `XLSX.read`, `"extracting"` before `extractFinancialsFromRows`, `"finalizing"` before the existing-rows lookup, then `null`.
+- Render a three-step indicator (checkmark / spinner / dim) in the upload panel that replaces the bare spinner. Labels: "Reading sheets…", "Extracting monthly figures…", "Almost done".
+- True streaming of month rows requires changing `extractFinancialsFromRows` to a streaming server function, which is a larger refactor — out of scope; the labeled phases are the deliverable here.
 
-### Sort order
+## 5. Clickable AI Spend card with breakdown
 
-Already `order("period_end", { ascending: false })` — kept as-is.
+`ai_usage` already has an `operation` column (`extract_financials`, `save_extracted_financials`, `generate_ai_insights`) — no migration needed.
 
-## Technical detail
+`src/routes/portal.tsx` admin dashboard:
 
-- New state: `openPeriod: PeriodRow | null`, `confirmingDelete: boolean`, `deleting: boolean`, `prefillPeriodEnd: string | null`.
-- Re-upload prefill is consumed in `handleXlsxSelected` to scope the existing-period existence check; it doesn't restrict which months the user actually uploads (extraction still returns whatever is in the file).
-- Unused imports (`Plus`) cleaned up; `Trash2` kept (Documents list still uses it).
+- Wrap the "AI spend (month)" `DarkStatCard` in a `<button>` that opens a new `AiSpendDetailDialog` (shadcn `Dialog`).
+- Dialog content (single query: `ai_usage` for the current month, joined client labels from existing profile/lead lookup already in scope):
+  - **By operation**: table of `operation` → count, total cost. Bucket `extract_financials` + `save_extracted_financials` together as "Extraction"; `generate_ai_insights` as "Insights".
+  - **By client**: table of client name → count, total cost (sorted desc by cost).
+  - **Recent activity**: chronological list (newest first, last 50) of `created_at`, client, operation bucket, cost.
+- Keep the existing `aiSpendThisMonth` query; add a second `ai_usage` fetch (full rows for the current month) that fires only when the dialog opens.
+
+## Technical notes
+
+- No new migrations required; `ai_usage.operation` already exists.
+- Diagnostic `console.info` logs in step 1 are explicitly temporary and will be removed once the root cause is confirmed and fixed.
+- All chart fixes stay inside `src/lib/dashboard-widgets.tsx`; client data loading stays in `src/routes/portal.tsx`.
+- The "Generating insights…" signal uses Supabase realtime broadcast (no schema change) to avoid polling.
 
 ## Out of scope
 
-- Editing field values inside the panel (data is upload-driven).
-- Backfilling `periods.gross_margin` or adding a `total_expenses` column.
-- Bulk delete or multi-select.
+- True per-row streaming during extraction (would require switching the server function to a streaming response).
+- Per-client AI cost budgets or alerts.
+- Backfilling `operation` labels on historic `ai_usage` rows (already correctly labeled in current data).
