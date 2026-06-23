@@ -995,7 +995,22 @@ function Input({
   );
 }
 
+function DiffCell({ newVal, oldVal, diff }: { newVal: number | null; oldVal: number | null; diff: boolean }) {
+  const fmt = (v: number | null) =>
+    v == null ? "—" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(v);
+  if (diff && oldVal !== null) {
+    return (
+      <td className="px-2 py-2 text-right tabular-nums">
+        <div className="text-muted-foreground line-through">{fmt(oldVal)}</div>
+        <div className="font-medium text-amber-700 dark:text-amber-300">{fmt(newVal)}</div>
+      </td>
+    );
+  }
+  return <td className="px-2 py-2 text-right tabular-nums text-foreground">{fmt(newVal)}</td>;
+}
+
 function ExtractedRow({
+
   label,
   value,
   kind,
