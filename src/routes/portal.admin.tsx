@@ -832,10 +832,15 @@ function AdminPage() {
                   <ExtractedRow label="Monthly close status" value={extracted.monthly_close_status} kind="text" />
 
                 </dl>
+                {incomeStatementDetected && (extracted.net_revenue == null || extracted.net_income == null) && (
+                  <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+                    Income statement detected but values not extracted — please verify manually.
+                  </div>
+                )}
                 <div className="mt-5 flex items-center justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => { setExtracted(null); setXlsxFileName(null); }}
+                    onClick={() => { setExtracted(null); setXlsxFileName(null); setIncomeStatementDetected(false); }}
                     className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                   >
                     Discard
