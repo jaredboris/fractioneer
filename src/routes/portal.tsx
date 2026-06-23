@@ -913,6 +913,8 @@ function ClientDashboard({ role }: { role: string | null }) {
   >([]);
 
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
+  const [aiInsights, setAiInsights] = useState<{ insight_text: string; category: string }[]>([]);
+
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
     readOnly: !!impersonation && !override,
@@ -933,8 +935,9 @@ function ClientDashboard({ role }: { role: string | null }) {
     setDashboardRows([]);
     setPeriodsRows([]);
     setDocs([]);
-    (async () => {
-      const [{ data: dash }, { data: pers }, { data: documents }] = await Promise.all([
+    setAiInsights([]);
+    async function loadAll() {
+      const [{ data: dash }, { data: pers }, { data: documents }, { data: insights }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
@@ -946,26 +949,31 @@ function ClientDashboard({ role }: { role: string | null }) {
           .eq("client_id", effectiveId)
           .order("period_end", { ascending: true }),
         supabase.from("documents").select("*").eq("client_id", effectiveId).order("created_at", { ascending: false }),
+        supabase
+          .from("ai_insights")
+          .select("insight_text, category, created_at")
+          .eq("client_id", effectiveId)
+          .order("created_at", { ascending: true }),
       ]);
       if (cancelled) return;
-      // [charts-diag] Temporary diagnostic to confirm why charts appear empty.
-      // Remove once the root cause is confirmed.
-      // eslint-disable-next-line no-console
-      console.log("[charts-diag]", {
-        effectiveId,
-        viewerId: user.id,
-        impersonating: !!impersonation,
-        viewerRole: role,
-        periodsRows: (pers ?? []).length,
-        dashboardRows: (dash ?? []).length,
-        firstPeriod: (pers ?? [])[0] ?? null,
-      });
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setPeriodsRows((pers ?? []) as PeriodRow[]);
       setDocs(documents ?? []);
-    })();
-    return () => { cancelled = true; };
+      setAiInsights((insights ?? []) as { insight_text: string; category: string }[]);
+    }
+    void loadAll();
+    // Realtime: refresh insights when admin regenerates them.
+    const channel = supabase
+      .channel(`ai_insights:${effectiveId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ai_insights", filter: `client_id=eq.${effectiveId}` },
+        () => { void loadAll(); },
+      )
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(channel); };
   }, [effectiveId, impersonation, role, user.id]);
+
 
   async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage
@@ -1053,9 +1061,11 @@ function ClientDashboard({ role }: { role: string | null }) {
       viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
         | "admin"
         | "client",
+      aiInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights],
   );
+
 
 
   return (

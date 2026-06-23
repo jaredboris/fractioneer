@@ -310,6 +310,167 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
     return { ok: true, saved: data.months.length };
   });
 
+// ---------------------------------------------------------------------------
+// Admin-only: generate descriptive AI insights for a client. Called from the
+// admin upload flow right after `saveExtractedFinancials`. Insights are cached
+// in the `ai_insights` table — page loads never trigger model calls.
+// ---------------------------------------------------------------------------
 
+const INSIGHT_CATEGORIES = [
+  "payment_speed",
+  "concentration",
+  "runway",
+  "overdue_ar",
+  "seasonality",
+  "margin",
+] as const;
 
+const InsightSchema = z.object({
+  category: z.enum(INSIGHT_CATEGORIES),
+  text: z.string().min(1).max(280),
+});
+const InsightsResponseSchema = z.object({
+  insights: z.array(InsightSchema).min(0).max(8),
+});
+
+// Words that signal advice rather than description. Insights containing any
+// of these are dropped server-side as a belt-and-braces guardrail on top of
+// the system prompt.
+const ADVISORY_PATTERN =
+  /\b(should|must|need to|ought to|recommend|recommended|suggest|suggested|advice|advise|consider|try to|we suggest|you could|you can improve|we recommend|prioritize|focus on)\b/i;
+
+export const generateAiInsights = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        client_id: z.string().uuid(),
+        source_rows: z.string().max(400_000).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+
+    const { data: periods, error: periodsErr } = await context.supabase
+      .from("periods")
+      .select("period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap")
+      .eq("client_id", data.client_id)
+      .order("period_end", { ascending: true });
+    if (periodsErr) throw new Error(periodsErr.message);
+
+    const systemPrompt = [
+      "You are an analyst writing short, FACTUAL insight bullets about a small business's financials for the business owner.",
+      "",
+      "CRITICAL RULES:",
+      "- DESCRIPTIVE statements of fact ONLY. Never advice, never recommendations, never opinions, never next-steps.",
+      "- Banned phrasing: 'should', 'must', 'need to', 'recommend', 'suggest', 'consider', 'try to', 'we advise', 'focus on', 'prioritize'.",
+      "- State what the data shows ('$145K is over 90 days overdue'), never what to do about it ('you should write these off').",
+      "- Each insight <= 140 characters, plain English, no markdown, no emojis.",
+      "- If a category has insufficient data in the input, OMIT it. Do not fabricate.",
+      "- Return AT MOST one insight per category. Return 0-6 insights total.",
+      "",
+      "Categories you may produce (use the exact category key):",
+      "- payment_speed   - slowest/fastest paying customers and/or average collection period, from invoice & payment dates in the source file.",
+      "- concentration   - % of revenue from top customer and/or top 5, from the source file.",
+      "- runway          - months current cash covers average burn in down (negative net-income) months, from periods history.",
+      "- overdue_ar      - $ and/or customer count in 91+ day aging bucket, from AR aging in the source file.",
+      "- seasonality     - highest and lowest revenue months across the periods history.",
+      "- margin          - gross margin direction (rising / compressing / flat) month-over-month.",
+      "",
+      'Output JSON only: { "insights": [ { "category": "...", "text": "..." } ] }. No prose, no markdown.',
+    ].join("\n");
+
+    const userPayload = JSON.stringify({
+      periods_history: periods ?? [],
+      source_file_rows: data.source_rows ?? null,
+    }).slice(0, 380_000);
+
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-pro",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPayload },
+        ],
+        response_format: { type: "json_object" },
+      }),
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      if (res.status === 429) throw new Error("AI rate limit reached. Try again shortly.");
+      if (res.status === 402) throw new Error("AI credits exhausted. Add credits in workspace settings.");
+      throw new Error(`AI insights request failed (${res.status}): ${text.slice(0, 200)}`);
+    }
+
+    const payload = await res.json();
+    const content: string = payload?.choices?.[0]?.message?.content ?? "";
+
+    try {
+      const usage = payload?.usage ?? {};
+      const pIn = Number(usage.prompt_tokens ?? 0);
+      const pOut = Number(usage.completion_tokens ?? 0);
+      const total = Number(usage.total_tokens ?? pIn + pOut);
+      const cost = (pIn / 1_000_000) * 1.25 + (pOut / 1_000_000) * 5;
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("ai_usage").insert({
+        admin_user_id: context.userId,
+        client_id: data.client_id,
+        model: "google/gemini-2.5-pro",
+        operation: "generate_ai_insights",
+        prompt_tokens: pIn || null,
+        completion_tokens: pOut || null,
+        total_tokens: total || null,
+        estimated_cost_usd: Number.isFinite(cost) ? cost : null,
+      });
+    } catch {
+      /* logging failure must not block the result */
+    }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const stripped = content.replace(/^```(?:json)?\s*|\s*```$/g, "").trim();
+      parsed = JSON.parse(stripped);
+    }
+    const validated = InsightsResponseSchema.parse(parsed);
+
+    const seen = new Set<string>();
+    const safe = validated.insights.filter((i) => {
+      if (ADVISORY_PATTERN.test(i.text)) return false;
+      if (seen.has(i.category)) return false;
+      seen.add(i.category);
+      return true;
+    });
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: delErr } = await supabaseAdmin
+      .from("ai_insights")
+      .delete()
+      .eq("client_id", data.client_id);
+    if (delErr) throw new Error(delErr.message);
+
+    if (safe.length > 0) {
+      const { error: insErr } = await supabaseAdmin.from("ai_insights").insert(
+        safe.map((i) => ({
+          client_id: data.client_id,
+          insight_text: i.text,
+          category: i.category,
+        })),
+      );
+      if (insErr) throw new Error(insErr.message);
+    }
+
+    return { ok: true, count: safe.length };
+  });
 

@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
-import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
+import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
 import * as XLSX from "xlsx";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -357,7 +357,9 @@ function AdminPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [savingExtracted, setSavingExtracted] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
+  const [extractedSourceRows, setExtractedSourceRows] = useState<string | null>(null);
   const [existingByPeriod, setExistingByPeriod] = useState<Record<string, ExistingPeriod>>({});
+
   const [incomeStatementDetected, setIncomeStatementDetected] = useState(false);
 
 
@@ -367,6 +369,7 @@ function AdminPage() {
     if (!file || !selectedId) return;
     setStatus(null);
     setExtracted(null);
+    setExtractedSourceRows(null);
     setExistingByPeriod({});
     setIncomeStatementDetected(false);
     setAnalyzing(true);
@@ -416,6 +419,8 @@ function AdminPage() {
         a.period_end < b.period_end ? -1 : a.period_end > b.period_end ? 1 : 0,
       );
       setExtracted({ months: sortedMonths });
+      setExtractedSourceRows(rowsStr);
+
 
       // Fetch any existing rows for these periods so we can flag overwrites.
       if (sortedMonths.length > 0) {
@@ -453,18 +458,32 @@ function AdminPage() {
       await saveExtractedFinancials({
         data: { client_id: selectedId, months: extracted.months },
       });
-      setStatus({ kind: "ok", msg: `Saved ${extracted.months.length} month${extracted.months.length === 1 ? "" : "s"} to the client's dashboard.` });
+      setStatus({ kind: "ok", msg: `Saved ${extracted.months.length} month${extracted.months.length === 1 ? "" : "s"} to the client's dashboard. Generating AI insights…` });
+      const sourceRows = extractedSourceRows;
       setExtracted(null);
+      setExtractedSourceRows(null);
       setExistingByPeriod({});
       setXlsxFileName(null);
       setIncomeStatementDetected(false);
       loadClientData(selectedId);
+      // Fire-and-forget: regenerate AI insights for this client. Don't block the
+      // save UX; surface errors quietly.
+      void generateAiInsights({
+        data: { client_id: selectedId, source_rows: sourceRows ?? undefined },
+      })
+        .then((r: { count: number }) => {
+          setStatus({ kind: "ok", msg: `Saved and generated ${r.count} AI insight${r.count === 1 ? "" : "s"}.` });
+        })
+        .catch((err: unknown) => {
+          console.error("[ai_insights] generation failed", err);
+        });
     } catch (err) {
       setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to save" });
     } finally {
       setSavingExtracted(false);
     }
   }
+
 
 
 
@@ -933,7 +952,7 @@ function AdminPage() {
                   <div className="mt-5 flex items-center justify-end gap-2">
                     <button
                       type="button"
-                      onClick={() => { setExtracted(null); setExistingByPeriod({}); setXlsxFileName(null); setIncomeStatementDetected(false); }}
+                      onClick={() => { setExtracted(null); setExtractedSourceRows(null); setExistingByPeriod({}); setXlsxFileName(null); setIncomeStatementDetected(false); }}
                       className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                     >
                       Discard
