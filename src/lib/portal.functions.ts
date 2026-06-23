@@ -481,12 +481,23 @@ export const generateAiInsights = createServerFn({ method: "POST" })
       return true;
     });
 
+    // Tie this run's insights to the most recent reported period so each
+    // upload's insights are stored separately and never overwrite prior ones.
+    const latestPeriodEnd = (periods ?? []).length
+      ? (periods![periods!.length - 1].period_end as string)
+      : null;
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: delErr } = await supabaseAdmin
-      .from("ai_insights")
-      .delete()
-      .eq("client_id", data.client_id);
-    if (delErr) throw new Error(delErr.message);
+
+    if (latestPeriodEnd) {
+      // Only wipe prior insights for this exact period — preserves history.
+      const { error: delErr } = await supabaseAdmin
+        .from("ai_insights")
+        .delete()
+        .eq("client_id", data.client_id)
+        .eq("period_end", latestPeriodEnd);
+      if (delErr) throw new Error(delErr.message);
+    }
 
     if (safe.length > 0) {
       const { error: insErr } = await supabaseAdmin.from("ai_insights").insert(
@@ -494,6 +505,7 @@ export const generateAiInsights = createServerFn({ method: "POST" })
           client_id: data.client_id,
           insight_text: i.text,
           category: i.category,
+          period_end: latestPeriodEnd,
         })),
       );
       if (insErr) throw new Error(insErr.message);
