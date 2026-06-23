@@ -253,11 +253,38 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
       .object({
         client_id: z.string().uuid(),
         months: z.array(MonthSchema).min(1),
+        document: z
+          .object({
+            file_name: z.string().min(1).max(255),
+            file_path: z.string().min(1).max(512),
+            file_size: z.number().int().nonnegative().nullable().optional(),
+          })
+          .optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
+
+    // If a source file was uploaded, record it in `documents` and link every
+    // saved period to its document_id so the Reports page and AI-insights
+    // banner can offer a download.
+    let documentId: string | null = null;
+    if (data.document) {
+      const { data: docRow, error: docErr } = await context.supabase
+        .from("documents")
+        .insert({
+          client_id: data.client_id,
+          file_name: data.document.file_name,
+          file_path: data.document.file_path,
+          file_size: data.document.file_size ?? null,
+          uploaded_by: context.userId,
+        })
+        .select("id")
+        .single();
+      if (docErr) throw new Error(`Document: ${docErr.message}`);
+      documentId = docRow.id as string;
+    }
 
     // Upsert every month into periods (most-recent-upload-wins per month).
     const periodRows = data.months.map((m) => ({
@@ -268,6 +295,7 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
       total_ap: m.total_ap,
       net_revenue: m.net_revenue,
       net_income: m.net_income,
+      ...(documentId ? { document_id: documentId } : {}),
     }));
     const { error: periodError } = await context.supabase
       .from("periods")
