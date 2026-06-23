@@ -80,10 +80,6 @@ if (typeof window !== "undefined") {
     if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
       cachedPortalGate = null;
     }
-    if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
-      // A fresh sign-in must always re-verify 2FA; sign-out should also clear.
-      clearMfaVerifiedThisSession();
-    }
   });
 }
 
