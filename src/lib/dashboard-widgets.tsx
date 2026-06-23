@@ -781,7 +781,7 @@ function ChartShell({
           More data will appear as your Fractioneer team uploads monthly financials.
         </div>
       ) : (
-        <div style={{ width: "100%", height: 240 }}>{children}</div>
+        <div style={{ width: "100%", height: 260 }}>{children}</div>
       )}
     </div>
   );

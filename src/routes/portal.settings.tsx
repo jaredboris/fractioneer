@@ -62,7 +62,7 @@ function SettingsPage() {
   const displayCompanyName = impersonation ? companyName : (isAdmin ? "Fractioneer" : companyName);
 
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#0A0F1E]">
+    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
       {isAdmin ? (
         <AdminSidebar email={displayEmail} />
       ) : (
@@ -173,7 +173,7 @@ function ChangePasswordCard({ email }: { email: string | null }) {
   }
 
   const inputCls =
-    "mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#0A0F1E] dark:text-white";
+    "mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#05070D] dark:text-white";
   const labelCls = "block text-xs font-medium text-slate-700 dark:text-[#E5E7EB]";
 
   return (
@@ -393,7 +393,7 @@ function SecurityCard() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                     placeholder="123456"
-                    className="block w-36 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-center font-mono text-base tracking-widest text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#0A0F1E] dark:text-white"
+                    className="block w-36 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-center font-mono text-base tracking-widest text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#05070D] dark:text-white"
                   />
                   <button
                     type="submit"
