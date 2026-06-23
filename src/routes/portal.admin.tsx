@@ -354,6 +354,7 @@ function AdminPage() {
 
   // ----- Excel upload / AI extraction -----
   const [xlsxFileName, setXlsxFileName] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [savingExtracted, setSavingExtracted] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
@@ -374,15 +375,20 @@ function AdminPage() {
     setIncomeStatementDetected(false);
     setAnalyzing(true);
     setXlsxFileName(file.name);
+    setUploadedFile(file);
     try {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       if (wb.SheetNames.length === 0) throw new Error("Spreadsheet has no sheets.");
 
-      const SKIP_SUBSTR = ["gl", "general ledger", "detail", "invoices", "payments"];
-      const PRIORITY_SUBSTR = ["income statement", "p&l", "pnl", "profit and loss", "balance sheet", "cash flow", "aging"];
+      // Extraction can safely drop high-volume transaction sheets — it only
+      // needs the IS/BS summary. Insights NEED the transaction tabs (invoices,
+      // payments, AR aging) for payment-speed / concentration / overdue-AR.
+      const EXTRACT_SKIP_SUBSTR = ["gl", "general ledger", "detail", "invoices", "payments"];
+      const INSIGHTS_SKIP_SUBSTR = ["gl", "general ledger"]; // keep invoices/payments/aging
+      const PRIORITY_SUBSTR = ["income statement", "p&l", "pnl", "profit and loss", "balance sheet", "cash flow", "aging", "invoices", "payments", "ar"];
       const PRIORITY_TOKEN = ["is", "bs", "ar", "ap"];
-      const MAX_ROWS = 600;
+      const MAX_ROWS = 2000;
 
       type Parsed = { name: string; rows: unknown[][]; priority: boolean; isIncomeStmt: boolean };
       const parsed: Parsed[] = wb.SheetNames.map((name) => {
@@ -401,25 +407,33 @@ function AdminPage() {
         return { name, rows, priority: isPriority, isIncomeStmt };
       });
 
-      const isSkipped = (p: Parsed) =>
-        SKIP_SUBSTR.some((s) => p.name.toLowerCase().includes(s)) || p.rows.length > MAX_ROWS;
-
-      let chosen = parsed.filter((p) => !isSkipped(p));
-      if (chosen.length === 0) {
-        chosen = [...parsed].sort((a, b) => a.rows.length - b.rows.length).slice(0, 3);
+      // Build the narrow extraction blob.
+      const extractSkipped = (p: Parsed) =>
+        EXTRACT_SKIP_SUBSTR.some((s) => p.name.toLowerCase().includes(s)) || p.rows.length > 600;
+      let chosenForExtract = parsed.filter((p) => !extractSkipped(p));
+      if (chosenForExtract.length === 0) {
+        chosenForExtract = [...parsed].sort((a, b) => a.rows.length - b.rows.length).slice(0, 3);
       }
-      chosen.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
+      chosenForExtract.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
+      setIncomeStatementDetected(chosenForExtract.some((p) => p.isIncomeStmt));
+      const extractBlocks = chosenForExtract.map((p) => `=== Sheet: ${p.name} ===\n${JSON.stringify(p.rows)}`);
+      const rowsStr = extractBlocks.join("\n\n").slice(0, 400_000);
 
-      setIncomeStatementDetected(chosen.some((p) => p.isIncomeStmt));
+      // Build the wider insights blob — keeps transaction tabs.
+      const insightsSkipped = (p: Parsed) =>
+        INSIGHTS_SKIP_SUBSTR.some((s) => p.name.toLowerCase().includes(s)) || p.rows.length > MAX_ROWS;
+      let chosenForInsights = parsed.filter((p) => !insightsSkipped(p));
+      if (chosenForInsights.length === 0) chosenForInsights = chosenForExtract;
+      chosenForInsights.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));
+      const insightsBlocks = chosenForInsights.map((p) => `=== Sheet: ${p.name} ===\n${JSON.stringify(p.rows)}`);
+      const insightsRowsStr = insightsBlocks.join("\n\n").slice(0, 380_000);
 
-      const blocks = chosen.map((p) => `=== Sheet: ${p.name} ===\n${JSON.stringify(p.rows)}`);
-      const rowsStr = blocks.join("\n\n").slice(0, 400_000);
       const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
       const sortedMonths = [...result.months].sort((a, b) =>
         a.period_end < b.period_end ? -1 : a.period_end > b.period_end ? 1 : 0,
       );
       setExtracted({ months: sortedMonths });
-      setExtractedSourceRows(rowsStr);
+      setExtractedSourceRows(insightsRowsStr);
 
 
       // Fetch any existing rows for these periods so we can flag overwrites.
@@ -445,6 +459,7 @@ function AdminPage() {
     } catch (err) {
       setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to analyze spreadsheet" });
       setXlsxFileName(null);
+      setUploadedFile(null);
     } finally {
       setAnalyzing(false);
     }
@@ -455,8 +470,32 @@ function AdminPage() {
     setSavingExtracted(true);
     setStatus(null);
     try {
+      // Upload the source file to Storage so Reports / AI banner can offer
+      // a download, and so insights have a reproducible reference.
+      let documentInfo: { file_name: string; file_path: string; file_size: number | null } | undefined;
+      if (uploadedFile) {
+        const safeName = uploadedFile.name.replace(/[^a-zA-Z0-9._-]+/g, "_");
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const path = `${selectedId}/source/${stamp}-${safeName}`;
+        const { error: upErr } = await supabase.storage
+          .from("client-documents")
+          .upload(path, uploadedFile, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType:
+              uploadedFile.type ||
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+        if (upErr) throw new Error(`Upload: ${upErr.message}`);
+        documentInfo = {
+          file_name: uploadedFile.name,
+          file_path: path,
+          file_size: uploadedFile.size ?? null,
+        };
+      }
+
       await saveExtractedFinancials({
-        data: { client_id: selectedId, months: extracted.months },
+        data: { client_id: selectedId, months: extracted.months, document: documentInfo },
       });
       setStatus({ kind: "ok", msg: `Saved ${extracted.months.length} month${extracted.months.length === 1 ? "" : "s"} to the client's dashboard. Generating AI insights…` });
       const sourceRows = extractedSourceRows;
@@ -464,6 +503,7 @@ function AdminPage() {
       setExtractedSourceRows(null);
       setExistingByPeriod({});
       setXlsxFileName(null);
+      setUploadedFile(null);
       setIncomeStatementDetected(false);
       loadClientData(selectedId);
       // Fire-and-forget: regenerate AI insights for this client. Don't block the
@@ -483,6 +523,7 @@ function AdminPage() {
       setSavingExtracted(false);
     }
   }
+
 
 
 

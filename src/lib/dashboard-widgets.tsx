@@ -1078,6 +1078,7 @@ export function mergeRows(periods: PeriodRow[], dashboard: DashboardRow[]): Norm
 function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
   const insights = ctx.aiInsights ?? [];
   const [idx, setIdx] = useState(0);
+  const [latestDoc, setLatestDoc] = useState<{ file_name: string; file_path: string } | null>(null);
 
   // Reset and auto-advance.
   useEffect(() => { setIdx(0); }, [insights.length]);
@@ -1088,6 +1089,35 @@ function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
     }, 6000);
     return () => window.clearInterval(t);
   }, [insights.length]);
+
+  // Fetch the latest uploaded source file for this client, used by the
+  // "download source file" link in the disclaimer.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("documents")
+        .select("file_name, file_path")
+        .eq("client_id", ctx.clientId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled) setLatestDoc(data ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [ctx.clientId]);
+
+  async function downloadLatest() {
+    if (!latestDoc) return;
+    const { data } = await supabase.storage
+      .from("client-documents")
+      .createSignedUrl(latestDoc.file_path, 60, { download: latestDoc.file_name });
+    if (!data?.signedUrl) return;
+    const a = document.createElement("a");
+    a.href = data.signedUrl;
+    a.download = latestDoc.file_name;
+    a.click();
+  }
 
   const current = insights[idx];
 
@@ -1152,10 +1182,23 @@ function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
         </div>
       )}
 
-      <div className="relative mt-3 text-[10px] uppercase tracking-wider text-white/40">
-        AI-generated, may contain errors
+      <div className="relative mt-3 flex items-center gap-2 text-[10px] uppercase tracking-wider text-white/40">
+        <span>AI-generated, may contain errors</span>
+        {latestDoc && (
+          <>
+            <span aria-hidden>·</span>
+            <button
+              type="button"
+              onClick={downloadLatest}
+              className="text-blue-300/80 underline decoration-blue-400/40 underline-offset-2 hover:text-blue-200"
+            >
+              Download source file
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
 }
+
 
