@@ -400,6 +400,7 @@ function AdminPage() {
       const insightsBlocks = chosenForInsights.map((p) => `=== Sheet: ${p.name} ===\n${JSON.stringify(p.rows)}`);
       const insightsRowsStr = insightsBlocks.join("\n\n").slice(0, 380_000);
 
+      setAnalyzePhase("extracting");
       const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
       const sortedMonths = [...result.months].sort((a, b) =>
         a.period_end < b.period_end ? -1 : a.period_end > b.period_end ? 1 : 0,
@@ -407,9 +408,10 @@ function AdminPage() {
       setExtracted({ months: sortedMonths });
       setExtractedSourceRows(insightsRowsStr);
 
-
+      setAnalyzePhase("finalizing");
       // Fetch any existing rows for these periods so we can flag overwrites.
       if (sortedMonths.length > 0) {
+
         const periodList = sortedMonths.map((m) => m.period_end);
         const { data: existingRows } = await supabase
           .from("periods")
