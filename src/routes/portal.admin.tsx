@@ -429,6 +429,7 @@ function AdminPage() {
       setStatus({ kind: "ok", msg: "Saved extracted financials to the client's dashboard." });
       setExtracted(null);
       setXlsxFileName(null);
+      setIncomeStatementDetected(false);
       loadClientData(selectedId);
     } catch (err) {
       setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to save" });
