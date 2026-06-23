@@ -801,8 +801,11 @@ function RevExpChart({ ctx }: { ctx: WidgetContext }) {
         })),
     [ctx.rows],
   );
+  // [diagnostic] confirm rows reach the chart; remove once root cause confirmed.
+  console.info("[chart:RevExp] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
-    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0} sparse={data.length <= 1}>
+    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0}>
+
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <defs>
