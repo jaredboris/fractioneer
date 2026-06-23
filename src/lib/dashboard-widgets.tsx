@@ -273,9 +273,20 @@ export const DEFAULT_IDS = WIDGET_CATALOG.filter((w) => w.defaultOn).map((w) => 
 
 // ---- Hook --------------------------------------------------------------------
 
+// One-time cleanup of legacy localStorage keys. Widget prefs now live in
+// Supabase exclusively so admin and client browsers stay in sync.
 const LEGACY_STORAGE_KEY = "portal.dashboard.widgets.v2";
-function cacheKey(clientId: string) {
-  return `${LEGACY_STORAGE_KEY}:${clientId}`;
+function cleanupLegacyStorage() {
+  if (typeof window === "undefined") return;
+  try {
+    const ls = window.localStorage;
+    const toRemove: string[] = [];
+    for (let i = 0; i < ls.length; i++) {
+      const k = ls.key(i);
+      if (k && (k === LEGACY_STORAGE_KEY || k.startsWith(`${LEGACY_STORAGE_KEY}:`))) toRemove.push(k);
+    }
+    toRemove.forEach((k) => ls.removeItem(k));
+  } catch {}
 }
 
 function normalize(ids: string[]): string[] {
@@ -284,26 +295,6 @@ function normalize(ids: string[]): string[] {
     if (!filtered.includes(lid)) filtered.unshift(lid);
   }
   return filtered;
-}
-
-function loadFromCache(clientId: string): string[] {
-  if (typeof window === "undefined") return DEFAULT_IDS;
-  try {
-    let raw = window.localStorage.getItem(cacheKey(clientId));
-    // One-time migration from the legacy single-key store.
-    if (!raw) {
-      const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
-      if (legacy) {
-        window.localStorage.setItem(cacheKey(clientId), legacy);
-        raw = legacy;
-      }
-    }
-    if (raw) {
-      const parsed = JSON.parse(raw) as string[];
-      if (Array.isArray(parsed)) return normalize(parsed);
-    }
-  } catch {}
-  return DEFAULT_IDS;
 }
 
 import { supabase } from "@/integrations/supabase/client";
@@ -315,14 +306,20 @@ export function useWidgetPrefs(
   const readOnly = !!opts?.readOnly;
   const overrideIds = opts?.overrideIds ?? null;
 
-  const [ids, setIdsState] = useState<string[]>(() => loadFromCache(clientId));
+  const [ids, setIdsState] = useState<string[]>(DEFAULT_IDS);
   // Track override transitions so we can seed state on enter and refetch on exit.
   const prevOverrideRef = useRef<string[] | null>(null);
   const [fetchNonce, setFetchNonce] = useState(0);
 
-  // Re-hydrate cache when the target client changes (spy mode switch).
+  // Clear any legacy localStorage entries left over from the cached implementation.
   useEffect(() => {
-    setIdsState(loadFromCache(clientId));
+    cleanupLegacyStorage();
+  }, []);
+
+  // Reset to defaults when the target client changes (spy mode switch) until
+  // the server fetch resolves.
+  useEffect(() => {
+    setIdsState(DEFAULT_IDS);
   }, [clientId]);
 
   // Handle override toggle:
@@ -351,11 +348,7 @@ export function useWidgetPrefs(
         .maybeSingle();
       if (cancelled || error) return;
       if (data?.widget_ids && Array.isArray(data.widget_ids) && data.widget_ids.length > 0) {
-        const next = normalize(data.widget_ids as string[]);
-        setIdsState(next);
-        try {
-          window.localStorage.setItem(cacheKey(clientId), JSON.stringify(next));
-        } catch {}
+        setIdsState(normalize(data.widget_ids as string[]));
       }
     })();
     return () => {
@@ -363,12 +356,39 @@ export function useWidgetPrefs(
     };
   }, [clientId, overrideIds, fetchNonce]);
 
-  // Persist on every change (cache + server) — unless we're read-only.
+  // Live updates: any change to this client's widget_prefs row (made by the
+  // client themselves or by an admin in spy mode) is pushed to every open tab.
+  // Skipped while override is active so the admin's draft isn't overwritten by
+  // their own write echo.
+  useEffect(() => {
+    if (overrideIds) return;
+    const channel = supabase
+      .channel(`widget_prefs:${clientId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "widget_prefs",
+          filter: `user_id=eq.${clientId}`,
+        },
+        (payload) => {
+          const row = (payload.new ?? payload.old) as { widget_ids?: unknown } | null;
+          const next = row?.widget_ids;
+          if (Array.isArray(next) && next.length > 0) {
+            setIdsState(normalize(next as string[]));
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [clientId, overrideIds]);
+
+  // Persist to the server — unless we're read-only.
   function persist(next: string[]) {
     if (readOnly) return;
-    try {
-      window.localStorage.setItem(cacheKey(clientId), JSON.stringify(next));
-    } catch {}
     void supabase
       .from("widget_prefs")
       .upsert({ user_id: clientId, widget_ids: next, updated_at: new Date().toISOString() });
@@ -408,6 +428,7 @@ export function useWidgetPrefs(
     },
   };
 }
+
 
 
 // ---- Editable wrapper (iOS-style edit mode, dnd-kit sortable) ---------------
