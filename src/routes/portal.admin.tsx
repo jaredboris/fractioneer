@@ -84,6 +84,14 @@ type Document = {
   file_size: number | null;
   created_at: string;
 };
+type ExistingPeriod = {
+  cash_balance: number | null;
+  total_ar: number | null;
+  total_ap: number | null;
+  net_revenue: number | null;
+  net_income: number | null;
+};
+
 
 const MONTHLY_OPTIONS = ["On track", "Delayed", "Ready"];
 const APAR_OPTIONS = ["Current", "Behind"];
