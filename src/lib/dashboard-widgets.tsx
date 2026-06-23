@@ -31,8 +31,11 @@ import {
   Trash2,
   Lock,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 
 } from "lucide-react";
+
 
 
 
@@ -62,7 +65,9 @@ export type WidgetContext = {
   viewerRole: "admin" | "client";
   viewerId: string;
   aiInsights?: { insight_text: string; category: string }[];
+  generatingInsights?: boolean;
 };
+
 
 
 export type WidgetDef = {
@@ -755,7 +760,6 @@ function ChartShell({
   title,
   subtitle,
   empty,
-  sparse,
   children,
 }: {
   title: string;
@@ -764,7 +768,6 @@ function ChartShell({
   sparse?: boolean;
   children: React.ReactNode;
 }) {
-  const showPlaceholder = empty || sparse;
   return (
     <div className="flex min-h-[280px] flex-col rounded-xl p-4 nb-card h-full">
       <div className="mb-3">
@@ -773,7 +776,7 @@ function ChartShell({
         </h2>
         <p className="text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
       </div>
-      {showPlaceholder ? (
+      {empty ? (
         <div className="flex flex-1 items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
           More data will appear as your Fractioneer team uploads monthly financials.
         </div>
@@ -783,6 +786,7 @@ function ChartShell({
     </div>
   );
 }
+
 
 function RevExpChart({ ctx }: { ctx: WidgetContext }) {
   const t = chartTheme(ctx.isDark);
@@ -797,8 +801,11 @@ function RevExpChart({ ctx }: { ctx: WidgetContext }) {
         })),
     [ctx.rows],
   );
+  // [diagnostic] confirm rows reach the chart; remove once root cause confirmed.
+  console.info("[chart:RevExp] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
-    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0} sparse={data.length <= 1}>
+    <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0}>
+
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <defs>
@@ -853,8 +860,10 @@ function CashFlowChart({ ctx }: { ctx: WidgetContext }) {
         .map((r) => ({ month: formatMonthShort(r.period!), Cash: r.cash_balance ?? 0 })),
     [ctx.rows],
   );
+  console.info("[chart:CashFlow] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
-    <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0} sparse={data.length <= 1}>
+    <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0}>
+
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} vertical={false} />
@@ -901,8 +910,10 @@ function ArApChart({ ctx }: { ctx: WidgetContext }) {
         })),
     [ctx.rows],
   );
+  console.info("[chart:ArAp] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
-    <ChartShell title="AR vs AP Over Time" subtitle="Accounts receivable vs payable by month." empty={data.length === 0} sparse={data.length <= 1}>
+    <ChartShell title="AR vs AP Over Time" subtitle="Accounts receivable vs payable by month." empty={data.length === 0}>
+
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} vertical={false} />
@@ -1077,18 +1088,12 @@ export function mergeRows(periods: PeriodRow[], dashboard: DashboardRow[]): Norm
 
 function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
   const insights = ctx.aiInsights ?? [];
+  const generating = !!ctx.generatingInsights;
   const [idx, setIdx] = useState(0);
   const [latestDoc, setLatestDoc] = useState<{ file_name: string; file_path: string } | null>(null);
 
-  // Reset and auto-advance.
+  // Reset when the set of insights changes. No auto-advance — user controls navigation.
   useEffect(() => { setIdx(0); }, [insights.length]);
-  useEffect(() => {
-    if (insights.length <= 1) return;
-    const t = window.setInterval(() => {
-      setIdx((i) => (i + 1) % insights.length);
-    }, 6000);
-    return () => window.clearInterval(t);
-  }, [insights.length]);
 
   // Fetch the latest uploaded source file for this client, used by the
   // "download source file" link in the disclaimer.
@@ -1120,6 +1125,8 @@ function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
   }
 
   const current = insights[idx];
+  const canPrev = idx > 0;
+  const canNext = idx < insights.length - 1;
 
   return (
     <div
@@ -1149,38 +1156,76 @@ function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
         <h2 className="text-sm font-semibold uppercase tracking-wider text-white/90">
           AI Insights
         </h2>
+        {generating && (
+          <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-blue-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-blue-200 ring-1 ring-blue-400/30">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-300" />
+            Generating insights…
+          </span>
+        )}
       </div>
 
-      <div className="relative mt-6 flex-1">
-        {insights.length === 0 ? (
-          <p className="max-w-md text-sm leading-relaxed text-white/60">
-            No insights yet — insights generate automatically when your Fractioneer team uploads new financials.
-          </p>
-        ) : (
-          <p
-            key={idx}
-            className="max-w-xl text-xl font-medium leading-snug text-white animate-[nb-rise_0.5s_ease-out]"
+      <div className="relative mt-6 flex flex-1 items-center gap-3">
+        {insights.length > 1 && (
+          <button
+            type="button"
+            aria-label="Previous insight"
+            onClick={() => canPrev && setIdx((i) => i - 1)}
+            disabled={!canPrev}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-white/70 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-white/70"
           >
-            {current?.insight_text}
-          </p>
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        )}
+        <div className="flex-1">
+          {insights.length === 0 ? (
+            <p className="max-w-md text-sm leading-relaxed text-white/60">
+              {generating
+                ? "Generating insights from your latest financials…"
+                : "No insights yet — insights generate automatically when your Fractioneer team uploads new financials."}
+            </p>
+          ) : (
+            <p
+              key={idx}
+              className="max-w-xl text-xl font-medium leading-snug text-white animate-[nb-rise_0.4s_ease-out]"
+            >
+              {current?.insight_text}
+            </p>
+          )}
+        </div>
+        {insights.length > 1 && (
+          <button
+            type="button"
+            aria-label="Next insight"
+            onClick={() => canNext && setIdx((i) => i + 1)}
+            disabled={!canNext}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-white/70 ring-1 ring-white/10 transition hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:hover:bg-white/5 disabled:hover:text-white/70"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         )}
       </div>
 
       {insights.length > 1 && (
-        <div className="relative mt-4 flex items-center gap-1.5">
-          {insights.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              aria-label={`Show insight ${i + 1}`}
-              onClick={() => setIdx(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === idx ? "w-5 bg-white" : "w-1.5 bg-white/30 hover:bg-white/50"
-              }`}
-            />
-          ))}
+        <div className="relative mt-4 flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            {insights.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Show insight ${i + 1}`}
+                onClick={() => setIdx(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === idx ? "w-5 bg-white" : "w-1.5 bg-white/30 hover:bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-[11px] text-white/50">
+            Insight {idx + 1} of {insights.length}
+          </span>
         </div>
       )}
+
 
       <div className="relative mt-3 flex items-center gap-2 text-[10px] uppercase tracking-wider text-white/40">
         <span>AI-generated, may contain errors</span>

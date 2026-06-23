@@ -324,6 +324,8 @@ function AdminPage() {
   const [xlsxFileName, setXlsxFileName] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analyzePhase, setAnalyzePhase] = useState<"reading" | "extracting" | "finalizing" | null>(null);
+
   const [savingExtracted, setSavingExtracted] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
   const [extractedSourceRows, setExtractedSourceRows] = useState<string | null>(null);
@@ -342,12 +344,14 @@ function AdminPage() {
     setExistingByPeriod({});
     setIncomeStatementDetected(false);
     setAnalyzing(true);
+    setAnalyzePhase("reading");
     setXlsxFileName(file.name);
     setUploadedFile(file);
     try {
       const buf = await file.arrayBuffer();
       const wb = XLSX.read(buf, { type: "array" });
       if (wb.SheetNames.length === 0) throw new Error("Spreadsheet has no sheets.");
+
 
       // Extraction can safely drop high-volume transaction sheets — it only
       // needs the IS/BS summary. Insights NEED the transaction tabs (invoices,
@@ -396,6 +400,7 @@ function AdminPage() {
       const insightsBlocks = chosenForInsights.map((p) => `=== Sheet: ${p.name} ===\n${JSON.stringify(p.rows)}`);
       const insightsRowsStr = insightsBlocks.join("\n\n").slice(0, 380_000);
 
+      setAnalyzePhase("extracting");
       const result = await extractFinancialsFromRows({ data: { rows: rowsStr } });
       const sortedMonths = [...result.months].sort((a, b) =>
         a.period_end < b.period_end ? -1 : a.period_end > b.period_end ? 1 : 0,
@@ -403,9 +408,10 @@ function AdminPage() {
       setExtracted({ months: sortedMonths });
       setExtractedSourceRows(insightsRowsStr);
 
-
+      setAnalyzePhase("finalizing");
       // Fetch any existing rows for these periods so we can flag overwrites.
       if (sortedMonths.length > 0) {
+
         const periodList = sortedMonths.map((m) => m.period_end);
         const { data: existingRows } = await supabase
           .from("periods")
@@ -430,8 +436,10 @@ function AdminPage() {
       setUploadedFile(null);
     } finally {
       setAnalyzing(false);
+      setAnalyzePhase(null);
     }
   }
+
 
   async function handleConfirmExtracted() {
     if (!extracted || extracted.months.length === 0 || !selectedId) return;
@@ -475,6 +483,14 @@ function AdminPage() {
       setIncomeStatementDetected(false);
       setPrefillPeriodEnd(null);
       loadClientData(selectedId);
+      // Notify any open client dashboard that insights are regenerating so the
+      // AI Insights card can show a shimmer immediately.
+      const insightsChannel = supabase.channel(`ai_insights:${selectedId}`);
+      insightsChannel.subscribe((s) => {
+        if (s === "SUBSCRIBED") {
+          void insightsChannel.send({ type: "broadcast", event: "generating", payload: { state: "start" } });
+        }
+      });
       // Fire-and-forget: regenerate AI insights for this client. Don't block the
       // save UX; surface errors quietly.
       void generateAiInsights({
@@ -485,7 +501,12 @@ function AdminPage() {
         })
         .catch((err: unknown) => {
           console.error("[ai_insights] generation failed", err);
+        })
+        .finally(() => {
+          void insightsChannel.send({ type: "broadcast", event: "generating", payload: { state: "end" } });
+          setTimeout(() => { void supabase.removeChannel(insightsChannel); }, 1000);
         });
+
     } catch (err) {
       setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to save" });
     } finally {
@@ -862,17 +883,14 @@ function AdminPage() {
             )}
 
 
-            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
               {analyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Analyzing {xlsxFileName ?? "spreadsheet"}…
-                </>
+                <ExtractionProgress phase={analyzePhase} fileName={xlsxFileName} />
               ) : (
-                <>
+                <span className="flex items-center gap-2">
                   <Upload className="h-4 w-4" />
                   {xlsxFileName && extracted ? `Replace (${xlsxFileName})` : "Click to upload .xlsx"}
-                </>
+                </span>
               )}
               <input
                 type="file"
@@ -882,6 +900,7 @@ function AdminPage() {
                 disabled={analyzing || savingExtracted}
               />
             </label>
+
 
             {extracted && extracted.months.length > 0 && (() => {
               const months = extracted.months;
@@ -1404,3 +1423,57 @@ function ActivityLogPanel() {
     </section>
   );
 }
+
+function ExtractionProgress({
+  phase,
+  fileName,
+}: {
+  phase: "reading" | "extracting" | "finalizing" | null;
+  fileName: string | null;
+}) {
+  const steps: { id: "reading" | "extracting" | "finalizing"; label: string }[] = [
+    { id: "reading", label: "Reading sheets…" },
+    { id: "extracting", label: "Extracting monthly figures…" },
+    { id: "finalizing", label: "Almost done…" },
+  ];
+  const order: Record<string, number> = { reading: 0, extracting: 1, finalizing: 2 };
+  const currentIdx = phase ? order[phase] : -1;
+  return (
+    <div className="flex w-full flex-col items-center gap-2">
+      <div className="text-xs text-muted-foreground">
+        Analyzing {fileName ?? "spreadsheet"}…
+      </div>
+      <ul className="flex w-full max-w-md flex-col gap-1.5">
+        {steps.map((s, i) => {
+          const done = i < currentIdx;
+          const active = i === currentIdx;
+          return (
+            <li key={s.id} className="flex items-center gap-2 text-xs">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full ${
+                  done
+                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
+                    : active
+                      ? "bg-blue-500/20 text-blue-600 dark:text-blue-300"
+                      : "bg-muted text-muted-foreground/50"
+                }`}
+              >
+                {done ? (
+                  <CheckCircle2 className="h-3 w-3" />
+                ) : active ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                )}
+              </span>
+              <span className={done || active ? "text-foreground" : "text-muted-foreground/60"}>
+                {s.label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+

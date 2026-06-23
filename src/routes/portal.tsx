@@ -53,6 +53,8 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, rectSortingStrategy, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
 
 import logo from "@/assets/fractioneer-logo.jpg";
 import { supabase } from "@/integrations/supabase/client";
@@ -311,6 +313,8 @@ function AdminOverview({ role: _role }: { role: string }) {
   const [, setUploadsThisMonth] = useState<number>(0);
   const [aiSpendThisMonth, setAiSpendThisMonth] = useState<number>(0);
   const [aiCallsThisMonth, setAiCallsThisMonth] = useState<number>(0);
+  const [aiSpendOpen, setAiSpendOpen] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -495,13 +499,20 @@ function AdminOverview({ role: _role }: { role: string }) {
               tone={totals.needsDocs === 0 ? "ok" : "warn"}
               icon={<Upload className="h-5 w-5" />}
             />
-            <DarkStatCard
-              label="AI spend (month)"
-              value={`$${aiSpendThisMonth.toFixed(2)}`}
-              detail={`${aiCallsThisMonth} extraction${aiCallsThisMonth === 1 ? "" : "s"}`}
-              tone="info"
-              icon={<TrendingUp className="h-5 w-5" />}
-            />
+            <button
+              type="button"
+              onClick={() => setAiSpendOpen(true)}
+              className="text-left transition hover:-translate-y-0.5"
+            >
+              <DarkStatCard
+                label="AI spend (month)"
+                value={`$${aiSpendThisMonth.toFixed(2)}`}
+                detail={`${aiCallsThisMonth} operation${aiCallsThisMonth === 1 ? "" : "s"} · click for breakdown`}
+                tone="info"
+                icon={<TrendingUp className="h-5 w-5" />}
+              />
+            </button>
+
             <DarkStatCard
               label="Periods (month)"
               value={String(periodsThisMonth)}
@@ -656,10 +667,191 @@ function AdminOverview({ role: _role }: { role: string }) {
             </section>
           </div>
       </>
-
+      <AiSpendDialog open={aiSpendOpen} onOpenChange={setAiSpendOpen} />
     </AdminShell>
   );
 }
+
+type AiUsageRow = {
+  id: string;
+  client_id: string | null;
+  operation: string | null;
+  estimated_cost_usd: number | null;
+  total_tokens: number | null;
+  created_at: string;
+};
+
+function bucketOp(op: string | null): "Extraction" | "Insights" | "Other" {
+  if (!op) return "Other";
+  if (op === "generate_ai_insights") return "Insights";
+  if (op === "extract_financials" || op === "save_extracted_financials") return "Extraction";
+  return "Other";
+}
+
+function AiSpendDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+  const [rows, setRows] = useState<AiUsageRow[] | null>(null);
+  const [names, setNames] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setRows(null);
+    (async () => {
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const { data } = await supabase
+        .from("ai_usage")
+        .select("id, client_id, operation, estimated_cost_usd, total_tokens, created_at")
+        .gte("created_at", monthStart.toISOString())
+        .order("created_at", { ascending: false });
+      if (cancelled) return;
+      const list = (data ?? []) as AiUsageRow[];
+      setRows(list);
+      const ids = Array.from(new Set(list.map((r) => r.client_id).filter((x): x is string => !!x)));
+      if (ids.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, company_name, full_name")
+          .in("id", ids);
+        if (cancelled) return;
+        const map: Record<string, string> = {};
+        for (const p of profs ?? []) {
+          map[p.id] = (p.company_name || p.full_name || p.id.slice(0, 8)) as string;
+        }
+        setNames(map);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open]);
+
+  const byOp = useMemo(() => {
+    const m = new Map<string, { count: number; cost: number }>();
+    for (const r of rows ?? []) {
+      const k = bucketOp(r.operation);
+      const cur = m.get(k) ?? { count: 0, cost: 0 };
+      cur.count += 1;
+      cur.cost += Number(r.estimated_cost_usd ?? 0);
+      m.set(k, cur);
+    }
+    return Array.from(m.entries()).sort((a, b) => b[1].cost - a[1].cost);
+  }, [rows]);
+
+  const byClient = useMemo(() => {
+    const m = new Map<string, { count: number; cost: number }>();
+    for (const r of rows ?? []) {
+      const k = r.client_id ?? "—";
+      const cur = m.get(k) ?? { count: 0, cost: 0 };
+      cur.count += 1;
+      cur.cost += Number(r.estimated_cost_usd ?? 0);
+      m.set(k, cur);
+    }
+    return Array.from(m.entries()).sort((a, b) => b[1].cost - a[1].cost);
+  }, [rows]);
+
+  const total = (rows ?? []).reduce((s, r) => s + Number(r.estimated_cost_usd ?? 0), 0);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>AI spend — this month</DialogTitle>
+          <DialogDescription>
+            Total: <span className="font-medium text-foreground">${total.toFixed(2)}</span> across {rows?.length ?? 0} operations.
+          </DialogDescription>
+        </DialogHeader>
+
+        {rows === null ? (
+          <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…
+          </div>
+        ) : rows.length === 0 ? (
+          <div className="py-10 text-center text-sm text-muted-foreground">No AI operations this month.</div>
+        ) : (
+          <div className="space-y-6">
+            <section>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">By operation</h3>
+              <div className="overflow-hidden rounded-md border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">Operation</th>
+                      <th className="px-3 py-2 text-right font-medium">Count</th>
+                      <th className="px-3 py-2 text-right font-medium">Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {byOp.map(([op, v]) => (
+                      <tr key={op}>
+                        <td className="px-3 py-2">{op}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{v.count}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">${v.cost.toFixed(4)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">By client</h3>
+              <div className="overflow-hidden rounded-md border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">Client</th>
+                      <th className="px-3 py-2 text-right font-medium">Count</th>
+                      <th className="px-3 py-2 text-right font-medium">Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {byClient.map(([cid, v]) => (
+                      <tr key={cid}>
+                        <td className="px-3 py-2">{names[cid] ?? cid.slice(0, 8)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{v.count}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">${v.cost.toFixed(4)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent activity</h3>
+              <div className="overflow-hidden rounded-md border border-border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                    <tr>
+                      <th className="px-3 py-2 text-left font-medium">When</th>
+                      <th className="px-3 py-2 text-left font-medium">Client</th>
+                      <th className="px-3 py-2 text-left font-medium">Operation</th>
+                      <th className="px-3 py-2 text-right font-medium">Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {rows.slice(0, 50).map((r) => (
+                      <tr key={r.id}>
+                        <td className="px-3 py-2 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
+                        <td className="px-3 py-2">{r.client_id ? (names[r.client_id] ?? r.client_id.slice(0, 8)) : "—"}</td>
+                        <td className="px-3 py-2">{bucketOp(r.operation)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">${Number(r.estimated_cost_usd ?? 0).toFixed(4)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+
+
+
 
 function DarkStatCard({
   label,
@@ -930,6 +1122,8 @@ function ClientDashboard({ role }: { role: string | null }) {
   );
 
 
+  const [generatingInsights, setGeneratingInsights] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
     setDashboardRows([]);
@@ -937,7 +1131,7 @@ function ClientDashboard({ role }: { role: string | null }) {
     setDocs([]);
     setAiInsights([]);
     async function loadAll() {
-      const [{ data: dash }, { data: pers }, { data: documents }, { data: insights }] = await Promise.all([
+      const [{ data: dash }, { data: pers, error: persErr }, { data: documents }, { data: insights }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
@@ -955,6 +1149,8 @@ function ClientDashboard({ role }: { role: string | null }) {
           .eq("client_id", effectiveId)
           .order("created_at", { ascending: true }),
       ]);
+      // [diagnostic] confirm row counts coming back from Supabase for this viewer.
+      console.info("[dashboard] for", effectiveId, "periods:", pers?.length ?? 0, pers?.[0], "dashboard_data:", dash?.length ?? 0, "insights:", insights?.length ?? 0, "periodsErr:", persErr);
       if (cancelled) return;
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setPeriodsRows((pers ?? []) as PeriodRow[]);
@@ -962,17 +1158,23 @@ function ClientDashboard({ role }: { role: string | null }) {
       setAiInsights((insights ?? []) as { insight_text: string; category: string }[]);
     }
     void loadAll();
-    // Realtime: refresh insights when admin regenerates them.
+    // Realtime: refresh insights when admin regenerates them, plus listen for
+    // a "generating" broadcast so we can show a shimmer on the AI card.
     const channel = supabase
       .channel(`ai_insights:${effectiveId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "ai_insights", filter: `client_id=eq.${effectiveId}` },
-        () => { void loadAll(); },
+        () => { setGeneratingInsights(false); void loadAll(); },
       )
+      .on("broadcast", { event: "generating" }, (msg) => {
+        const state = (msg.payload as { state?: string } | undefined)?.state;
+        setGeneratingInsights(state === "start");
+      })
       .subscribe();
     return () => { cancelled = true; supabase.removeChannel(channel); };
   }, [effectiveId, impersonation, role, user.id]);
+
 
 
   async function getSignedUrl(path: string, download?: string) {
@@ -1062,9 +1264,11 @@ function ClientDashboard({ role }: { role: string | null }) {
         | "admin"
         | "client",
       aiInsights,
+      generatingInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights, generatingInsights],
   );
+
 
 
 
