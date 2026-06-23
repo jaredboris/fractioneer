@@ -1061,9 +1061,11 @@ function ClientDashboard({ role }: { role: string | null }) {
       viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
         | "admin"
         | "client",
+      aiInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights],
   );
+
 
 
   return (
