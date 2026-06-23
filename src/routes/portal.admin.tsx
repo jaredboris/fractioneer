@@ -952,7 +952,7 @@ function AdminPage() {
                   <div className="mt-5 flex items-center justify-end gap-2">
                     <button
                       type="button"
-                      onClick={() => { setExtracted(null); setExistingByPeriod({}); setXlsxFileName(null); setIncomeStatementDetected(false); }}
+                      onClick={() => { setExtracted(null); setExtractedSourceRows(null); setExistingByPeriod({}); setXlsxFileName(null); setIncomeStatementDetected(false); }}
                       className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                     >
                       Discard
