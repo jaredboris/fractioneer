@@ -36,6 +36,7 @@ const NAV = [
   { label: "Reports", to: "/portal/reports", icon: BarChart3 },
   { label: "Cash Flow", to: "/portal/cashflow", icon: TrendingUp },
   { label: "Documents", to: "/portal/documents", icon: FileText },
+  { label: "Notes", to: "/portal/notes", icon: MessageSquare },
   { label: "Settings", to: "/portal/settings", icon: SettingsIcon },
 ] as const;
 
