@@ -65,7 +65,9 @@ export type WidgetContext = {
   viewerRole: "admin" | "client";
   viewerId: string;
   aiInsights?: { insight_text: string; category: string }[];
+  generatingInsights?: boolean;
 };
+
 
 
 export type WidgetDef = {
