@@ -769,7 +769,7 @@ function ChartShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-[280px] flex-col rounded-xl p-4 nb-card h-full">
+    <div className="flex flex-col rounded-xl p-4 nb-card h-full">
       <div className="mb-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
           {title}
@@ -777,15 +777,16 @@ function ChartShell({
         <p className="text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
       </div>
       {empty ? (
-        <div className="flex flex-1 items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
+        <div className="flex h-[240px] items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
           More data will appear as your Fractioneer team uploads monthly financials.
         </div>
       ) : (
-        <div className="h-[200px] w-full flex-1">{children}</div>
+        <div style={{ width: "100%", height: 240 }}>{children}</div>
       )}
     </div>
   );
 }
+
 
 
 function RevExpChart({ ctx }: { ctx: WidgetContext }) {
