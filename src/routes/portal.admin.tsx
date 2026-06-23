@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
 import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
@@ -142,17 +142,10 @@ function AdminPage() {
     document_id: string | null;
   };
   const [periods, setPeriods] = useState<PeriodRow[]>([]);
-  const [periodForm, setPeriodForm] = useState({
-    period_end: "",
-    net_revenue: "",
-    net_income: "",
-    gross_margin: "",
-    cash_balance: "",
-    total_ar: "",
-    total_ap: "",
-    document_id: "",
-  });
-  const [savingPeriod, setSavingPeriod] = useState(false);
+  const [openPeriod, setOpenPeriod] = useState<PeriodRow | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deletingPeriod, setDeletingPeriod] = useState(false);
+  const [prefillPeriodEnd, setPrefillPeriodEnd] = useState<string | null>(null);
 
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
@@ -268,55 +261,30 @@ function AdminPage() {
     loadClientData(selectedId);
   }
 
-  function parseNum(v: string): number | null {
-    if (v.trim() === "") return null;
-    const n = Number(v);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  async function handleSavePeriod(e: React.FormEvent) {
-    e.preventDefault();
-    if (!selectedId || !periodForm.period_end) return;
-    setSavingPeriod(true);
-    setStatus(null);
-    const { error } = await supabase.from("periods").upsert(
-      {
-        client_id: selectedId,
-        period_end: periodForm.period_end,
-        net_revenue: parseNum(periodForm.net_revenue),
-        net_income: parseNum(periodForm.net_income),
-        gross_margin: parseNum(periodForm.gross_margin),
-        cash_balance: parseNum(periodForm.cash_balance),
-        total_ar: parseNum(periodForm.total_ar),
-        total_ap: parseNum(periodForm.total_ap),
-        document_id: periodForm.document_id || null,
-      },
-      { onConflict: "client_id,period_end" },
-    );
-    setSavingPeriod(false);
+  async function handleDeletePeriod(id: string) {
+    setDeletingPeriod(true);
+    const { error } = await supabase.from("periods").delete().eq("id", id);
+    setDeletingPeriod(false);
     if (error) {
       setStatus({ kind: "err", msg: error.message });
       return;
     }
-    setStatus({ kind: "ok", msg: "Period saved." });
-    setPeriodForm({
-      period_end: "",
-      net_revenue: "",
-      net_income: "",
-      gross_margin: "",
-      cash_balance: "",
-      total_ar: "",
-      total_ap: "",
-      document_id: "",
-    });
+    setOpenPeriod(null);
+    setConfirmingDelete(false);
     loadClientData(selectedId);
   }
 
-  async function handleDeletePeriod(id: string, label: string) {
-    if (!confirm(`Delete period ${label}?`)) return;
-    await supabase.from("periods").delete().eq("id", id);
-    loadClientData(selectedId);
+  async function handleDownloadDoc(path: string, name: string) {
+    const { data } = await supabase.storage
+      .from("client-documents")
+      .createSignedUrl(path, 60, { download: name });
+    if (!data?.signedUrl) return;
+    const a = document.createElement("a");
+    a.href = data.signedUrl;
+    a.download = name;
+    a.click();
   }
+
 
   const [addOpen, setAddOpen] = useState(false);
   const [addBusy, setAddBusy] = useState(false);
@@ -505,6 +473,7 @@ function AdminPage() {
       setXlsxFileName(null);
       setUploadedFile(null);
       setIncomeStatementDetected(false);
+      setPrefillPeriodEnd(null);
       loadClientData(selectedId);
       // Fire-and-forget: regenerate AI insights for this client. Don't block the
       // save UX; surface errors quietly.
@@ -793,41 +762,8 @@ function AdminPage() {
           <section className="mt-6 rounded-xl border border-border bg-card p-6">
             <h2 className="text-lg font-semibold text-foreground">Reporting periods</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Per-period financials power the Reports and Cash Flow tabs. Use one row per period end date.
+              Uploaded via the Upload tab. Click a row to view, re-upload, or delete.
             </p>
-
-            <form onSubmit={handleSavePeriod} className="mt-5 grid grid-cols-2 gap-3 rounded-lg border border-border bg-background p-4 sm:grid-cols-4">
-              <NumField label="Period end" type="date" required value={periodForm.period_end} onChange={(v) => setPeriodForm({ ...periodForm, period_end: v })} />
-              <NumField label="Net revenue" value={periodForm.net_revenue} onChange={(v) => setPeriodForm({ ...periodForm, net_revenue: v })} />
-              <NumField label="Net income" value={periodForm.net_income} onChange={(v) => setPeriodForm({ ...periodForm, net_income: v })} />
-              <NumField label="Gross margin (% or 0–1)" value={periodForm.gross_margin} onChange={(v) => setPeriodForm({ ...periodForm, gross_margin: v })} />
-              <NumField label="Cash balance" value={periodForm.cash_balance} onChange={(v) => setPeriodForm({ ...periodForm, cash_balance: v })} />
-              <NumField label="Total AR" value={periodForm.total_ar} onChange={(v) => setPeriodForm({ ...periodForm, total_ar: v })} />
-              <NumField label="Total AP" value={periodForm.total_ap} onChange={(v) => setPeriodForm({ ...periodForm, total_ap: v })} />
-              <label className="block text-xs font-medium text-muted-foreground">
-                Source Excel
-                <select
-                  value={periodForm.document_id}
-                  onChange={(e) => setPeriodForm({ ...periodForm, document_id: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                >
-                  <option value="">— none —</option>
-                  {documents.map((d) => (
-                    <option key={d.id} value={d.id}>{d.file_name}</option>
-                  ))}
-                </select>
-              </label>
-              <div className="col-span-2 flex items-end justify-end sm:col-span-4">
-                <button
-                  type="submit"
-                  disabled={savingPeriod || !periodForm.period_end}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
-                >
-                  {savingPeriod && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  Save period
-                </button>
-              </div>
-            </form>
 
             <div className="mt-5 overflow-x-auto rounded-md border border-border">
               <table className="w-full text-sm">
@@ -845,33 +781,59 @@ function AdminPage() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {periods.length === 0 && (
-                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No periods yet.</td></tr>
+                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No periods yet — upload an Excel file on the Upload tab.</td></tr>
                   )}
-                  {periods.map((p) => (
-                    <tr key={p.id} className="text-foreground">
-                      <td className="px-3 py-2">{p.period_end}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{p.net_revenue ?? "—"}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{p.net_income ?? "—"}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{p.gross_margin ?? "—"}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{p.cash_balance ?? "—"}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{p.total_ar ?? "—"}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{p.total_ap ?? "—"}</td>
-                      <td className="px-3 py-2 text-right">
-                        <button
-                          onClick={() => handleDeletePeriod(p.id, p.period_end)}
-                          className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                          aria-label={`Delete period ${p.period_end}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {periods.map((p) => {
+                    const gm = p.net_revenue && p.net_revenue !== 0
+                      ? (p.net_income ?? 0) / p.net_revenue
+                      : null;
+                    return (
+                      <tr
+                        key={p.id}
+                        onClick={() => { setConfirmingDelete(false); setOpenPeriod(p); }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setConfirmingDelete(false); setOpenPeriod(p); }
+                        }}
+                        className="cursor-pointer text-foreground transition-colors hover:bg-muted/40 focus:bg-muted/40 focus:outline-none"
+                      >
+                        <td className="px-3 py-2">{p.period_end}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.net_revenue)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.net_income)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{fmtPercent(gm)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.cash_balance)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.total_ar)}</td>
+                        <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.total_ap)}</td>
+                        <td className="px-3 py-2 text-right text-muted-foreground">
+                          <ChevronRight className="ml-auto h-4 w-4" />
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+
+            <PeriodDetailSheet
+              period={openPeriod}
+              documents={documents}
+              confirmingDelete={confirmingDelete}
+              setConfirmingDelete={setConfirmingDelete}
+              deleting={deletingPeriod}
+              onClose={() => { setOpenPeriod(null); setConfirmingDelete(false); }}
+              onDelete={handleDeletePeriod}
+              onDownload={handleDownloadDoc}
+              onReupload={(periodEnd) => {
+                setPrefillPeriodEnd(periodEnd);
+                setOpenPeriod(null);
+                setConfirmingDelete(false);
+                navigate({ to: "/portal/admin", search: { tab: "upload" }, replace: false });
+              }}
+            />
           </section>
         )}
+
 
 
         {tab === "upload" && selectedId && (
@@ -884,6 +846,21 @@ function AdminPage() {
                 </p>
               </div>
             </div>
+
+            {prefillPeriodEnd && (
+              <div className="mt-4 flex items-center justify-between gap-3 rounded-md border border-blue-500/30 bg-blue-500/5 px-3 py-2 text-xs text-blue-700 dark:text-blue-300">
+                <span>
+                  Re-uploading <strong>{fmtPeriodLabel(prefillPeriodEnd)}</strong> — new data will overwrite this row.
+                </span>
+                <button
+                  onClick={() => setPrefillPeriodEnd(null)}
+                  className="rounded px-2 py-0.5 text-blue-700/80 transition-colors hover:bg-blue-500/10 dark:text-blue-300/80"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+
 
             <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
               {analyzing ? (
@@ -1122,6 +1099,179 @@ function NumField({
     </label>
   );
 }
+
+// ----- Period table helpers + detail sheet -----
+
+const moneyFmt = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+function fmtMoneyCompact(v: number | null | undefined) {
+  if (v === null || v === undefined) return "—";
+  return moneyFmt.format(v);
+}
+
+function fmtPercent(v: number | null | undefined) {
+  if (v === null || v === undefined || !Number.isFinite(v)) return "—";
+  return `${(v * 100).toFixed(1)}%`;
+}
+
+function fmtPeriodLabel(d: string) {
+  const dt = new Date(d + "T00:00:00");
+  return dt.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+type PeriodSheetRow = {
+  id: string;
+  period_end: string;
+  net_revenue: number | null;
+  net_income: number | null;
+  gross_margin: number | null;
+  cash_balance: number | null;
+  total_ar: number | null;
+  total_ap: number | null;
+  document_id: string | null;
+};
+
+function PeriodDetailSheet({
+  period,
+  documents,
+  confirmingDelete,
+  setConfirmingDelete,
+  deleting,
+  onClose,
+  onDelete,
+  onDownload,
+  onReupload,
+}: {
+  period: PeriodSheetRow | null;
+  documents: Document[];
+  confirmingDelete: boolean;
+  setConfirmingDelete: (v: boolean) => void;
+  deleting: boolean;
+  onClose: () => void;
+  onDelete: (id: string) => void;
+  onDownload: (path: string, name: string) => void;
+  onReupload: (periodEnd: string) => void;
+}) {
+  if (!period) return null;
+  const gm = period.net_revenue && period.net_revenue !== 0
+    ? (period.net_income ?? 0) / period.net_revenue
+    : null;
+  const doc = documents.find((d) => d.id === period.document_id) ?? null;
+  const label = fmtPeriodLabel(period.period_end);
+
+  return (
+    <div className="fixed inset-0 z-50 flex">
+      <div
+        className="flex-1 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        aria-label="Close panel"
+      />
+      <aside className="flex h-full w-full max-w-md flex-col border-l border-border bg-card shadow-2xl">
+        <header className="flex items-start justify-between gap-3 border-b border-border px-6 py-5">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Period ending
+            </div>
+            <h3 className="mt-0.5 text-lg font-semibold text-foreground">{label}</h3>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </header>
+
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          <dl className="space-y-3">
+            <DetailRow label="Net revenue" value={fmtMoneyCompact(period.net_revenue)} />
+            <DetailRow label="Net income" value={fmtMoneyCompact(period.net_income)} />
+            <DetailRow label="Gross margin" value={fmtPercent(gm)} />
+            <DetailRow label="Cash balance" value={fmtMoneyCompact(period.cash_balance)} />
+            <DetailRow label="Total AR" value={fmtMoneyCompact(period.total_ar)} />
+            <DetailRow label="Total AP" value={fmtMoneyCompact(period.total_ap)} />
+          </dl>
+
+          <div className="mt-6 border-t border-border pt-4">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Source file
+            </div>
+            {doc ? (
+              <button
+                onClick={() => onDownload(doc.file_path, doc.file_name)}
+                className="mt-2 inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted/40"
+              >
+                <Download className="h-4 w-4" />
+                {doc.file_name}
+              </button>
+            ) : (
+              <div className="mt-2 text-sm text-muted-foreground">No source file linked</div>
+            )}
+          </div>
+        </div>
+
+        <footer className="border-t border-border px-6 py-4">
+          {confirmingDelete ? (
+            <div>
+              <p className="text-sm text-foreground">
+                This will permanently remove <strong>{label}</strong> data from the client dashboard and charts. This cannot be undone.
+              </p>
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <button
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={deleting}
+                  className="rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => onDelete(period.id)}
+                  disabled={deleting}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:opacity-60"
+                >
+                  {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  Delete permanently
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => onReupload(period.period_end)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40"
+              >
+                <Upload className="h-4 w-4" />
+                Re-upload
+              </button>
+              <button
+                onClick={() => setConfirmingDelete(true)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete period
+              </button>
+            </div>
+          )}
+        </footer>
+      </aside>
+    </div>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className="font-semibold tabular-nums text-foreground">{value}</dd>
+    </div>
+  );
+}
+
 
 
 function ActivityLogPanel() {
