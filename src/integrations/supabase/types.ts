@@ -303,6 +303,24 @@ export type Database = {
         }
         Relationships: []
       }
+      widget_prefs: {
+        Row: {
+          updated_at: string
+          user_id: string
+          widget_ids: string[]
+        }
+        Insert: {
+          updated_at?: string
+          user_id: string
+          widget_ids?: string[]
+        }
+        Update: {
+          updated_at?: string
+          user_id?: string
+          widget_ids?: string[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

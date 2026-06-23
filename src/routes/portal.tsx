@@ -62,8 +62,9 @@ import { AdminShell } from "@/components/portal/AdminSidebar";
 import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
-import { useImpersonation, startImpersonation } from "@/lib/impersonation";
+import { useImpersonation, startImpersonation, useAdminOverride } from "@/lib/impersonation";
 import { getCached, setCached } from "@/lib/portal-cache";
+import { DEFAULT_IDS } from "@/lib/dashboard-widgets";
 import {
   clearMfaVerifiedThisSession,
   wasMfaVerifiedThisSession,
@@ -931,7 +932,11 @@ function ClientDashboard({ role }: { role: string | null }) {
   >([]);
 
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
-  const widgets = useWidgetPrefs();
+  const [override] = useAdminOverride();
+  const widgets = useWidgetPrefs(effectiveId, {
+    readOnly: !!impersonation,
+    overrideIds: impersonation && override ? DEFAULT_IDS : null,
+  });
   const [editMode, setEditMode] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -1093,29 +1098,31 @@ function ClientDashboard({ role }: { role: string | null }) {
           </p>
         </div>
 
-        <div className="mb-3 flex items-center justify-end gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
-          <button
-            onClick={() => {
-              setEditMode((v) => !v);
-              setActiveId(null);
-            }}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-              editMode
-                ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
-                : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
-            }`}
-          >
-            {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
-            {editMode ? "Done" : "Manage Widgets"}
-          </button>
-          <button
-            onClick={() => setAddOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add Widget
-          </button>
-        </div>
+        {!widgets.readOnly && (
+          <div className="mb-3 flex items-center justify-end gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
+            <button
+              onClick={() => {
+                setEditMode((v) => !v);
+                setActiveId(null);
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+                editMode
+                  ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
+                  : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+              }`}
+            >
+              {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
+              {editMode ? "Done" : "Manage Widgets"}
+            </button>
+            <button
+              onClick={() => setAddOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add Widget
+            </button>
+          </div>
+        )}
 
         {addOpen && (
           <AddWidgetModal

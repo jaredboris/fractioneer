@@ -1,61 +1,69 @@
-## 1. Forgot password flow
+## Background
 
-- Add a "Forgot password?" link under the password field on `src/routes/portal.login.tsx`, linking to a new route `/portal/forgot-password`.
-- Create `src/routes/portal.forgot-password.tsx` (ssr: false, noindex):
-  - Matches the existing dark login card styling (logo, card, inputs, primary button).
-  - Email input + submit → `supabase.auth.resetPasswordForEmail(email, { redirectTo: ${window.location.origin}/portal/reset-password })`.
-  - Inline success state ("Check your email for the reset link") and inline error.
-  - "← Back to sign in" link to `/portal/login`.
-- Create `src/routes/portal.reset-password.tsx` (ssr: false, noindex, public — must be reachable without 2FA):
-  - On mount, watch `supabase.auth.onAuthStateChange` for `PASSWORD_RECOVERY` (Supabase fires this when the email link lands).
-  - Form: new password + confirm new password. Submit → `supabase.auth.updateUser({ password })`.
-  - On success: sign the user out (so they can't slip past 2FA via the recovery session), show "Password updated — redirecting to sign in", then `navigate({ to: "/portal/login" })`.
-  - Add `/portal/reset-password` to the portal `beforeLoad` bypass list alongside login / setup-2fa / verify-2fa.
+Widget prefs today live only in the admin's browser `localStorage` (`portal.dashboard.widgets.v2`), so spy mode currently shows the admin's own layout, not the client's. To show the client's actual layout from any device we need to persist prefs server-side keyed by the client's `user_id`.
 
-## 2. Change Password in Settings
+## 1. Server-backed widget prefs
 
-In `src/routes/portal.settings.tsx`, add a new `ChangePasswordCard` section rendered alongside `SecurityCard` (hidden in impersonation mode):
-- Three inputs: current password, new password, confirm new password.
-- On submit:
-  1. Re-authenticate by calling `supabase.auth.signInWithPassword({ email: user.email, password: currentPassword })`. If it fails, show "Current password is incorrect".
-  2. Validate new === confirm and min length 8; otherwise inline error.
-  3. Call `supabase.auth.updateUser({ password: newPassword })`.
-  4. On success, clear fields and show inline green "Password updated" message.
-- Styling matches existing cards (same border/bg tokens, blue primary button, red error box).
+New `public.widget_prefs` table:
+- `user_id uuid PK references auth.users(id) on delete cascade`
+- `widget_ids text[] not null default '{}'`
+- `updated_at timestamptz not null default now()` (+ trigger)
 
-## 3. Persist dark/light mode preference (no-flash)
+Grants + RLS:
+- `GRANT SELECT, INSERT, UPDATE, DELETE ON public.widget_prefs TO authenticated;`
+- `GRANT ALL ON public.widget_prefs TO service_role;`
+- Owner policy: `auth.uid() = user_id` for select/insert/update/delete.
+- Admin read policy: `public.has_role(auth.uid(), 'admin')` for select (so spy mode can read any client's row without service role).
 
-`ThemeToggle` already writes to `localStorage` under `fractioneer-portal-theme`, but the class is only applied after React mounts → flash of light mode.
+No admin write policy — admin overrides never persist (enforced both in SQL and in the client hook).
 
-- Add a tiny pre-hydration script in `src/routes/__root.tsx` `head()` (as a `script` tag with inline content) that, before paint, reads `localStorage.getItem('fractioneer-portal-theme')`, falls back to `prefers-color-scheme`, and sets `document.documentElement.classList.toggle('dark', ...)` and `colorScheme`.
-- Update `ThemeToggle.getInitialTheme()` to also consider `prefers-color-scheme` when no stored value exists, so it matches what the pre-hydration script applied (no mismatch flicker).
+## 2. Refactor `useWidgetPrefs(clientId, options)`
 
-## 4. Fix 2FA bypass on saved sessions
+Update `src/lib/dashboard-widgets.tsx`:
 
-Root cause: Supabase persists the access token in localStorage with its `aal` claim. A user who completed 2FA in a previous browser session returns with `currentLevel === "aal2"` already, so the gate in `src/routes/portal.tsx` never redirects to `/portal/verify-2fa`. Supabase does not let you downgrade AAL.
+```ts
+useWidgetPrefs(clientId: string, opts?: { readOnly?: boolean; overrideIds?: string[] | null })
+```
 
-Fix — require a per-tab "verified this session" flag:
+Behavior:
+- Local cache key becomes `portal.dashboard.widgets.v2:{clientId}` (per-client, so admin's own layout never bleeds into a client they spy on).
+- On mount, hydrate from local cache, then fetch the row from `widget_prefs` for `clientId`; if the row exists, update state + cache. If no row, leave defaults.
+- Writes (`setIds`/`add`/`remove`/`move`) update local state, write cache, and upsert to `widget_prefs` — but only when `readOnly !== true`. In read-only mode, mutation functions become no-ops (and the UI hides the edit button).
+- When `overrideIds` is a non-null array, the hook returns that list as `ids` and ignores both server prefs and local cache. All mutations are no-ops while override is active.
 
-- Add a small helper module `src/lib/mfa-session.ts`:
-  - `markMfaVerifiedThisSession()` → `sessionStorage.setItem('fractioneer-mfa-verified', '1')`
-  - `wasMfaVerifiedThisSession()` → boolean
-  - `clearMfaVerifiedThisSession()`
-  - `sessionStorage` (not localStorage) so it naturally resets when the tab/browser is closed.
-- In `src/routes/portal.tsx` `beforeLoad`, after the existing `getAuthenticatorAssuranceLevel()` block:
-  - If the user has any verified TOTP factor (call `supabase.auth.mfa.listFactors()`; cache result per-call) AND `wasMfaVerifiedThisSession()` is false → `throw redirect({ to: "/portal/verify-2fa" })`, even when `currentLevel === "aal2"`.
-  - This guarantees every fresh tab/app load re-verifies, regardless of stored session AAL.
-- In `src/routes/portal.verify-2fa.tsx`, after a successful `challengeAndVerify`, call `markMfaVerifiedThisSession()` before navigating to `/portal`.
-- In every sign-out path (`PortalHeader.handleLogout`, `verify-2fa.handleSignOut`, settings re-enrollment if relevant, reset-password sign-out) call `clearMfaVerifiedThisSession()`.
-- Also clear the flag inside the existing `onAuthStateChange` listener at the top of `portal.tsx` on `SIGNED_OUT` and `SIGNED_IN` (a new sign-in must re-verify).
+## 3. Spy mode wiring
 
-## Technical notes
+`src/routes/portal.tsx` (`ClientDashboard`):
+- Resolve `effectiveClientId = impersonation?.clientId ?? user.id`.
+- Read the override flag from sessionStorage via a new `useAdminOverride()` hook.
+- Call `useWidgetPrefs(effectiveClientId, { readOnly: !!impersonation, overrideIds: override ? DEFAULT_IDS : null })`.
+- In spy mode, hide the "Edit" / "Add widget" affordances (since edits are disabled).
 
-- All new routes use `ssr: false` and `robots: noindex` to match existing portal routes.
-- `/portal/reset-password` must NOT be under `/portal` auth gate — it is added to the bypass list so Supabase's recovery session can render the form.
-- The pre-hydration theme script must be inline (not an external src) so it runs before first paint.
-- The MFA gate adds one extra `listFactors()` call per portal navigation; cheap and necessary since AAL alone is unreliable across saved sessions.
+## 4. Admin Override toggle in the banner
+
+New helpers in `src/lib/impersonation.ts`:
+- `useAdminOverride(): [boolean, (next: boolean) => void]`
+- Stored in sessionStorage under `fractioneer-impersonate-override` and cleared automatically inside `stopImpersonation()`.
+
+Update `src/components/portal/ImpersonationBanner.tsx`:
+- Keep current "Viewing as [Client Name] — Spy Mode" copy.
+- Add a toggle button (styled like a small pill switch matching the amber banner) labeled "Admin Override" with on/off state. When ON, append "(Override — default layout)" to the banner text so it's obvious the rendered layout isn't the client's.
+- Toggling does NOT navigate; the dashboard re-reads override state via the hook and re-renders.
+
+## 5. Migration of existing prefs
+
+One-time: on first load, if `localStorage["portal.dashboard.widgets.v2"]` exists and the per-client key for the current user is missing, copy it over (then leave the legacy key in place — harmless). No SQL backfill needed.
 
 ## Files
 
-- New: `src/routes/portal.forgot-password.tsx`, `src/routes/portal.reset-password.tsx`, `src/lib/mfa-session.ts`
-- Edited: `src/routes/portal.login.tsx`, `src/routes/portal.settings.tsx`, `src/routes/portal.tsx`, `src/routes/portal.verify-2fa.tsx`, `src/routes/__root.tsx`, `src/components/ThemeToggle.tsx`
+- New migration: `widget_prefs` table + RLS + grants + updated_at trigger.
+- Edited: `src/lib/dashboard-widgets.tsx` (hook signature + server sync + read-only/override modes).
+- Edited: `src/lib/impersonation.ts` (override hook + clear on stop).
+- Edited: `src/components/portal/ImpersonationBanner.tsx` (toggle button + label).
+- Edited: `src/routes/portal.tsx` (pass `effectiveClientId`, `readOnly`, `overrideIds`; hide edit affordances in spy mode).
+
+## Technical notes
+
+- Admin override never writes — guarded in both RLS (no admin write policy) and the hook (no-op mutations).
+- Per-client local cache key prevents flash of the wrong layout when switching between clients or exiting spy mode.
+- Hook keeps localStorage as a synchronous first-paint cache; server fetch reconciles on mount.
