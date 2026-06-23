@@ -1072,3 +1072,90 @@ export function mergeRows(periods: PeriodRow[], dashboard: DashboardRow[]): Norm
   }
   return Array.from(map.values()).sort((a, b) => (a.period! < b.period! ? -1 : 1));
 }
+
+// ---- AI Insights card --------------------------------------------------------
+
+function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
+  const insights = ctx.aiInsights ?? [];
+  const [idx, setIdx] = useState(0);
+
+  // Reset and auto-advance.
+  useEffect(() => { setIdx(0); }, [insights.length]);
+  useEffect(() => {
+    if (insights.length <= 1) return;
+    const t = window.setInterval(() => {
+      setIdx((i) => (i + 1) % insights.length);
+    }, 6000);
+    return () => window.clearInterval(t);
+  }, [insights.length]);
+
+  const current = insights[idx];
+
+  return (
+    <div
+      className="relative flex min-h-[280px] flex-col overflow-hidden rounded-xl p-5 h-full"
+      style={{
+        background:
+          "radial-gradient(120% 80% at 80% 90%, rgba(59,130,246,0.35) 0%, rgba(59,130,246,0.10) 35%, rgba(10,15,30,0) 70%), linear-gradient(180deg, #0B1226 0%, #060A18 100%)",
+        border: "1px solid #1E2A3A",
+        boxShadow: "inset 0 0 60px rgba(59,130,246,0.06)",
+      }}
+    >
+      {/* Subtle grid texture overlay */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+
+      <div className="relative flex items-center gap-2">
+        <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/15 text-blue-300 ring-1 ring-blue-400/30">
+          <Sparkles className="h-3.5 w-3.5" />
+        </span>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/90">
+          AI Insights
+        </h2>
+      </div>
+
+      <div className="relative mt-6 flex-1">
+        {insights.length === 0 ? (
+          <p className="max-w-md text-sm leading-relaxed text-white/60">
+            No insights yet — insights generate automatically when your Fractioneer team uploads new financials.
+          </p>
+        ) : (
+          <p
+            key={idx}
+            className="max-w-xl text-xl font-medium leading-snug text-white animate-[nb-rise_0.5s_ease-out]"
+          >
+            {current?.insight_text}
+          </p>
+        )}
+      </div>
+
+      {insights.length > 1 && (
+        <div className="relative mt-4 flex items-center gap-1.5">
+          {insights.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Show insight ${i + 1}`}
+              onClick={() => setIdx(i)}
+              className={`h-1.5 rounded-full transition-all ${
+                i === idx ? "w-5 bg-white" : "w-1.5 bg-white/30 hover:bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="relative mt-3 text-[10px] uppercase tracking-wider text-white/40">
+        AI-generated, may contain errors
+      </div>
+    </div>
+  );
+}
+
