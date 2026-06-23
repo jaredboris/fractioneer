@@ -330,7 +330,7 @@ function cleanupLegacyStorage() {
 }
 
 function normalize(ids: string[]): string[] {
-  const filtered = ids.filter((id) => WIDGET_BY_ID[id]);
+  const filtered = ids.filter((id) => WIDGET_BY_ID[id] && DASHBOARD_WIDGET_IDS.has(id));
   for (const lid of LOCKED_IDS) {
     if (!filtered.includes(lid)) filtered.unshift(lid);
   }
@@ -603,7 +603,7 @@ export function AddWidgetModal({
   onAdd: (id: string) => void;
   onClose: () => void;
 }) {
-  const available = WIDGET_CATALOG.filter((w) => !ids.includes(w.id));
+  const available = WIDGET_CATALOG.filter((w) => !ids.includes(w.id) && DASHBOARD_WIDGET_IDS.has(w.id));
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
