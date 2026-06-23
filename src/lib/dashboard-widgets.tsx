@@ -273,46 +273,115 @@ export const DEFAULT_IDS = WIDGET_CATALOG.filter((w) => w.defaultOn).map((w) => 
 
 // ---- Hook --------------------------------------------------------------------
 
-const STORAGE_KEY = "portal.dashboard.widgets.v2";
+const LEGACY_STORAGE_KEY = "portal.dashboard.widgets.v2";
+function cacheKey(clientId: string) {
+  return `${LEGACY_STORAGE_KEY}:${clientId}`;
+}
 
-export function useWidgetPrefs() {
-  const [ids, setIds] = useState<string[]>(() => {
-    if (typeof window === "undefined") return DEFAULT_IDS;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as string[];
-        if (Array.isArray(parsed)) {
-          // Drop unknown ids; ensure locked ids are present and in front.
-          const filtered = parsed.filter((id) => WIDGET_BY_ID[id]);
-          for (const lid of LOCKED_IDS) {
-            if (!filtered.includes(lid)) filtered.unshift(lid);
-          }
-          return filtered;
-        }
+function normalize(ids: string[]): string[] {
+  const filtered = ids.filter((id) => WIDGET_BY_ID[id]);
+  for (const lid of LOCKED_IDS) {
+    if (!filtered.includes(lid)) filtered.unshift(lid);
+  }
+  return filtered;
+}
+
+function loadFromCache(clientId: string): string[] {
+  if (typeof window === "undefined") return DEFAULT_IDS;
+  try {
+    let raw = window.localStorage.getItem(cacheKey(clientId));
+    // One-time migration from the legacy single-key store.
+    if (!raw) {
+      const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+      if (legacy) {
+        window.localStorage.setItem(cacheKey(clientId), legacy);
+        raw = legacy;
       }
-    } catch {}
-    return DEFAULT_IDS;
-  });
+    }
+    if (raw) {
+      const parsed = JSON.parse(raw) as string[];
+      if (Array.isArray(parsed)) return normalize(parsed);
+    }
+  } catch {}
+  return DEFAULT_IDS;
+}
 
+import { supabase } from "@/integrations/supabase/client";
+
+export function useWidgetPrefs(
+  clientId: string,
+  opts?: { readOnly?: boolean; overrideIds?: string[] | null },
+) {
+  const readOnly = !!opts?.readOnly;
+  const overrideIds = opts?.overrideIds ?? null;
+
+  const [ids, setIdsState] = useState<string[]>(() => loadFromCache(clientId));
+
+  // Re-hydrate cache when the target client changes (spy mode switch).
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    setIdsState(loadFromCache(clientId));
+  }, [clientId]);
+
+  // Pull authoritative prefs from the database.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("widget_prefs")
+        .select("widget_ids")
+        .eq("user_id", clientId)
+        .maybeSingle();
+      if (cancelled || error) return;
+      if (data?.widget_ids && Array.isArray(data.widget_ids) && data.widget_ids.length > 0) {
+        const next = normalize(data.widget_ids as string[]);
+        setIdsState(next);
+        try {
+          window.localStorage.setItem(cacheKey(clientId), JSON.stringify(next));
+        } catch {}
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId]);
+
+  // Persist on every change (cache + server) — unless we're read-only.
+  function persist(next: string[]) {
+    if (readOnly) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+      window.localStorage.setItem(cacheKey(clientId), JSON.stringify(next));
     } catch {}
-  }, [ids]);
+    void supabase
+      .from("widget_prefs")
+      .upsert({ user_id: clientId, widget_ids: next, updated_at: new Date().toISOString() });
+  }
+
+  function setIds(updater: string[] | ((prev: string[]) => string[])) {
+    if (readOnly) return;
+    setIdsState((cur) => {
+      const next = typeof updater === "function" ? (updater as (p: string[]) => string[])(cur) : updater;
+      persist(next);
+      return next;
+    });
+  }
+
+  const effectiveIds = overrideIds ? normalize(overrideIds) : ids;
 
   return {
-    ids,
+    ids: effectiveIds,
+    readOnly: readOnly || !!overrideIds,
     setIds,
     add(id: string) {
+      if (readOnly || overrideIds) return;
       setIds((cur) => (cur.includes(id) ? cur : [...cur, id]));
     },
     remove(id: string) {
+      if (readOnly || overrideIds) return;
       if (LOCKED_IDS.includes(id)) return;
       setIds((cur) => cur.filter((x) => x !== id));
     },
     move(from: number, to: number) {
+      if (readOnly || overrideIds) return;
       setIds((cur) => {
         if (from === to || from < 0 || to < 0 || from >= cur.length || to >= cur.length) return cur;
         const next = [...cur];
