@@ -1027,8 +1027,19 @@ function ClientDashboard({ role }: { role: string | null }) {
   const isDark = useIsDark();
 
   const widgetCtx = useMemo(
-    () => ({ rows: mergedRows, latest, prev, lastUploadAt, isDark }),
-    [mergedRows, latest, prev, lastUploadAt, isDark],
+    () => ({
+      rows: mergedRows,
+      latest,
+      prev,
+      lastUploadAt,
+      isDark,
+      clientId: effectiveId,
+      viewerId: user.id,
+      viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
+        | "admin"
+        | "client",
+    }),
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role],
   );
 
 
