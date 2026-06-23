@@ -665,10 +665,12 @@ function AdminOverview({ role: _role }: { role: string }) {
             </section>
           </div>
       </>
-
+      <AiSpendDialog open={aiSpendOpen} onOpenChange={setAiSpendOpen} />
     </AdminShell>
   );
 }
+
+
 
 function DarkStatCard({
   label,
