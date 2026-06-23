@@ -862,10 +862,12 @@ function CashFlowChart({ ctx }: { ctx: WidgetContext }) {
     () =>
       ctx.rows
         .filter((r) => r.period)
-        .map((r) => ({ month: formatMonthShort(r.period!), Cash: r.cash_balance ?? 0 })),
+        .map((r) => {
+          const cash = r.cash_balance == null ? 0 : Number(r.cash_balance);
+          return { month: formatMonthShort(r.period!), Cash: Number.isFinite(cash) ? cash : 0 };
+        }),
     [ctx.rows],
   );
-  console.info("[chart:CashFlow] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
     <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0}>
 
@@ -908,16 +910,20 @@ function ArApChart({ ctx }: { ctx: WidgetContext }) {
     () =>
       ctx.rows
         .filter((r) => r.period)
-        .map((r) => ({
-          month: formatMonthShort(r.period!),
-          AR: r.total_ar ?? 0,
-          AP: r.total_ap ?? 0,
-        })),
+        .map((r) => {
+          const ar = r.total_ar == null ? 0 : Number(r.total_ar);
+          const ap = r.total_ap == null ? 0 : Number(r.total_ap);
+          return {
+            month: formatMonthShort(r.period!),
+            AR: Number.isFinite(ar) ? ar : 0,
+            AP: Number.isFinite(ap) ? ap : 0,
+          };
+        }),
     [ctx.rows],
   );
-  console.info("[chart:ArAp] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
     <ChartShell title="AR vs AP Over Time" subtitle="Accounts receivable vs payable by month." empty={data.length === 0}>
+
 
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
