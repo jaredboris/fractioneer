@@ -4,6 +4,7 @@ import { Loader2, ShieldCheck, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logo from "@/assets/fractioneer-logo.jpg";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { markMfaVerifiedThisSession, clearMfaVerifiedThisSession } from "@/lib/mfa-session";
 
 export const Route = createFileRoute("/portal/verify-2fa")({
   ssr: false,
@@ -66,10 +67,12 @@ function Verify2FAPage() {
       setCode("");
       return;
     }
+    markMfaVerifiedThisSession();
     navigate({ to: "/portal", replace: true });
   }
 
   async function handleSignOut() {
+    clearMfaVerifiedThisSession();
     await supabase.auth.signOut();
     navigate({ to: "/portal/login", replace: true });
   }

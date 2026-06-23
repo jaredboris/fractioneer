@@ -64,6 +64,10 @@ import { useCompanyName } from "@/hooks/useProfile";
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 import { useImpersonation, startImpersonation } from "@/lib/impersonation";
 import { getCached, setCached } from "@/lib/portal-cache";
+import {
+  clearMfaVerifiedThisSession,
+  wasMfaVerifiedThisSession,
+} from "@/lib/mfa-session";
 
 let cachedPortalGate: {
   user: { id: string; email?: string | null };
@@ -78,6 +82,10 @@ if (typeof window !== "undefined") {
   supabase.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
       cachedPortalGate = null;
+    }
+    if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+      // A fresh sign-in must always re-verify 2FA; sign-out should also clear.
+      clearMfaVerifiedThisSession();
     }
   });
 }
@@ -94,6 +102,8 @@ export const Route = createFileRoute("/portal")({
     // These sub-routes manage their own auth bootstrap and must bypass the gate.
     if (
       location.pathname === "/portal/login" ||
+      location.pathname === "/portal/forgot-password" ||
+      location.pathname === "/portal/reset-password" ||
       location.pathname === "/portal/setup-2fa" ||
       location.pathname === "/portal/verify-2fa"
     ) {
@@ -137,6 +147,17 @@ export const Route = createFileRoute("/portal")({
       if (aal.nextLevel === "aal1" && aal.currentLevel === "aal1") {
         // No verified TOTP factor yet — force enrollment.
         throw redirect({ to: "/portal/setup-2fa" });
+      }
+    }
+
+    // Even when the persisted session is already aal2 (e.g. a saved session
+    // from a prior browser session), require an interactive TOTP verification
+    // for THIS tab. We track that per-tab via sessionStorage.
+    if (!wasMfaVerifiedThisSession()) {
+      const { data: factorsData } = await supabase.auth.mfa.listFactors();
+      const hasVerifiedTotp = (factorsData?.totp ?? []).some((f) => f.status === "verified");
+      if (hasVerifiedTotp) {
+        throw redirect({ to: "/portal/verify-2fa" });
       }
     }
     return { user };
@@ -227,6 +248,7 @@ function PortalHeader({
 }) {
   const navigate = useNavigate();
   async function handleLogout() {
+    clearMfaVerifiedThisSession();
     await supabase.auth.signOut();
     navigate({ to: "/portal/login", replace: true });
   }
