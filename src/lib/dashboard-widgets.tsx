@@ -271,16 +271,6 @@ export const WIDGET_CATALOG: WidgetDef[] = [
     kind: "chart",
     render: (ctx) => <ArApChart ctx={ctx} />,
   },
-  {
-    id: "notes",
-    label: "Notes",
-    kind: "wide",
-    locked: true,
-    defaultOn: true,
-    render: (ctx) => (
-      <NotesCard clientId={ctx.clientId} viewerRole={ctx.viewerRole} viewerId={ctx.viewerId} />
-    ),
-  },
 ];
 
 export const WIDGET_BY_ID = Object.fromEntries(WIDGET_CATALOG.map((w) => [w.id, w]));
