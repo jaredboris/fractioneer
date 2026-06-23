@@ -25,6 +25,8 @@ export function useNotesUnread(
       setUnread(false);
       return;
     }
+    const uid = viewerId;
+    const role = viewerRole;
     let cancelled = false;
 
     async function recompute() {
