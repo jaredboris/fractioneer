@@ -30,8 +30,10 @@ import {
   GripVertical,
   Trash2,
   Lock,
+  Sparkles,
 
 } from "lucide-react";
+
 
 
 // ---- Types & Catalog ---------------------------------------------------------
