@@ -458,18 +458,32 @@ function AdminPage() {
       await saveExtractedFinancials({
         data: { client_id: selectedId, months: extracted.months },
       });
-      setStatus({ kind: "ok", msg: `Saved ${extracted.months.length} month${extracted.months.length === 1 ? "" : "s"} to the client's dashboard.` });
+      setStatus({ kind: "ok", msg: `Saved ${extracted.months.length} month${extracted.months.length === 1 ? "" : "s"} to the client's dashboard. Generating AI insights…` });
+      const sourceRows = extractedSourceRows;
       setExtracted(null);
+      setExtractedSourceRows(null);
       setExistingByPeriod({});
       setXlsxFileName(null);
       setIncomeStatementDetected(false);
       loadClientData(selectedId);
+      // Fire-and-forget: regenerate AI insights for this client. Don't block the
+      // save UX; surface errors quietly.
+      void generateAiInsights({
+        data: { client_id: selectedId, source_rows: sourceRows ?? undefined },
+      })
+        .then((r) => {
+          setStatus({ kind: "ok", msg: `Saved and generated ${r.count} AI insight${r.count === 1 ? "" : "s"}.` });
+        })
+        .catch((err) => {
+          console.error("[ai_insights] generation failed", err);
+        });
     } catch (err) {
       setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Failed to save" });
     } finally {
       setSavingExtracted(false);
     }
   }
+
 
 
 
