@@ -838,47 +838,112 @@ function AdminPage() {
               />
             </label>
 
-            {extracted && (
-              <div className="mt-5 rounded-lg border border-border bg-background p-5">
-                <h3 className="text-sm font-semibold text-foreground">Extracted values</h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  Review before saving. Missing fields came back as null — verify your source file if any of these look wrong.
-                </p>
-                <dl className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <ExtractedRow label="Cash balance" value={extracted.cash_balance} kind="currency" />
-                  <ExtractedRow label="Total AR" value={extracted.total_ar} kind="currency" />
-                  <ExtractedRow label="Total AP" value={extracted.total_ap} kind="currency" />
-                  <ExtractedRow label="Net revenue" value={extracted.net_revenue} kind="currency" />
-                  <ExtractedRow label="Net income" value={extracted.net_income} kind="currency" />
-                  <ExtractedRow label="Period end" value={extracted.period_end} kind="text" />
-                  <ExtractedRow label="Monthly close status" value={extracted.monthly_close_status} kind="text" />
-
-                </dl>
-                {incomeStatementDetected && (extracted.net_revenue == null || extracted.net_income == null) && (
-                  <div className="mt-4 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
-                    Income statement detected but values not extracted — please verify manually.
+            {extracted && extracted.months.length > 0 && (() => {
+              const months = extracted.months;
+              const rows = months.map((m) => {
+                const existing = existingByPeriod[m.period_end] ?? null;
+                const fields: Array<keyof ExistingPeriod> = ["net_revenue", "net_income", "cash_balance", "total_ar", "total_ap"];
+                const diffs: Record<string, boolean> = {};
+                let anyDiff = false;
+                if (existing) {
+                  for (const f of fields) {
+                    const a = m[f] as number | null;
+                    const b = existing[f];
+                    const same = (a == null && b == null) || (a != null && b != null && Math.abs(a - b) < 0.005);
+                    diffs[f] = !same;
+                    if (!same) anyDiff = true;
+                  }
+                }
+                return { m, existing, diffs, status: !existing ? "new" : anyDiff ? "conflict" : "unchanged" as const };
+              });
+              const hasConflicts = rows.some((r) => r.status === "conflict");
+              const allMissingIS = months.every((m) => m.net_revenue == null && m.net_income == null);
+              return (
+                <div className="mt-5 rounded-lg border border-border bg-background p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground">
+                        Extracted {months.length} month{months.length === 1 ? "" : "s"}
+                      </h3>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Review before saving. Most-recent-upload-wins per month.
+                      </p>
+                    </div>
                   </div>
-                )}
-                <div className="mt-5 flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => { setExtracted(null); setXlsxFileName(null); setIncomeStatementDetected(false); }}
-                    className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
-                  >
-                    Discard
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleConfirmExtracted}
-                    disabled={savingExtracted}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
-                  >
-                    {savingExtracted && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    Confirm & save
-                  </button>
+
+                  {hasConflicts && (
+                    <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+                      One or more months already have data — confirming will overwrite the existing values.
+                    </div>
+                  )}
+                  {incomeStatementDetected && allMissingIS && (
+                    <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+                      Income statement detected but values not extracted — please verify manually.
+                    </div>
+                  )}
+
+                  <div className="mt-4 overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-border text-left text-muted-foreground">
+                          <th className="px-2 py-2 font-medium">Period</th>
+                          <th className="px-2 py-2 font-medium text-right">Net revenue</th>
+                          <th className="px-2 py-2 font-medium text-right">Net income</th>
+                          <th className="px-2 py-2 font-medium text-right">Cash</th>
+                          <th className="px-2 py-2 font-medium text-right">AR</th>
+                          <th className="px-2 py-2 font-medium text-right">AP</th>
+                          <th className="px-2 py-2 font-medium text-right">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map(({ m, existing, diffs, status }) => (
+                          <tr
+                            key={m.period_end}
+                            className={
+                              status === "conflict"
+                                ? "border-b border-amber-500/30 bg-amber-500/5"
+                                : "border-b border-border"
+                            }
+                          >
+                            <td className="px-2 py-2 font-medium text-foreground">{m.period_end}</td>
+                            <DiffCell newVal={m.net_revenue} oldVal={existing?.net_revenue ?? null} diff={!!diffs.net_revenue} />
+                            <DiffCell newVal={m.net_income} oldVal={existing?.net_income ?? null} diff={!!diffs.net_income} />
+                            <DiffCell newVal={m.cash_balance} oldVal={existing?.cash_balance ?? null} diff={!!diffs.cash_balance} />
+                            <DiffCell newVal={m.total_ar} oldVal={existing?.total_ar ?? null} diff={!!diffs.total_ar} />
+                            <DiffCell newVal={m.total_ap} oldVal={existing?.total_ap ?? null} diff={!!diffs.total_ap} />
+                            <td className="px-2 py-2 text-right">
+                              {status === "new" && <span className="text-emerald-600 dark:text-emerald-400">New</span>}
+                              {status === "unchanged" && <span className="text-muted-foreground">Unchanged</span>}
+                              {status === "conflict" && <span className="text-amber-700 dark:text-amber-300">Overwrite</span>}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="mt-5 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setExtracted(null); setExistingByPeriod({}); setXlsxFileName(null); setIncomeStatementDetected(false); }}
+                      className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                    >
+                      Discard
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleConfirmExtracted}
+                      disabled={savingExtracted}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                    >
+                      {savingExtracted && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      Confirm & save {months.length} month{months.length === 1 ? "" : "s"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
+
           </section>
         )}
 
