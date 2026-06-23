@@ -68,6 +68,11 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const search = useRouterState({ select: (s) => s.location.search as Record<string, string> });
   const { theme, setTheme } = useTheme();
+  const [viewerId, setViewerId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setViewerId(data.user?.id ?? null));
+  }, []);
+  const notesUnread = useNotesUnread(viewerId, "admin");
 
   async function handleLogout() {
     await supabase.auth.signOut();
