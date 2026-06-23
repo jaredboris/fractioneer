@@ -948,12 +948,24 @@ function ClientDashboard({ role }: { role: string | null }) {
         supabase.from("documents").select("*").eq("client_id", effectiveId).order("created_at", { ascending: false }),
       ]);
       if (cancelled) return;
+      // [charts-diag] Temporary diagnostic to confirm why charts appear empty.
+      // Remove once the root cause is confirmed.
+      // eslint-disable-next-line no-console
+      console.log("[charts-diag]", {
+        effectiveId,
+        viewerId: user.id,
+        impersonating: !!impersonation,
+        viewerRole: role,
+        periodsRows: (pers ?? []).length,
+        dashboardRows: (dash ?? []).length,
+        firstPeriod: (pers ?? [])[0] ?? null,
+      });
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setPeriodsRows((pers ?? []) as PeriodRow[]);
       setDocs(documents ?? []);
     })();
     return () => { cancelled = true; };
-  }, [effectiveId]);
+  }, [effectiveId, impersonation, role, user.id]);
 
   async function getSignedUrl(path: string, download?: string) {
     const { data, error } = await supabase.storage
