@@ -58,6 +58,11 @@ export function PortalSidebar({
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { theme, setTheme } = useTheme();
+  const [viewerId, setViewerId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setViewerId(data.user?.id ?? null));
+  }, []);
+  const notesUnread = useNotesUnread(viewerId, role === "admin" ? "admin" : "client");
 
   async function handleLogout() {
     await supabase.auth.signOut();
