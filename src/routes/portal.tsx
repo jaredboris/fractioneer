@@ -1072,9 +1072,11 @@ function ClientDashboard({ role }: { role: string | null }) {
         | "admin"
         | "client",
       aiInsights,
+      generatingInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights, generatingInsights],
   );
+
 
 
 
