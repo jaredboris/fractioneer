@@ -32,7 +32,7 @@ function useTheme() {
     root.classList.add("theme-transition");
     root.classList.toggle("dark", theme === "dark");
     root.style.colorScheme = theme;
-    document.body.style.backgroundColor = theme === "dark" ? "#0A0F1E" : "#EEF2FA";
+    document.body.style.backgroundColor = theme === "dark" ? "#05070D" : "#EEF2FA";
     window.localStorage.setItem(THEME_KEY, theme);
     const t = window.setTimeout(() => root.classList.remove("theme-transition"), 500);
     return () => window.clearTimeout(t);
@@ -82,7 +82,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const activeTab = (search?.tab as string) || "clients";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#0A0F1E]">
+    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#05070D]">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
@@ -197,7 +197,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
 
 export function AdminShell({ email, children }: { email: string | null; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full bg-[#EEF2FA] dark:bg-[#0A0F1E]">
+    <div className="flex min-h-screen w-full bg-[#EEF2FA] dark:bg-[#05070D]">
       <AdminSidebar email={email} />
       <main className="flex-1 min-w-0 p-6 md:p-8">{children}</main>
     </div>
