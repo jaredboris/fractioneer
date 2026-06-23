@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
-import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, type ExtractedFinancials } from "@/lib/portal.functions";
+import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
 import * as XLSX from "xlsx";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -349,7 +349,9 @@ function AdminPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [savingExtracted, setSavingExtracted] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
+  const [existingByPeriod, setExistingByPeriod] = useState<Record<string, ExistingPeriod>>({});
   const [incomeStatementDetected, setIncomeStatementDetected] = useState(false);
+
 
   async function handleXlsxSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
