@@ -1131,7 +1131,7 @@ function ClientDashboard({ role }: { role: string | null }) {
     setDocs([]);
     setAiInsights([]);
     async function loadAll() {
-      const [{ data: dash }, { data: pers, error: persErr }, { data: documents }, { data: insights }] = await Promise.all([
+      const [{ data: dash }, { data: pers }, { data: documents }, { data: insights }] = await Promise.all([
         supabase
           .from("dashboard_data")
           .select("*")
@@ -1149,8 +1149,8 @@ function ClientDashboard({ role }: { role: string | null }) {
           .eq("client_id", effectiveId)
           .order("created_at", { ascending: true }),
       ]);
-      // [diagnostic] confirm row counts coming back from Supabase for this viewer.
-      console.info("[dashboard] for", effectiveId, "periods:", pers?.length ?? 0, pers?.[0], "dashboard_data:", dash?.length ?? 0, "insights:", insights?.length ?? 0, "periodsErr:", persErr);
+
+
       if (cancelled) return;
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setPeriodsRows((pers ?? []) as PeriodRow[]);

@@ -769,7 +769,7 @@ function ChartShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-[280px] flex-col rounded-xl p-4 nb-card h-full">
+    <div className="flex flex-col rounded-xl p-4 nb-card h-full">
       <div className="mb-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
           {title}
@@ -777,15 +777,16 @@ function ChartShell({
         <p className="text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
       </div>
       {empty ? (
-        <div className="flex flex-1 items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
+        <div className="flex h-[240px] items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
           More data will appear as your Fractioneer team uploads monthly financials.
         </div>
       ) : (
-        <div className="h-[200px] w-full flex-1">{children}</div>
+        <div style={{ width: "100%", height: 240 }}>{children}</div>
       )}
     </div>
   );
 }
+
 
 
 function RevExpChart({ ctx }: { ctx: WidgetContext }) {
@@ -794,17 +795,21 @@ function RevExpChart({ ctx }: { ctx: WidgetContext }) {
     () =>
       ctx.rows
         .filter((r) => r.period)
-        .map((r) => ({
-          month: formatMonthShort(r.period!),
-          Revenue: r.net_revenue ?? 0,
-          Expenses: computeExpenses(r) ?? 0,
-        })),
+        .map((r) => {
+          const rev = r.net_revenue == null ? 0 : Number(r.net_revenue);
+          const exp = computeExpenses(r);
+          return {
+            month: formatMonthShort(r.period!),
+            Revenue: Number.isFinite(rev) ? rev : 0,
+            Expenses: exp == null || !Number.isFinite(exp) ? 0 : Number(exp),
+          };
+        }),
     [ctx.rows],
   );
-  // [diagnostic] confirm rows reach the chart; remove once root cause confirmed.
-  console.info("[chart:RevExp] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
     <ChartShell title="Revenue vs Expenses" subtitle="By month, based on submitted financials." empty={data.length === 0}>
+
+
 
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
@@ -857,10 +862,12 @@ function CashFlowChart({ ctx }: { ctx: WidgetContext }) {
     () =>
       ctx.rows
         .filter((r) => r.period)
-        .map((r) => ({ month: formatMonthShort(r.period!), Cash: r.cash_balance ?? 0 })),
+        .map((r) => {
+          const cash = r.cash_balance == null ? 0 : Number(r.cash_balance);
+          return { month: formatMonthShort(r.period!), Cash: Number.isFinite(cash) ? cash : 0 };
+        }),
     [ctx.rows],
   );
-  console.info("[chart:CashFlow] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
     <ChartShell title="Cash Flow Over Time" subtitle="Cash balance trend by month." empty={data.length === 0}>
 
@@ -903,16 +910,20 @@ function ArApChart({ ctx }: { ctx: WidgetContext }) {
     () =>
       ctx.rows
         .filter((r) => r.period)
-        .map((r) => ({
-          month: formatMonthShort(r.period!),
-          AR: r.total_ar ?? 0,
-          AP: r.total_ap ?? 0,
-        })),
+        .map((r) => {
+          const ar = r.total_ar == null ? 0 : Number(r.total_ar);
+          const ap = r.total_ap == null ? 0 : Number(r.total_ap);
+          return {
+            month: formatMonthShort(r.period!),
+            AR: Number.isFinite(ar) ? ar : 0,
+            AP: Number.isFinite(ap) ? ap : 0,
+          };
+        }),
     [ctx.rows],
   );
-  console.info("[chart:ArAp] rows", ctx.rows.length, "non-null period rows", data.length);
   return (
     <ChartShell title="AR vs AP Over Time" subtitle="Accounts receivable vs payable by month." empty={data.length === 0}>
+
 
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
