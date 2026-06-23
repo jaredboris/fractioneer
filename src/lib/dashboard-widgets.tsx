@@ -945,19 +945,21 @@ function ArApChart({ ctx }: { ctx: WidgetContext }) {
           <Line
             type="monotone"
             dataKey="AR"
-            stroke="#3B82F6"
+            stroke="#60A5FA"
             strokeWidth={2.5}
-            dot={{ r: 3, fill: "#3B82F6" }}
+            dot={{ r: 3, fill: "#60A5FA", stroke: "#93C5FD", strokeWidth: 1 }}
+            activeDot={{ r: 6, fill: "#93C5FD" }}
             animationDuration={1100}
             animationEasing="ease-out"
-            style={{ filter: "drop-shadow(0 0 6px rgba(59,130,246,0.45))" }}
+            style={{ filter: "drop-shadow(0 0 8px rgba(96,165,250,0.85)) drop-shadow(0 0 18px rgba(59,130,246,0.5))" }}
           />
           <Line
             type="monotone"
             dataKey="AP"
-            stroke={ctx.isDark ? "#94A3B8" : "#64748B"}
+            stroke={ctx.isDark ? "#64748B" : "#64748B"}
             strokeWidth={2.5}
-            dot={{ r: 3, fill: ctx.isDark ? "#94A3B8" : "#64748B" }}
+            strokeDasharray="4 4"
+            dot={{ r: 3, fill: ctx.isDark ? "#64748B" : "#64748B" }}
             animationDuration={1100}
             animationBegin={150}
             animationEasing="ease-out"
