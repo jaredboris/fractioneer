@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { clearMfaVerifiedThisSession } from "@/lib/mfa-session";
+
 import logo from "@/assets/fractioneer-logo.jpg";
 
 export const Route = createFileRoute("/portal/reset-password")({
@@ -60,7 +60,6 @@ function ResetPasswordPage() {
       return;
     }
     // Sign out so the recovery session can't slip past the 2FA gate.
-    clearMfaVerifiedThisSession();
     await supabase.auth.signOut();
     setDone(true);
     setLoading(false);

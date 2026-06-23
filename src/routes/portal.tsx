@@ -65,10 +65,6 @@ import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 import { useImpersonation, startImpersonation, useAdminOverride } from "@/lib/impersonation";
 import { getCached, setCached } from "@/lib/portal-cache";
 import { DEFAULT_IDS } from "@/lib/dashboard-widgets";
-import {
-  clearMfaVerifiedThisSession,
-  wasMfaVerifiedThisSession,
-} from "@/lib/mfa-session";
 
 let cachedPortalGate: {
   user: { id: string; email?: string | null };
@@ -148,17 +144,6 @@ export const Route = createFileRoute("/portal")({
       if (aal.nextLevel === "aal1" && aal.currentLevel === "aal1") {
         // No verified TOTP factor yet — force enrollment.
         throw redirect({ to: "/portal/setup-2fa" });
-      }
-    }
-
-    // Even when the persisted session is already aal2 (e.g. a saved session
-    // from a prior browser session), require an interactive TOTP verification
-    // for THIS tab. We track that per-tab via sessionStorage.
-    if (!wasMfaVerifiedThisSession()) {
-      const { data: factorsData } = await supabase.auth.mfa.listFactors();
-      const hasVerifiedTotp = (factorsData?.totp ?? []).some((f) => f.status === "verified");
-      if (hasVerifiedTotp) {
-        throw redirect({ to: "/portal/verify-2fa" });
       }
     }
     return { user };
