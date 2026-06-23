@@ -1,54 +1,57 @@
-## What this changes
+## Reporting Periods table redesign (admin → Clients tab)
 
-Two related fixes around the financial Excel upload.
+All in `src/routes/portal.admin.tsx`, no schema changes.
 
-### 1. Persist the uploaded source file
+### Removed
 
-Today the admin upload parses the .xlsx in the browser, sends rows to AI, and discards the file. Nothing reaches Storage, so `periods.document_id` is always null and the Reports download button never appears.
+- The `<form onSubmit={handleSavePeriod}>` manual-entry grid above the table (lines ~799-830) and its supporting state: `periodForm`, `setPeriodForm`, `savingPeriod`, `handleSavePeriod`, `parseNum` (still used here only).
+- The per-row `Trash2` button and `handleDeletePeriod`'s `confirm()`-based flow (replaced by the modal's stronger confirm).
+- Subtitle wording about "Use one row per period end date" — replaced with "Uploaded via the Upload tab. Click a row to view, re-upload, or delete."
 
-**Upload flow change** (`src/routes/portal.admin.tsx → handleConfirmExtracted`):
+### Table rows become clickable
 
-After AI extraction succeeds and the admin clicks "Confirm save":
-1. Upload the original `File` to `client-documents/{client_id}/source/{timestamp}-{filename}` via `supabase.storage`.
-2. Call a new server function `saveExtractedFinancials` extension that also receives `{ file_name, file_path, file_size }`, inserts one row in `public.documents`, and stamps `periods.document_id` for every month in the upload.
-3. Keep the file object in component state (`uploadedFile`) from `handleXlsxSelected` so it's available at confirm time.
+Each `<tr>` gets `onClick={() => setOpenPeriod(p)}`, `role="button"`, hover styles, and a focus ring. Trailing chevron icon in a new last column hints at the drill-in. The GM column now renders the computed margin (see below).
 
-**Server function update** (`src/lib/portal.functions.ts`):
+### Slide-out detail panel
 
-Extend `saveExtractedFinancials` input with an optional `document: { file_name, file_path, file_size }`. Inside the handler:
-- Insert into `public.documents` (returns `id`).
-- Include `document_id` in every period upsert row.
+New `<PeriodDetailDialog>` rendered inside the same section. Built on the existing shadcn `Sheet` component (already in the project — same dark theme as everything else). Shows when `openPeriod` is set.
 
-No new bucket, no new table — `client-documents` and `documents` already exist with correct RLS. The bucket-side admin policy already gates inserts; client-side reads are gated by the existing `documents` row check.
+Contents:
+- Header: "Period ending {fmtDate(p.period_end)}".
+- Definition list of every stored field: Net revenue, Net income, Gross margin (computed), Cash balance, Total AR, Total AP, all currency-formatted with `Intl.NumberFormat`.
+- Source file row: if `p.document_id`, show the linked file name with a download button (signed URL via `client-documents` bucket, same pattern as Reports page). If null, show "No source file linked".
+- Footer with two buttons:
+  - **Re-upload** (secondary): closes the panel, switches `tab` to `"upload"`, sets a new `prefillPeriodEnd` state, and the existing Upload card pre-fills the date and shows a small "Re-uploading {period_end} — new data will overwrite this row" banner. The actual file-pick flow is unchanged; `saveExtractedFinancials` already upserts by `(client_id, period_end)` so re-upload simply replaces. No new server function.
+  - **Delete period** (destructive red, `bg-destructive`): triggers an inline two-step confirm inside the panel — replaces the buttons with the warning copy verbatim:
 
-**AI Insights card disclaimer** (`src/lib/dashboard-widgets.tsx`):
+    > This will permanently remove **{fmtDate(p.period_end)}** data from the client dashboard and charts. This cannot be undone.
 
-Replace the bare "AI-generated, may contain errors" line with the same text plus a "Download source file" link. The widget context already has `effectiveId`; the link queries the latest `documents` row for that client and triggers `supabase.storage.from("client-documents").createSignedUrl(path, 60, { download })`. Hidden when no document exists.
+    plus a "Cancel" button and a final red **"Delete permanently"** button. Only the second click runs `supabase.from("periods").delete().eq("id", p.id)`, reloads, and closes the panel. No native `confirm()`.
 
-**Reports page**: no code change needed — it already reads `periods.documents(file_name, file_path)` and renders the Download button when present. It just hasn't been getting data because nothing was uploading.
+### Gross margin column fix
 
-### 2. Feed transaction-level data to AI Insights
+`periods` has `net_revenue` and `net_income` but no `total_expenses` column. The requested formula `(net_revenue - total_expenses) / net_revenue` is algebraically `net_income / net_revenue`, so compute it client-side from the two values we already have:
 
-Today `handleXlsxSelected` builds `rowsStr` after **dropping** any sheet whose name matches `gl / general ledger / detail / invoices / payments`. That string is what's passed to both `extractFinancialsFromRows` and `generateAiInsights`. So insights like "slowest paying customers" and "revenue concentration by customer" have no source data and are silently skipped.
+```ts
+const gm = p.net_revenue && p.net_revenue !== 0
+  ? (p.net_income ?? 0) / p.net_revenue
+  : null;
+```
 
-**Fix**:
-- Build a second blob, `insightsSourceRows`, that **keeps** the invoices/payments/AR-aging tabs (drops only the truly huge GL when `rows > MAX_ROWS`). Cap at 380KB (same as the model handler).
-- Store this in `extractedSourceRows` instead of the extraction-narrowed string.
-- The extraction call keeps using the narrow `rowsStr` (it only needs IS + BS for the period summary).
-- `generateAiInsights` receives the wider blob, so payment-speed / concentration / overdue-AR-by-customer categories have real input. The existing advisory-language scrub and per-category dedupe stay.
+Format as `%` with one decimal (`42.3%`), em-dash when null or revenue is zero. Applies to both the table cell and the detail panel. The stored `gross_margin` column is left untouched (other places like Reports still read it; that's a separate concern).
 
-No prompt changes — the system prompt already names the categories that need the source file rows.
+### Sort order
+
+Already `order("period_end", { ascending: false })` — kept as-is.
 
 ## Technical detail
 
-- New migration: none (schema already supports this).
-- New server function: none — extend `saveExtractedFinancials` signature; add an optional `document` field validated by Zod.
-- Storage path convention: `{client_id}/source/{ISO-timestamp}-{sanitized-filename}.xlsx`. Putting it under `{client_id}/…` keeps it inside the existing admin/client RLS folder check.
-- `documents.file_path` is `UNIQUE` — using a timestamp prefix avoids collisions on re-upload of the same filename.
-- AI Insights card: add a small `useEffect` (or inline `useQuery`) inside `AiInsightsCard` that fetches `select id, file_path, file_name from documents where client_id = effectiveId order by created_at desc limit 1` once on mount.
+- New state: `openPeriod: PeriodRow | null`, `confirmingDelete: boolean`, `deleting: boolean`, `prefillPeriodEnd: string | null`.
+- Re-upload prefill is consumed in `handleXlsxSelected` to scope the existing-period existence check; it doesn't restrict which months the user actually uploads (extraction still returns whatever is in the file).
+- Unused imports (`Plus`) cleaned up; `Trash2` kept (Documents list still uses it).
 
 ## Out of scope
 
-- Replacing or de-duplicating existing documents for re-uploads (new upload = new file, old one stays).
-- Showing a list of past uploads on the admin page.
-- Streaming or progress UI for the storage upload step.
+- Editing field values inside the panel (data is upload-driven).
+- Backfilling `periods.gross_margin` or adding a `total_expenses` column.
+- Bulk delete or multi-select.
