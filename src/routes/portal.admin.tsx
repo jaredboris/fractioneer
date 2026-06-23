@@ -436,8 +436,10 @@ function AdminPage() {
       setUploadedFile(null);
     } finally {
       setAnalyzing(false);
+      setAnalyzePhase(null);
     }
   }
+
 
   async function handleConfirmExtracted() {
     if (!extracted || extracted.months.length === 0 || !selectedId) return;
