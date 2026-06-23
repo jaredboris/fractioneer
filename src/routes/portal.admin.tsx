@@ -369,6 +369,7 @@ function AdminPage() {
     if (!file || !selectedId) return;
     setStatus(null);
     setExtracted(null);
+    setExtractedSourceRows(null);
     setExistingByPeriod({});
     setIncomeStatementDetected(false);
     setAnalyzing(true);
