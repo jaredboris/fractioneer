@@ -324,6 +324,8 @@ function AdminPage() {
   const [xlsxFileName, setXlsxFileName] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [analyzePhase, setAnalyzePhase] = useState<"reading" | "extracting" | "finalizing" | null>(null);
+
   const [savingExtracted, setSavingExtracted] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
   const [extractedSourceRows, setExtractedSourceRows] = useState<string | null>(null);
