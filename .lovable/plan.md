@@ -1,52 +1,27 @@
-## Let Admin Override edit and save the client's widget layout
+## Make widget preferences sync live across admin and client
 
-### Behavior
+The `widget_prefs` table (per-user `widget_ids text[]`) already exists, and `useWidgetPrefs` already upserts to it. The reason changes don't appear across browsers:
 
-- Spy mode, override OFF: client's saved layout, read-only (no edit/add buttons). Unchanged.
-- Spy mode, override ON: dashboard shows the default layout (Monthly Close, Cash Position, AR, AP). "Manage Widgets" and "Add Widget" buttons appear. Drag/add/remove all work, and each change upserts the client's `widget_prefs` row — overwriting their stored layout.
-- Toggling override OFF reloads the client's now-updated layout from the server.
-- Admin's own dashboard and client-side behavior: unchanged.
+1. `useWidgetPrefs` keeps a `localStorage` cache (`portal.dashboard.widgets.v2:{clientId}`) that's used as the initial state and updated on every write. On the *other* browser, the cache holds the stale layout and only the one-shot fetch on mount reconciles it. Until that fetch resolves, the stale cache flashes; after it resolves, no further updates arrive unless the user refreshes.
+2. There's no realtime subscription, so a change made in the admin's tab never pushes into the client's tab (and vice versa) without a manual reload.
 
 ### Changes
 
-**Migration — `widget_prefs` admin write policy**
-Currently admins can SELECT any row but only the owner can write. Add:
-
-```sql
-CREATE POLICY "Admins can manage all widget prefs"
-  ON public.widget_prefs FOR ALL
-  USING (public.has_role(auth.uid(), 'admin'))
-  WITH CHECK (public.has_role(auth.uid(), 'admin'));
-```
-
-Existing owner policy stays. Admins still need AAL2 because `has_role` doesn't re-check it — acceptable since the portal gate already enforces AAL2 before this code runs.
-
 **`src/lib/dashboard-widgets.tsx` — `useWidgetPrefs`**
-Split the two concepts that are currently fused into `overrideIds`:
-- `readOnly` (boolean) — disables mutations and writes; hides edit UI.
-- `overrideIds` (string[] | null) — when transitioning from null → array, seeds local `ids` state with this list *without persisting*. When it transitions back to null, re-fetch from the server.
+- Remove the localStorage cache entirely: delete `LEGACY_STORAGE_KEY`, `cacheKey`, `loadFromCache`, and every `window.localStorage.*` call in the hook. Initial state becomes `DEFAULT_IDS` until the server row resolves.
+- Keep the existing fetch effect (keyed on `clientId` and `overrideIds`) as the initial load.
+- Add a Supabase realtime subscription on `widget_prefs` filtered to `user_id=eq.{clientId}`, listening for `INSERT` and `UPDATE`. On each event, normalize `new.widget_ids` and `setIdsState(next)` — but skip while `overrideIds` is active so an admin's working draft isn't clobbered by their own write echo.
+- The persist path stays the same upsert; no local cache write.
 
-Replace the current `effectiveIds = overrideIds ? normalize(overrideIds) : ids` shortcut. Instead:
-- Keep a ref of the previous `overrideIds` value.
-- When override flips on: `setIdsState(normalize(overrideIds))`. Don't write to cache or server.
-- When override flips off: re-run the existing server fetch effect to restore the client's saved layout.
-- Mutations (`setIds` / `add` / `remove` / `move`) work whenever `!readOnly`, regardless of override. `persist()` writes to `widget_prefs` row keyed by `clientId` — which is already the spy target.
-- Returned `readOnly` becomes just the input `readOnly` (no longer `|| !!overrideIds`).
+**No schema or RLS changes.** The existing `widget_prefs` table, the owner-write policy, and the admin-write policy from the last migration already cover both sides.
 
-**`src/routes/portal.tsx`**
-Update the call site so override mode is editable:
+### Behavior after the change
 
-```ts
-const widgets = useWidgetPrefs(effectiveId, {
-  readOnly: !!impersonation && !override,
-  overrideIds: impersonation && override ? DEFAULT_IDS : null,
-});
-```
+- Client edits a widget → upsert to `widget_prefs` → admin's open spy-mode tab receives the realtime UPDATE and re-renders with the new order.
+- Admin in spy mode with Admin Override edits a widget → upsert to the *client's* `widget_prefs` row → client's open dashboard receives the realtime UPDATE and re-renders.
+- First paint shows the default layout briefly before the server row resolves (single small fetch, no flash of someone else's stale cache).
+- No more cross-browser drift, no manual refresh required.
 
-The existing `{!widgets.readOnly && (...)}` gate already controls the Manage / Add Widget buttons, so they'll appear automatically when override is on. No other UI changes needed.
+### File touched
 
-### Files
-
-- new migration for the admin write policy on `widget_prefs`
 - `src/lib/dashboard-widgets.tsx`
-- `src/routes/portal.tsx`
