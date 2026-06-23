@@ -53,6 +53,7 @@ const NAV: ReadonlyArray<NavItem> = [
   { label: "Clients", to: "/portal/admin", search: { tab: "clients" }, icon: Users, matchTab: "clients" },
   { label: "Upload Financials", to: "/portal/admin", search: { tab: "upload" }, icon: Upload, matchTab: "upload" },
   { label: "Activity Log", to: "/portal/admin", search: { tab: "activity" }, icon: ScrollText, matchTab: "activity" },
+  { label: "Notes", to: "/portal/notes", icon: MessageSquare },
   { label: "Settings", to: "/portal/settings", icon: SettingsIcon },
 ];
 
