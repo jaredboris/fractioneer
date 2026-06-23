@@ -357,7 +357,9 @@ function AdminPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const [savingExtracted, setSavingExtracted] = useState(false);
   const [extracted, setExtracted] = useState<ExtractedFinancials | null>(null);
+  const [extractedSourceRows, setExtractedSourceRows] = useState<string | null>(null);
   const [existingByPeriod, setExistingByPeriod] = useState<Record<string, ExistingPeriod>>({});
+
   const [incomeStatementDetected, setIncomeStatementDetected] = useState(false);
 
 
