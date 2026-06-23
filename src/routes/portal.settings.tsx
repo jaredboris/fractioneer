@@ -119,9 +119,103 @@ function SettingsPage() {
           ) : (
             <SecurityCard />
           )}
+          {!impersonation && <ChangePasswordCard email={user.email ?? null} />}
         </div>
       </main>
     </div>
+  );
+}
+
+function ChangePasswordCard({ email }: { email: string | null }) {
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    if (!email) {
+      setError("No email on file for this account.");
+      return;
+    }
+    if (next.length < 8) {
+      setError("New password must be at least 8 characters.");
+      return;
+    }
+    if (next !== confirm) {
+      setError("New passwords do not match.");
+      return;
+    }
+    setLoading(true);
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: current,
+    });
+    if (signInError) {
+      setLoading(false);
+      setError("Current password is incorrect.");
+      return;
+    }
+    const { error: updateError } = await supabase.auth.updateUser({ password: next });
+    setLoading(false);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    setCurrent("");
+    setNext("");
+    setConfirm("");
+    setSuccess(true);
+  }
+
+  const inputCls =
+    "mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#0A0F1E] dark:text-white";
+  const labelCls = "block text-xs font-medium text-slate-700 dark:text-[#E5E7EB]";
+
+  return (
+    <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A] md:col-span-2">
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
+        Change Password
+      </h2>
+      <form onSubmit={onSubmit} className="mt-4 grid gap-3 md:grid-cols-3">
+        <div>
+          <label className={labelCls} htmlFor="current-pw">Current password</label>
+          <input id="current-pw" type="password" autoComplete="current-password" required value={current} onChange={(e) => setCurrent(e.target.value)} className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls} htmlFor="new-pw">New password</label>
+          <input id="new-pw" type="password" autoComplete="new-password" required minLength={8} value={next} onChange={(e) => setNext(e.target.value)} className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls} htmlFor="confirm-pw">Confirm new password</label>
+          <input id="confirm-pw" type="password" autoComplete="new-password" required minLength={8} value={confirm} onChange={(e) => setConfirm(e.target.value)} className={inputCls} />
+        </div>
+        <div className="md:col-span-3 flex flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
+          >
+            {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            Update password
+          </button>
+          {error && (
+            <span className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs text-red-600 dark:text-red-300">
+              {error}
+            </span>
+          )}
+          {success && (
+            <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+              Password updated.
+            </span>
+          )}
+        </div>
+      </form>
+    </section>
   );
 }
 
