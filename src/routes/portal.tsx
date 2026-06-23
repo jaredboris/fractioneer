@@ -311,6 +311,8 @@ function AdminOverview({ role: _role }: { role: string }) {
   const [, setUploadsThisMonth] = useState<number>(0);
   const [aiSpendThisMonth, setAiSpendThisMonth] = useState<number>(0);
   const [aiCallsThisMonth, setAiCallsThisMonth] = useState<number>(0);
+  const [aiSpendOpen, setAiSpendOpen] = useState(false);
+
 
   useEffect(() => {
     let cancelled = false;
