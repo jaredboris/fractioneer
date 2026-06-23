@@ -32,6 +32,7 @@ import {
   Lock,
 
 } from "lucide-react";
+import { NotesCard } from "@/components/portal/NotesCard";
 
 // ---- Types & Catalog ---------------------------------------------------------
 
