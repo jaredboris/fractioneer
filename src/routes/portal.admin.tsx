@@ -1423,3 +1423,57 @@ function ActivityLogPanel() {
     </section>
   );
 }
+
+function ExtractionProgress({
+  phase,
+  fileName,
+}: {
+  phase: "reading" | "extracting" | "finalizing" | null;
+  fileName: string | null;
+}) {
+  const steps: { id: "reading" | "extracting" | "finalizing"; label: string }[] = [
+    { id: "reading", label: "Reading sheets…" },
+    { id: "extracting", label: "Extracting monthly figures…" },
+    { id: "finalizing", label: "Almost done…" },
+  ];
+  const order: Record<string, number> = { reading: 0, extracting: 1, finalizing: 2 };
+  const currentIdx = phase ? order[phase] : -1;
+  return (
+    <div className="flex w-full flex-col items-center gap-2">
+      <div className="text-xs text-muted-foreground">
+        Analyzing {fileName ?? "spreadsheet"}…
+      </div>
+      <ul className="flex w-full max-w-md flex-col gap-1.5">
+        {steps.map((s, i) => {
+          const done = i < currentIdx;
+          const active = i === currentIdx;
+          return (
+            <li key={s.id} className="flex items-center gap-2 text-xs">
+              <span
+                className={`flex h-4 w-4 items-center justify-center rounded-full ${
+                  done
+                    ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
+                    : active
+                      ? "bg-blue-500/20 text-blue-600 dark:text-blue-300"
+                      : "bg-muted text-muted-foreground/50"
+                }`}
+              >
+                {done ? (
+                  <CheckCircle2 className="h-3 w-3" />
+                ) : active ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                )}
+              </span>
+              <span className={done || active ? "text-foreground" : "text-muted-foreground/60"}>
+                {s.label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
