@@ -30,19 +30,16 @@ export function useNotesUnread(
     let cancelled = false;
 
     async function recompute() {
-      // Pull notes from the other party + this viewer's read-state rows.
-      const otherRole = viewerRole === "admin" ? "client" : "admin";
-      const notesQuery = supabase
-        .from("notes")
-        .select("client_id, created_at")
-        .eq("author_role", otherRole);
-      // Clients only see their own thread anyway thanks to RLS; admins see all.
+      const otherRole = role === "admin" ? "client" : "admin";
       const [{ data: notes }, { data: readRows }] = await Promise.all([
-        notesQuery,
+        supabase
+          .from("notes")
+          .select("client_id, created_at")
+          .eq("author_role", otherRole),
         supabase
           .from("notes_read_state")
           .select("client_id, last_read_at")
-          .eq("user_id", viewerId),
+          .eq("user_id", uid),
       ]);
       if (cancelled) return;
       const lastRead = new Map<string, number>();
