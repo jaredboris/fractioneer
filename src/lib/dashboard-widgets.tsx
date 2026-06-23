@@ -31,8 +31,11 @@ import {
   Trash2,
   Lock,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 
 } from "lucide-react";
+
 
 
 
