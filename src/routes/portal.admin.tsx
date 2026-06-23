@@ -883,17 +883,14 @@ function AdminPage() {
             )}
 
 
-            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
               {analyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Analyzing {xlsxFileName ?? "spreadsheet"}…
-                </>
+                <ExtractionProgress phase={analyzePhase} fileName={xlsxFileName} />
               ) : (
-                <>
+                <span className="flex items-center gap-2">
                   <Upload className="h-4 w-4" />
                   {xlsxFileName && extracted ? `Replace (${xlsxFileName})` : "Click to upload .xlsx"}
-                </>
+                </span>
               )}
               <input
                 type="file"
@@ -903,6 +900,7 @@ function AdminPage() {
                 disabled={analyzing || savingExtracted}
               />
             </label>
+
 
             {extracted && extracted.months.length > 0 && (() => {
               const months = extracted.months;
