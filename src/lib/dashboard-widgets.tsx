@@ -746,11 +746,11 @@ function CountUpValue({
 
 function chartTheme(isDark: boolean) {
   return {
-    axisStroke: isDark ? "#6B7280" : "#94A3B8",
-    gridStroke: isDark ? "#1E2A3A" : "#E5E9F1",
-    expensesFill: isDark ? "#374151" : "#E2E8F0",
-    tooltipBg: isDark ? "#111827" : "#FFFFFF",
-    tooltipBorder: isDark ? "#1E2A3A" : "#E5E9F1",
+    axisStroke: isDark ? "#4B5563" : "#94A3B8",
+    gridStroke: isDark ? "rgba(255,255,255,0.05)" : "#E5E9F1",
+    expensesFill: isDark ? "#1F2937" : "#E2E8F0",
+    tooltipBg: isDark ? "#0A0E18" : "#FFFFFF",
+    tooltipBorder: isDark ? "rgba(96,165,250,0.35)" : "#E5E9F1",
     tooltipText: isDark ? "#E5E7EB" : "#0F172A",
     legendColor: isDark ? "#9CA3AF" : "#475569",
   };
@@ -815,8 +815,9 @@ function RevExpChart({ ctx }: { ctx: WidgetContext }) {
         <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="nbRevenue2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#60A5FA" stopOpacity={1} />
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity={0.85} />
+              <stop offset="0%" stopColor="#93C5FD" stopOpacity={1} />
+              <stop offset="40%" stopColor="#3B82F6" stopOpacity={1} />
+              <stop offset="100%" stopColor="#1D4ED8" stopOpacity={0.9} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} vertical={false} />
@@ -890,13 +891,13 @@ function CashFlowChart({ ctx }: { ctx: WidgetContext }) {
           <Line
             type="monotone"
             dataKey="Cash"
-            stroke="#3B82F6"
+            stroke="#60A5FA"
             strokeWidth={2.5}
-            dot={{ r: 3, fill: "#3B82F6" }}
-            activeDot={{ r: 5 }}
+            dot={{ r: 3, fill: "#60A5FA", stroke: "#93C5FD", strokeWidth: 1 }}
+            activeDot={{ r: 6, fill: "#93C5FD" }}
             animationDuration={1100}
             animationEasing="ease-out"
-            style={{ filter: "drop-shadow(0 0 6px rgba(59,130,246,0.45))" }}
+            style={{ filter: "drop-shadow(0 0 8px rgba(96,165,250,0.85)) drop-shadow(0 0 18px rgba(59,130,246,0.5))" }}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -944,19 +945,21 @@ function ArApChart({ ctx }: { ctx: WidgetContext }) {
           <Line
             type="monotone"
             dataKey="AR"
-            stroke="#3B82F6"
+            stroke="#60A5FA"
             strokeWidth={2.5}
-            dot={{ r: 3, fill: "#3B82F6" }}
+            dot={{ r: 3, fill: "#60A5FA", stroke: "#93C5FD", strokeWidth: 1 }}
+            activeDot={{ r: 6, fill: "#93C5FD" }}
             animationDuration={1100}
             animationEasing="ease-out"
-            style={{ filter: "drop-shadow(0 0 6px rgba(59,130,246,0.45))" }}
+            style={{ filter: "drop-shadow(0 0 8px rgba(96,165,250,0.85)) drop-shadow(0 0 18px rgba(59,130,246,0.5))" }}
           />
           <Line
             type="monotone"
             dataKey="AP"
-            stroke={ctx.isDark ? "#94A3B8" : "#64748B"}
+            stroke={ctx.isDark ? "#64748B" : "#64748B"}
             strokeWidth={2.5}
-            dot={{ r: 3, fill: ctx.isDark ? "#94A3B8" : "#64748B" }}
+            strokeDasharray="4 4"
+            dot={{ r: 3, fill: ctx.isDark ? "#64748B" : "#64748B" }}
             animationDuration={1100}
             animationBegin={150}
             animationEasing="ease-out"
