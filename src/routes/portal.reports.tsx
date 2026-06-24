@@ -258,7 +258,7 @@ function PeriodCard({
           <div className="mt-3 space-y-2">
             {insights.length === 0 ? (
               <div className="rounded-lg border border-dashed border-[#E5E9F1] bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-500 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-[#9CA3AF]">
-                Insights were not generated for this period. Re-upload this period's financials from the admin portal to generate insights.
+                Insights are not available for this period.
               </div>
             ) : (
               insights.map((i, idx) => (
