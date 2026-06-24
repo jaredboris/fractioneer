@@ -1446,9 +1446,19 @@ function ClientDashboard({ role }: { role: string | null }) {
                 <Plus className="h-3.5 w-3.5" />
                 Add Widget
               </button>
+              {impersonation && override && (
+                <button
+                  onClick={() => setResetConfirmOpen(true)}
+                  title="Wipe this client's saved layout back to the 4 default cards"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-700 transition-colors hover:bg-rose-500/20 dark:text-rose-300"
+                >
+                  Reset to default layout
+                </button>
+              )}
             </div>
           )}
         </div>
+
 
 
         {addOpen && (
