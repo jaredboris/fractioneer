@@ -288,6 +288,9 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
     }
 
     // Upsert every month into periods (most-recent-upload-wins per month).
+    // New rows default to status='pending_review' via the table default; an
+    // admin must call approvePeriod before clients see them. Re-uploading a
+    // previously-published period preserves the upserted row's status.
     const periodRows = data.months.map((m) => ({
       client_id: data.client_id,
       period_end: m.period_end,
@@ -296,6 +299,7 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
       total_ap: m.total_ap,
       net_revenue: m.net_revenue,
       net_income: m.net_income,
+      gross_margin: m.gross_margin ?? null,
       ...(documentId ? { document_id: documentId } : {}),
     }));
     const { error: periodError } = await context.supabase
