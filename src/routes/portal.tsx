@@ -61,12 +61,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { AdminShell } from "@/components/portal/AdminSidebar";
+import { BetaBanner } from "@/components/portal/BetaBanner";
+import { UrgentAlert } from "@/components/portal/UrgentAlert";
 import { useCompanyName } from "@/hooks/useProfile";
 
 import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 import { useImpersonation, startImpersonation, useAdminOverride } from "@/lib/impersonation";
 import { getCached, setCached } from "@/lib/portal-cache";
 import { DEFAULT_IDS } from "@/lib/dashboard-widgets";
+import { useInactivityTimeout } from "@/lib/session-timeout";
 
 let cachedPortalGate: {
   user: { id: string; email?: string | null };
