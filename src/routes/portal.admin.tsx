@@ -185,14 +185,27 @@ function AdminPage() {
   }, [loadClients]);
 
   const loadClientData = useCallback(async (clientId: string) => {
-    const [{ data: dash }, { data: docs }, { data: pers }] = await Promise.all([
+    const [{ data: dash }, { data: docs }, { data: pers }, { data: alertRow }, { data: shared }] = await Promise.all([
       supabase.from("dashboard_data").select("*").eq("client_id", clientId).maybeSingle(),
       supabase.from("documents").select("*").eq("client_id", clientId).order("created_at", { ascending: false }),
       supabase
         .from("periods")
-        .select("id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, document_id")
+        .select("id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, document_id, status, published_at")
         .eq("client_id", clientId)
         .order("period_end", { ascending: false }),
+      supabase
+        .from("client_alerts")
+        .select("id, message, created_at")
+        .eq("client_id", clientId)
+        .is("cleared_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("shared_documents")
+        .select("id, file_name, file_path, size_bytes, created_at")
+        .eq("client_id", clientId)
+        .order("created_at", { ascending: false }),
     ]);
     if (dash) {
       setForm({
@@ -215,7 +228,88 @@ function AdminPage() {
     }
     setDocuments(docs ?? []);
     setPeriods((pers ?? []) as PeriodRow[]);
+    setActiveAlert(alertRow ?? null);
+    setAlertDraft("");
+    setSharedDocs((shared ?? []) as SharedDoc[]);
   }, []);
+
+  async function handleApprovePeriod(id: string) {
+    setApprovingId(id);
+    try {
+      await approvePeriod({ data: { period_id: id } });
+      setStatus({ kind: "ok", msg: "Period approved & published." });
+      if (selectedId) loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Approve failed" });
+    } finally {
+      setApprovingId(null);
+    }
+  }
+
+  async function handlePostAlert() {
+    if (!selectedId || !alertDraft.trim()) return;
+    setPostingAlert(true);
+    try {
+      await postClientAlert({ data: { client_id: selectedId, message: alertDraft.trim() } });
+      setStatus({ kind: "ok", msg: "Alert posted." });
+      loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Failed to post alert" });
+    } finally {
+      setPostingAlert(false);
+    }
+  }
+
+  async function handleClearAlert() {
+    if (!activeAlert) return;
+    try {
+      await clearClientAlert({ data: { alert_id: activeAlert.id } });
+      setStatus({ kind: "ok", msg: "Alert cleared." });
+      if (selectedId) loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Failed to clear" });
+    }
+  }
+
+  async function handleShareDocument(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !selectedId) return;
+    setSharingDoc(true);
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `shared/${selectedId}/${Date.now()}_${safeName}`;
+      const { error: upErr } = await supabase.storage
+        .from("client-documents")
+        .upload(path, file, { contentType: file.type });
+      if (upErr) throw new Error(upErr.message);
+      await recordSharedDocument({
+        data: {
+          client_id: selectedId,
+          file_name: file.name,
+          file_path: path,
+          mime_type: file.type || null,
+          size_bytes: file.size,
+        },
+      });
+      setStatus({ kind: "ok", msg: `Shared ${file.name}.` });
+      loadClientData(selectedId);
+    } catch (err) {
+      setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Share failed" });
+    } finally {
+      setSharingDoc(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleDeleteShared(doc: { id: string; file_name: string; file_path: string }) {
+    if (!confirm(`Remove ${doc.file_name} from the client's Documents tab?`)) return;
+    try {
+      await deleteSharedDocument({ data: { id: doc.id, file_path: doc.file_path } });
+      if (selectedId) loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Delete failed" });
+    }
+  }
 
   useEffect(() => {
     if (selectedId) loadClientData(selectedId);
