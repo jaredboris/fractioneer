@@ -140,12 +140,25 @@ function AdminPage() {
     total_ar: number | null;
     total_ap: number | null;
     document_id: string | null;
+    status: string;
+    published_at: string | null;
   };
   const [periods, setPeriods] = useState<PeriodRow[]>([]);
   const [openPeriod, setOpenPeriod] = useState<PeriodRow | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deletingPeriod, setDeletingPeriod] = useState(false);
   const [prefillPeriodEnd, setPrefillPeriodEnd] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  // Active urgent alert for the selected client
+  const [activeAlert, setActiveAlert] = useState<{ id: string; message: string; created_at: string } | null>(null);
+  const [alertDraft, setAlertDraft] = useState("");
+  const [postingAlert, setPostingAlert] = useState(false);
+
+  // Admin-shared documents for the selected client
+  type SharedDoc = { id: string; file_name: string; file_path: string; size_bytes: number | null; created_at: string };
+  const [sharedDocs, setSharedDocs] = useState<SharedDoc[]>([]);
+  const [sharingDoc, setSharingDoc] = useState(false);
 
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
