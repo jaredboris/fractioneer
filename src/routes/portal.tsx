@@ -1218,8 +1218,32 @@ function ClientDashboard({ role }: { role: string | null }) {
       ),
     [periodsRows, dashboardRows],
   );
-  const latest: NormalizedRow | null = mergedRows[mergedRows.length - 1] ?? null;
-  const prev: NormalizedRow | null = mergedRows.length >= 2 ? mergedRows[mergedRows.length - 2] : null;
+  // Period selector — drives the locked stat cards and AI Insights card on the dashboard.
+  const periodOptions = useMemo(
+    () =>
+      mergedRows
+        .filter((r) => !!r.period)
+        .map((r) => r.period as string)
+        .reverse(), // newest first for the dropdown
+    [mergedRows],
+  );
+  const [selectedPeriodEnd, setSelectedPeriodEnd] = useState<string | null>(null);
+  useEffect(() => {
+    if (periodOptions.length === 0) {
+      setSelectedPeriodEnd(null);
+      return;
+    }
+    if (!selectedPeriodEnd || !periodOptions.includes(selectedPeriodEnd)) {
+      setSelectedPeriodEnd(periodOptions[0]);
+    }
+  }, [periodOptions, selectedPeriodEnd]);
+
+  const selectedIndex = selectedPeriodEnd
+    ? mergedRows.findIndex((r) => r.period === selectedPeriodEnd)
+    : mergedRows.length - 1;
+  const latest: NormalizedRow | null =
+    selectedIndex >= 0 ? mergedRows[selectedIndex] : (mergedRows[mergedRows.length - 1] ?? null);
+  const prev: NormalizedRow | null = selectedIndex > 0 ? mergedRows[selectedIndex - 1] : null;
   const periodLabel = formatAsOf(latest?.period ?? null);
 
   function trendFor(curr: number | null | undefined, previous: number | null | undefined) {
@@ -1235,10 +1259,8 @@ function ClientDashboard({ role }: { role: string | null }) {
     () => docs.find((d) => /\.xlsx?$/i.test(d.file_name)) ?? null,
     [docs],
   );
-  // Last upload date = most recent period_end from the periods table.
-  const lastUploadAt = periodsRows.length
-    ? periodsRows[periodsRows.length - 1]?.period_end ?? null
-    : null;
+  // "Last upload" stat reflects the currently selected period.
+  const lastUploadAt = latest?.period ?? null;
 
   // Gross margin for the (non-widget) Period Summary panel.
   const grossMarginPct = (() => {
@@ -1252,17 +1274,15 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const isDark = useIsDark();
 
-  // Only show insights tied to the most recent reported period on the dashboard.
-  const latestPeriodEnd = periodsRows.length
-    ? (periodsRows[periodsRows.length - 1]?.period_end ?? null)
-    : null;
-  const latestInsights = useMemo(
+  // Insights tied to the selected period.
+  const selectedInsights = useMemo(
     () =>
       aiInsights
-        .filter((i) => (latestPeriodEnd ? i.period_end === latestPeriodEnd : i.period_end == null))
+        .filter((i) => (selectedPeriodEnd ? i.period_end === selectedPeriodEnd : i.period_end == null))
         .map(({ insight_text, category }) => ({ insight_text, category })),
-    [aiInsights, latestPeriodEnd],
+    [aiInsights, selectedPeriodEnd],
   );
+
 
   const widgetCtx = useMemo(
     () => ({
@@ -1276,10 +1296,10 @@ function ClientDashboard({ role }: { role: string | null }) {
       viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
         | "admin"
         | "client",
-      aiInsights: latestInsights,
+      aiInsights: selectedInsights,
       generatingInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, latestInsights, generatingInsights],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, selectedInsights, generatingInsights],
   );
 
 
@@ -1354,31 +1374,56 @@ function ClientDashboard({ role }: { role: string | null }) {
           </p>
         </div>
 
-        {!widgets.readOnly && (
-          <div className="mb-3 flex items-center justify-end gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
-            <button
-              onClick={() => {
-                setEditMode((v) => !v);
-                setActiveId(null);
-              }}
-              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-                editMode
-                  ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
-                  : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
-              }`}
+        <div className="mb-3 flex items-center justify-between gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
+          <div className="flex items-center gap-2">
+            <label htmlFor="dashboard-period" className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
+              Period
+            </label>
+            <select
+              id="dashboard-period"
+              value={selectedPeriodEnd ?? ""}
+              onChange={(e) => setSelectedPeriodEnd(e.target.value || null)}
+              disabled={periodOptions.length === 0}
+              className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
             >
-              {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
-              {editMode ? "Done" : "Manage Widgets"}
-            </button>
-            <button
-              onClick={() => setAddOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add Widget
-            </button>
+              {periodOptions.length === 0 ? (
+                <option value="">No periods</option>
+              ) : (
+                periodOptions.map((p) => (
+                  <option key={p} value={p}>
+                    {formatAsOf(p)}
+                  </option>
+                ))
+              )}
+            </select>
           </div>
-        )}
+          {!widgets.readOnly && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setEditMode((v) => !v);
+                  setActiveId(null);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  editMode
+                    ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
+                    : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                }`}
+              >
+                {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
+                {editMode ? "Done" : "Manage Widgets"}
+              </button>
+              <button
+                onClick={() => setAddOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add Widget
+              </button>
+            </div>
+          )}
+        </div>
+
 
         {addOpen && (
           <AddWidgetModal
