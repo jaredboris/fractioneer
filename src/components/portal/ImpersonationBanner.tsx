@@ -40,7 +40,8 @@ export function ImpersonationBanner() {
         <Eye className="h-4 w-4 shrink-0" />
         <span className="truncate">
           Viewing as <strong className="font-semibold">{imp.label}</strong> — Spy Mode
-          {override && <span className="ml-1 opacity-80">(Override — default layout)</span>}
+          {override && <span className="ml-1 opacity-80">(Override — editing enabled)</span>}
+
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -48,7 +49,7 @@ export function ImpersonationBanner() {
           type="button"
           onClick={() => setOverride(!override)}
           aria-pressed={override}
-          title={override ? "Showing default widget layout" : "Showing client's actual widget layout"}
+          title={override ? "Editing the client's layout — changes save to their account" : "Read-only spy view — toggle to edit the client's layout"}
           className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors ${
             override
               ? "bg-amber-950 text-amber-100 hover:bg-amber-900"

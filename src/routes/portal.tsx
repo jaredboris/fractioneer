@@ -1121,8 +1121,9 @@ function ClientDashboard({ role }: { role: string | null }) {
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
     readOnly: !!impersonation && !override,
-    overrideIds: impersonation && override ? DEFAULT_IDS : null,
   });
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
   const [editMode, setEditMode] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -1445,9 +1446,19 @@ function ClientDashboard({ role }: { role: string | null }) {
                 <Plus className="h-3.5 w-3.5" />
                 Add Widget
               </button>
+              {impersonation && override && (
+                <button
+                  onClick={() => setResetConfirmOpen(true)}
+                  title="Wipe this client's saved layout back to the 4 default cards"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-rose-500/40 bg-rose-500/10 px-3 py-1.5 text-xs font-medium text-rose-700 transition-colors hover:bg-rose-500/20 dark:text-rose-300"
+                >
+                  Reset to default layout
+                </button>
+              )}
             </div>
           )}
         </div>
+
 
 
         {addOpen && (
@@ -1457,6 +1468,39 @@ function ClientDashboard({ role }: { role: string | null }) {
             onClose={() => setAddOpen(false)}
           />
         )}
+
+        {resetConfirmOpen && (
+          <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reset client layout to default?</DialogTitle>
+                <DialogDescription>
+                  This wipes <strong>{companyName ?? "this client"}</strong>&apos;s saved widget layout and
+                  replaces it with the 4 default cards. The change saves immediately to their
+                  account and is visible to them on next refresh.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-2 flex justify-end gap-2">
+                <button
+                  onClick={() => setResetConfirmOpen(false)}
+                  className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    widgets.setIds(DEFAULT_IDS);
+                    setResetConfirmOpen(false);
+                  }}
+                  className="rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-500"
+                >
+                  Reset layout
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
 
         <DndContext
           sensors={sensors}
