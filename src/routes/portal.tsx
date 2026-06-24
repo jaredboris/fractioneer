@@ -1168,6 +1168,16 @@ function ClientDashboard({ role }: { role: string | null }) {
       setPeriodsRows((pers ?? []) as PeriodRow[]);
       setDocs(documents ?? []);
       setAiInsights((insights ?? []) as { insight_text: string; category: string; period_end: string | null }[]);
+      const { data: alertRow } = await supabase
+        .from("client_alerts")
+        .select("id, message, created_at")
+        .eq("client_id", effectiveId)
+        .is("cleared_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (cancelled) return;
+      setActiveAlert(alertRow ?? null);
     }
     void loadAll();
     // Realtime: refresh insights when admin regenerates them, plus listen for
