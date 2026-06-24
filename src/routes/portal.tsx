@@ -1374,31 +1374,56 @@ function ClientDashboard({ role }: { role: string | null }) {
           </p>
         </div>
 
-        {!widgets.readOnly && (
-          <div className="mb-3 flex items-center justify-end gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
-            <button
-              onClick={() => {
-                setEditMode((v) => !v);
-                setActiveId(null);
-              }}
-              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
-                editMode
-                  ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
-                  : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
-              }`}
+        <div className="mb-3 flex items-center justify-between gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
+          <div className="flex items-center gap-2">
+            <label htmlFor="dashboard-period" className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
+              Period
+            </label>
+            <select
+              id="dashboard-period"
+              value={selectedPeriodEnd ?? ""}
+              onChange={(e) => setSelectedPeriodEnd(e.target.value || null)}
+              disabled={periodOptions.length === 0}
+              className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
             >
-              {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
-              {editMode ? "Done" : "Manage Widgets"}
-            </button>
-            <button
-              onClick={() => setAddOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add Widget
-            </button>
+              {periodOptions.length === 0 ? (
+                <option value="">No periods</option>
+              ) : (
+                periodOptions.map((p) => (
+                  <option key={p} value={p}>
+                    {formatAsOf(p)}
+                  </option>
+                ))
+              )}
+            </select>
           </div>
-        )}
+          {!widgets.readOnly && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setEditMode((v) => !v);
+                  setActiveId(null);
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  editMode
+                    ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
+                    : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                }`}
+              >
+                {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
+                {editMode ? "Done" : "Manage Widgets"}
+              </button>
+              <button
+                onClick={() => setAddOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors bg-blue-600 hover:bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Add Widget
+              </button>
+            </div>
+          )}
+        </div>
+
 
         {addOpen && (
           <AddWidgetModal
