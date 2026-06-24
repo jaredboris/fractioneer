@@ -153,6 +153,7 @@ const MonthSchema = z.object({
   total_ap: z.number().nullable(),
   net_revenue: z.number().nullable(),
   net_income: z.number().nullable(),
+  gross_margin: z.number().nullable().optional(),
   monthly_close_status: z.enum(["open", "closed"]).nullable(),
 });
 const ExtractedSchema = z.object({ months: z.array(MonthSchema) });
