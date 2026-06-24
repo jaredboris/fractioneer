@@ -1105,7 +1105,7 @@ function ClientDashboard({ role }: { role: string | null }) {
   >([]);
 
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
-  const [aiInsights, setAiInsights] = useState<{ insight_text: string; category: string }[]>([]);
+  const [aiInsights, setAiInsights] = useState<{ insight_text: string; category: string; period_end: string | null }[]>([]);
 
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
@@ -1145,8 +1145,9 @@ function ClientDashboard({ role }: { role: string | null }) {
         supabase.from("documents").select("*").eq("client_id", effectiveId).order("created_at", { ascending: false }),
         supabase
           .from("ai_insights")
-          .select("insight_text, category, created_at")
+          .select("insight_text, category, period_end, created_at")
           .eq("client_id", effectiveId)
+          .order("period_end", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: true }),
       ]);
 
@@ -1155,7 +1156,7 @@ function ClientDashboard({ role }: { role: string | null }) {
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setPeriodsRows((pers ?? []) as PeriodRow[]);
       setDocs(documents ?? []);
-      setAiInsights((insights ?? []) as { insight_text: string; category: string }[]);
+      setAiInsights((insights ?? []) as { insight_text: string; category: string; period_end: string | null }[]);
     }
     void loadAll();
     // Realtime: refresh insights when admin regenerates them, plus listen for
