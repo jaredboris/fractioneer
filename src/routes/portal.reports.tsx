@@ -202,6 +202,11 @@ function PeriodCard({
         </span>
       </div>
 
+      <div className="mt-3 inline-flex items-center gap-1 self-start rounded-full border px-2 py-0.5 text-[10px] font-medium bg-blue-500/5 border-blue-500/20 text-blue-700 dark:text-blue-300">
+        <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Reviewed by your Fractioneer team
+      </div>
+
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-4 border-[#E5E9F1] dark:border-[#1E2A3A]">
         <Stat label="Net Revenue" value={fmtCurrency(period.net_revenue)} />
         <Stat label="Net Income" value={fmtCurrency(period.net_income)} />
