@@ -180,26 +180,25 @@ export const extractFinancialsFromRows = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
 
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
 
     const systemPrompt =
       "You are a financial data extraction assistant analyzing accounting software exports (QuickBooks, Xero, etc). The data spans multiple sheets — typically an Income Statement (P&L) and a Balance Sheet — often with multiple monthly columns (e.g. Apr 2025, May 2025, … Mar 2026) and indented subtotal rows.\n\nYour task: emit ONE record per monthly column present in the data. Ignore 'Total' / YTD / cumulative columns — those are derived. A single-month export yields 1 record; a 12-month export yields 12 records.\n\nFor EACH month column, extract:\n- period_end: YYYY-MM-DD, the LAST day of that month (column header).\n- net_revenue: that month's value from the 'Total for Income' / 'Total Income' / 'Total Revenue' row on the Income Statement. Single-month value, NOT cumulative.\n- net_income: that month's value from the bottom-line 'Net Income' or 'Net Operating Income' row.\n- cash_balance: as of that month-end, the Balance Sheet 'Total for Bank Accounts' / 'Total Cash' / sum of checking+savings. Point-in-time. Null if Balance Sheet has no column for that month.\n- total_ar: as of that month-end, 'Total for Accounts Receivable' / 'A/R' total. Null if not present for that month.\n- total_ap: as of that month-end, 'Total for Accounts Payable' / 'A/P' total. Null if not present.\n- monthly_close_status: 'closed' if the statement appears finalized, else 'open'. Same value for every month.\n\nReturn ONLY a raw JSON object: { \"months\": [ { period_end, cash_balance, total_ar, total_ap, net_revenue, net_income, monthly_close_status }, ... ] }, sorted ascending by period_end. Numbers only (no currency symbols or commas). Use null for any value genuinely absent. No explanation, no markdown.";
 
-
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const modelId = "claude-haiku-4-5-20251001";
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: data.rows },
-        ],
-        response_format: { type: "json_object" },
+        model: modelId,
+        max_tokens: 8192,
+        system: systemPrompt,
+        messages: [{ role: "user", content: data.rows }],
       }),
     });
 
