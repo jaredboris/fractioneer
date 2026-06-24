@@ -8,13 +8,11 @@ import {
   Settings as SettingsIcon,
   LogOut,
   Moon,
-  Sun,
   ShieldCheck,
   MessageSquare,
 } from "lucide-react";
 import { useNotesUnread } from "@/hooks/useNotesUnread";
 
-import logoDark from "@/assets/fractioneer-logo-dark.svg";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { ImpersonationBanner } from "@/components/portal/ImpersonationBanner";
