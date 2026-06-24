@@ -1593,6 +1593,8 @@ function ClientDashboard({ role }: { role: string | null }) {
             </ul>
           </div>
         </section>
+        </>
+        )}
 
         <footer className="mt-12 border-t border-border pt-6 text-center text-xs text-muted-foreground">
           Need something? Email your Fractioneer team at{" "}
