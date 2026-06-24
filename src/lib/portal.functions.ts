@@ -210,21 +210,22 @@ export const extractFinancialsFromRows = createServerFn({ method: "POST" })
     }
 
     const payload = await res.json();
-    const content: string = payload?.choices?.[0]?.message?.content ?? "";
+    const content: string =
+      (Array.isArray(payload?.content)
+        ? payload.content.find((b: any) => b?.type === "text")?.text
+        : "") ?? "";
 
-    // Log usage so the admin overview can show real AI spend (gemini-2.5-pro
-    // pricing as of 2026: $1.25 / 1M input tokens, $5 / 1M output tokens).
     try {
       const usage = payload?.usage ?? {};
-      const pIn = Number(usage.prompt_tokens ?? 0);
-      const pOut = Number(usage.completion_tokens ?? 0);
-      const total = Number(usage.total_tokens ?? pIn + pOut);
+      const pIn = Number(usage.input_tokens ?? 0);
+      const pOut = Number(usage.output_tokens ?? 0);
+      const total = pIn + pOut;
       const cost = (pIn / 1_000_000) * 1.25 + (pOut / 1_000_000) * 5;
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin.from("ai_usage").insert({
         admin_user_id: context.userId,
         client_id: null,
-        model: "google/gemini-2.5-pro",
+        model: modelId,
         operation: "extract_financials",
         prompt_tokens: pIn || null,
         completion_tokens: pOut || null,
