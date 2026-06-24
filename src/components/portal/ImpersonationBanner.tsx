@@ -40,7 +40,8 @@ export function ImpersonationBanner() {
         <Eye className="h-4 w-4 shrink-0" />
         <span className="truncate">
           Viewing as <strong className="font-semibold">{imp.label}</strong> — Spy Mode
-          {override && <span className="ml-1 opacity-80">(Override — default layout)</span>}
+          {override && <span className="ml-1 opacity-80">(Override — editing enabled)</span>}
+
         </span>
       </div>
       <div className="flex items-center gap-2">
