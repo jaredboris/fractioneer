@@ -1284,14 +1284,12 @@ function ClientDashboard({ role }: { role: string | null }) {
   // "Last upload" stat reflects the currently selected period.
   const lastUploadAt = latest?.period ?? null;
 
-  // Gross margin for the (non-widget) Period Summary panel.
-  const grossMarginPct = (() => {
-    if (latest?.gross_margin != null) return Number(latest.gross_margin);
+  // Net margin for the (non-widget) Period Summary panel.
+  const netMarginPct = (() => {
     const rev = latest?.net_revenue;
     const ni = latest?.net_income;
-    if (rev == null || ni == null || rev === 0) return null;
-    const expenses = Math.max(0, Number(rev) - Number(ni));
-    return ((Number(rev) - expenses) / Number(rev)) * 100;
+    if (rev == null || ni == null || Number(rev) === 0) return null;
+    return (Number(ni) / Number(rev)) * 100;
   })();
 
   const isDark = useIsDark();
