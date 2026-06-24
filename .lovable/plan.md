@@ -1,82 +1,51 @@
-# Restructure dashboard, Reports, and Cash Flow + per-period AI Insights
+Most of this restructure already shipped in the previous turn (Reports per-period cards with AI Insights accordion, Cash Flow page with date range + 3 charts, dashboard stripped to stats + insights, per-period `ai_insights` persistence). The one piece missing from the current build is the **period selector on the dashboard** — today the dashboard always shows the most recent period only.
 
-Three-page restructure plus a schema change so AI Insights are stored per period and never overwritten.
+This plan adds that selector and rewires the locked stat cards + AI Insights card to follow it.
 
-## 1. Schema change — per-period AI Insights
+## 1. Dashboard period selector (`src/routes/portal.tsx`)
 
-Add `period_end DATE` to `public.ai_insights` (nullable for backfill safety, but always written going forward) and a unique key on `(client_id, period_end, category)` so re-generation for the same period updates in place instead of stacking duplicates.
+Add a segmented control / dropdown at the top of the dashboard (right side of the page header, beside Manage Widgets) that lists every `periods.period_end` for the client, newest first. Default selection = most recent period. State lives in the page component (`selectedPeriodEnd`, `useState<string | null>`), initialised to the latest period once data loads.
+
+When the user switches periods:
+- The 4 locked stat cards (Monthly Close, Cash Position, AR, AP) re-read from the matching `periods` row for that `period_end` instead of from the cached "latest" `dashboard_data` snapshot.
+- Optional secondary stat widgets (Net Income, Gross Margin, Working Capital, Total Expenses, Net Revenue, Last Upload) also read from that same `periods` row.
+- The AI Insights card filters `ai_insights` to rows where `period_end = selectedPeriodEnd`.
+
+Monthly Close stays as the selected period's `period_end` formatted as month-year. Last Upload still reflects the document attached to that period (`periods.document_id → documents.created_at`), not the global newest upload.
+
+## 2. Data fetching changes
+
+Currently the dashboard relies on a single `dashboard_data` row plus the latest-period `ai_insights` filter. Update the loader:
+- Fetch `periods` list for the client: `id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, total_expenses, working_capital, document_id, documents(file_name, created_at)` ordered by `period_end desc`. (Add only the columns not already selected.)
+- Fetch all `ai_insights` rows for the client (already keyed by `period_end`).
+- Derive the displayed stat values + insights from `selectedPeriodEnd` in a `useMemo` instead of from a single row.
+
+`dashboard_data` is no longer used as the source of truth for the stat cards on the dashboard; the per-period `periods` row is. Other pages that still use `dashboard_data` are untouched.
+
+## 3. Widget plumbing (`src/lib/dashboard-widgets.tsx`)
+
+The widget render functions currently receive a `dashboard_data`-shaped object. Change the shape they receive to a normalized "period view" (same field names, but sourced from a `periods` row). This is an internal rename — the widget catalog (locked + optional stat IDs) stays as-is from the previous turn. `AiInsightsCard` accepts the already-filtered insight list for the selected period instead of doing its own "latest period" filter.
+
+## 4. UI placement
 
 ```text
-ai_insights
-  + period_end  date           -- which uploaded period this insight describes
-  + unique (client_id, period_end, category)
-  + index (client_id, period_end desc)
+┌─────────────────────────────────────────────────────────┐
+│ Dashboard           [ Period ▾ Nov 2025 ]  [Manage…]    │
+├─────────────────────────────────────────────────────────┤
+│ [Monthly Close] [Cash] [AR] [AP]      ← locked row      │
+│ [optional stat] [optional stat] …      ← draggable      │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ AI Insights — Nov 2025                              │ │
+│ │ • …                                                 │ │
+│ └─────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
 ```
 
-Existing rows get backfilled to the latest `periods.period_end` per client so they don't disappear from the dashboard after the migration. Realtime publication already includes the table — no change needed.
+Same NeuroBank dark styling, same glow, same card sizing. Selector uses a small dark `<select>` styled to match other dark controls (or a Radix dropdown if one is already in use on this page).
 
-## 2. Generation flow — stop wiping history
+## Files touched
 
-`generateAiInsights` in `src/lib/portal.functions.ts` currently does `DELETE … WHERE client_id = X` then re-inserts. Replace that with:
+- `src/routes/portal.tsx` — add selector state, switch data source from `dashboard_data` to `periods[]`, pass per-period values + filtered insights to widgets.
+- `src/lib/dashboard-widgets.tsx` — rename the prop shape consumed by stat widgets to a `PeriodView`; update `AiInsightsCard` to accept a pre-filtered insight list.
 
-- Look up the most recent `periods.period_end` for the client at generation time (or accept an explicit `period_end` arg from the admin caller).
-- Delete only rows matching `(client_id, period_end)` — that period's previous run — then insert the fresh set with `period_end` populated.
-- Older periods' insights are preserved permanently.
-
-The admin trigger in `portal.admin.tsx` keeps working unchanged; new uploads naturally generate insights tied to the new `period_end`.
-
-## 3. Dashboard page (`src/routes/portal.tsx`) — pulse check only
-
-Strip the dashboard down:
-
-- **Locked stat row (always visible, in order):** Monthly Close, Cash Position, AR, AP. These 4 cards span the full width, 4-up on desktop. All values come from the most recent `dashboard_data` row.
-- **AI Insights card** — full width, directly below. Queries `ai_insights` filtered to the latest `period_end` only (server-side: `order period_end desc limit 1`, then filter that period's rows). Same NeuroBank dark styling as today.
-- **Nothing else on this page.** Remove Period Summary, Revenue vs Expenses, Cash Flow Over Time, AR vs AP, and the AR vs AP stat widget from the dashboard.
-
-**Manage Widgets / Add Widget** stay, but the catalog of *optional* widgets is restricted to secondary stat cards: Net Income, Gross Margin, Working Capital, Total Expenses, Net Revenue, Last Upload. Chart widgets (`chart_rev_exp`, `chart_cash_flow`, `chart_ar_ap`) are removed from `WIDGET_CATALOG` in `src/lib/dashboard-widgets.tsx`. A small data migration removes those chart IDs from any saved `widget_prefs.widget_ids` arrays so users don't see broken slots.
-
-Locked IDs become: `monthly_close`, `cash_position`, `ar`, `ap`, `ai_insights`. Layout: locked stats row → optional stat widgets (still 4-up, draggable) → AI Insights wide card pinned last.
-
-## 4. Reports page (`src/routes/portal.reports.tsx`) — period by period
-
-Each existing period card gains:
-
-- The metrics already shown (Net Revenue, Net Income, Gross Margin) **plus** Cash, AR, AP pulled from the same `periods` row.
-- The existing Excel download button.
-- A new expandable **"AI Insights"** section (collapsible accordion, collapsed by default) that fetches `ai_insights` rows for `(client_id, period_end)` of that card. Renders each insight with its category badge, matching the dashboard's insight styling.
-- If no rows exist yet for that period, show a subtle "Generating…" state with a spinner. A lightweight realtime subscription on `ai_insights` filtered by `client_id` swaps in the insights when they land.
-
-Newest period first, same grid as today.
-
-## 5. Cash Flow page (`src/routes/portal.cashflow.tsx`) — charts + date filter
-
-Rebuild as a focused analytics page:
-
-- **Date range selector** at the top. Default: last 12 months ending at the most recent `period_end`. Presets: 3M / 6M / 12M / All. (Simple preset buttons — no custom date picker needed for v1.)
-- Three stacked chart cards, all filtered by the selected range:
-  1. **Revenue vs Expenses** — bar chart (move the dashboard's `RevExpChart` logic here, but using `periods` rows directly so it works across the full history, not just the cached `dashboard_data` snapshot).
-  2. **Cash Flow Over Time** — line chart (replaces the current "Cash balance over time" card).
-  3. **AR vs AP Over Time** — line chart (replaces the current "AR & AP trends" card).
-- Nothing else on the page.
-
-The page already reads `periods`; extend the select to include `net_revenue` and expense-derivable fields, and the filter is just an in-memory slice of the array.
-
-## 6. Cleanup
-
-- Remove `chart_rev_exp`, `chart_cash_flow`, `chart_ar_ap`, and the `period_summary` / AR-vs-AP wide widgets from `WIDGET_CATALOG`. Keep their render functions only where reused by Cash Flow / Reports — otherwise delete.
-- Update `LOCKED_IDS` and `DEFAULT_IDS` derivation accordingly.
-- Drop the bento `grid-cols-12` chart branch in `portal.tsx` since charts no longer appear there; the dashboard reverts to a simple stats grid + full-width insights card.
-- Sidebar nav unchanged.
-
-## Technical notes
-
-- Files touched:
-  - `supabase/migrations/<new>.sql` — add column, unique index, backfill.
-  - `src/lib/portal.functions.ts` — `generateAiInsights` writes `period_end`, scoped delete.
-  - `src/lib/dashboard-widgets.tsx` — trim catalog, lock the 4 stats, update `AiInsightsCard` to query latest `period_end`.
-  - `src/routes/portal.tsx` — strip to stats + insights.
-  - `src/routes/portal.reports.tsx` — add Cash/AR/AP, per-period insights accordion, realtime subscription.
-  - `src/routes/portal.cashflow.tsx` — date range + 3 charts.
-  - `src/routes/portal.admin.tsx` — no logic change; verify the existing insight-generation trigger still calls the updated server fn correctly.
-- Types regenerate after the migration runs, so code that reads `ai_insights.period_end` lands after approval.
-- No changes to auth, RLS shape, or sidebar.
+No schema changes, no Reports/Cash Flow changes, no sidebar changes, no auth changes.
