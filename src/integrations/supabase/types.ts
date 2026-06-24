@@ -80,6 +80,41 @@ export type Database = {
         }
         Relationships: []
       }
+      client_alerts: {
+        Row: {
+          cleared_at: string | null
+          client_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          message: string
+        }
+        Insert: {
+          cleared_at?: string | null
+          client_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message: string
+        }
+        Update: {
+          cleared_at?: string | null
+          client_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_alerts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dashboard_data: {
         Row: {
           ap_ar_detail: string | null
@@ -287,6 +322,9 @@ export type Database = {
           net_income: number | null
           net_revenue: number | null
           period_end: string
+          published_at: string | null
+          published_by: string | null
+          status: string
           total_ap: number | null
           total_ar: number | null
           updated_at: string
@@ -301,6 +339,9 @@ export type Database = {
           net_income?: number | null
           net_revenue?: number | null
           period_end: string
+          published_at?: string | null
+          published_by?: string | null
+          status?: string
           total_ap?: number | null
           total_ar?: number | null
           updated_at?: string
@@ -315,6 +356,9 @@ export type Database = {
           net_income?: number | null
           net_revenue?: number | null
           period_end?: string
+          published_at?: string | null
+          published_by?: string | null
+          status?: string
           total_ap?: number | null
           total_ar?: number | null
           updated_at?: string
@@ -359,6 +403,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      shared_documents: {
+        Row: {
+          client_id: string
+          created_at: string
+          file_name: string
+          file_path: string
+          id: string
+          mime_type: string | null
+          size_bytes: number | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

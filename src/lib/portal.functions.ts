@@ -153,6 +153,7 @@ const MonthSchema = z.object({
   total_ap: z.number().nullable(),
   net_revenue: z.number().nullable(),
   net_income: z.number().nullable(),
+  gross_margin: z.number().nullable().optional(),
   monthly_close_status: z.enum(["open", "closed"]).nullable(),
 });
 const ExtractedSchema = z.object({ months: z.array(MonthSchema) });
@@ -184,7 +185,7 @@ export const extractFinancialsFromRows = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
 
     const systemPrompt =
-      "You are a financial data extraction assistant analyzing accounting software exports (QuickBooks, Xero, etc). The data spans multiple sheets — typically an Income Statement (P&L) and a Balance Sheet — often with multiple monthly columns (e.g. Apr 2025, May 2025, … Mar 2026) and indented subtotal rows.\n\nYour task: emit ONE record per monthly column present in the data. Ignore 'Total' / YTD / cumulative columns — those are derived. A single-month export yields 1 record; a 12-month export yields 12 records.\n\nFor EACH month column, extract:\n- period_end: YYYY-MM-DD, the LAST day of that month (column header).\n- net_revenue: that month's value from the 'Total for Income' / 'Total Income' / 'Total Revenue' row on the Income Statement. Single-month value, NOT cumulative.\n- net_income: that month's value from the bottom-line 'Net Income' or 'Net Operating Income' row.\n- cash_balance: as of that month-end, the Balance Sheet 'Total for Bank Accounts' / 'Total Cash' / sum of checking+savings. Point-in-time. Null if Balance Sheet has no column for that month.\n- total_ar: as of that month-end, 'Total for Accounts Receivable' / 'A/R' total. Null if not present for that month.\n- total_ap: as of that month-end, 'Total for Accounts Payable' / 'A/P' total. Null if not present.\n- monthly_close_status: 'closed' if the statement appears finalized, else 'open'. Same value for every month.\n\nReturn ONLY a raw JSON object: { \"months\": [ { period_end, cash_balance, total_ar, total_ap, net_revenue, net_income, monthly_close_status }, ... ] }, sorted ascending by period_end. Numbers only (no currency symbols or commas). Use null for any value genuinely absent. No explanation, no markdown.";
+      "You are a financial data extraction assistant analyzing accounting software exports (QuickBooks, Xero, etc). The data spans multiple sheets — typically an Income Statement (P&L) and a Balance Sheet — often with multiple monthly columns (e.g. Apr 2025, May 2025, … Mar 2026) and indented subtotal rows.\n\nYour task: emit ONE record per monthly column present in the data. Ignore 'Total' / YTD / cumulative columns — those are derived. A single-month export yields 1 record; a 12-month export yields 12 records.\n\nFor EACH month column, extract:\n- period_end: YYYY-MM-DD, the LAST day of that month (column header).\n- net_revenue: that month's value from the 'Total for Income' / 'Total Income' / 'Total Revenue' row on the Income Statement. Single-month value, NOT cumulative.\n- net_income: that month's value from the bottom-line 'Net Income' or 'Net Operating Income' row.\n- gross_margin: gross margin AS A DECIMAL (e.g. 0.42 for 42%). Compute it from (Total Revenue - Total Cost of Goods Sold) / Total Revenue for that month, using whatever COGS row is present ('Total Cost of Goods Sold', 'Total COGS', 'Total Cost of Sales'). If no COGS row exists for that month, return null — DO NOT guess.\n- cash_balance: as of that month-end, the Balance Sheet 'Total for Bank Accounts' / 'Total Cash' / sum of checking+savings. Point-in-time. Null if Balance Sheet has no column for that month.\n- total_ar: as of that month-end, 'Total for Accounts Receivable' / 'A/R' total. Null if not present for that month.\n- total_ap: as of that month-end, 'Total for Accounts Payable' / 'A/P' total. Null if not present.\n- monthly_close_status: 'closed' if the statement appears finalized, else 'open'. Same value for every month.\n\nReturn ONLY a raw JSON object: { \"months\": [ { period_end, cash_balance, total_ar, total_ap, net_revenue, net_income, gross_margin, monthly_close_status }, ... ] }, sorted ascending by period_end. Numbers only (no currency symbols or commas). Use null for any value genuinely absent. No explanation, no markdown.";
 
     const modelId = "claude-haiku-4-5-20251001";
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -287,6 +288,9 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
     }
 
     // Upsert every month into periods (most-recent-upload-wins per month).
+    // New rows default to status='pending_review' via the table default; an
+    // admin must call approvePeriod before clients see them. Re-uploading a
+    // previously-published period preserves the upserted row's status.
     const periodRows = data.months.map((m) => ({
       client_id: data.client_id,
       period_end: m.period_end,
@@ -295,6 +299,7 @@ export const saveExtractedFinancials = createServerFn({ method: "POST" })
       total_ap: m.total_ap,
       net_revenue: m.net_revenue,
       net_income: m.net_income,
+      gross_margin: m.gross_margin ?? null,
       ...(documentId ? { document_id: documentId } : {}),
     }));
     const { error: periodError } = await context.supabase
@@ -517,3 +522,113 @@ export const generateAiInsights = createServerFn({ method: "POST" })
     return { ok: true, count: safe.length };
   });
 
+
+// ---------------------------------------------------------------------------
+// Admin-only: approve & publish a pending period (clients can then see it).
+// ---------------------------------------------------------------------------
+export const approvePeriod = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ period_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { error } = await context.supabase
+      .from("periods")
+      .update({
+        status: "published",
+        published_at: new Date().toISOString(),
+        published_by: context.userId,
+      })
+      .eq("id", data.period_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Urgent client alerts (pinned message on the client's dashboard).
+// ---------------------------------------------------------------------------
+export const postClientAlert = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ client_id: z.string().uuid(), message: z.string().min(1).max(500) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    // Clear any previous active alert first — at most one active per client.
+    await context.supabase
+      .from("client_alerts")
+      .update({ cleared_at: new Date().toISOString() })
+      .eq("client_id", data.client_id)
+      .is("cleared_at", null);
+    const { data: row, error } = await context.supabase
+      .from("client_alerts")
+      .insert({
+        client_id: data.client_id,
+        message: data.message,
+        created_by: context.userId,
+      })
+      .select("id, message, created_at")
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const clearClientAlert = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ alert_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { error } = await context.supabase
+      .from("client_alerts")
+      .update({ cleared_at: new Date().toISOString() })
+      .eq("id", data.alert_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Admin-shared documents (polished deliverables in the client Documents tab).
+// ---------------------------------------------------------------------------
+export const recordSharedDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        client_id: z.string().uuid(),
+        file_name: z.string().min(1).max(255),
+        file_path: z.string().min(1).max(512),
+        mime_type: z.string().max(255).nullable().optional(),
+        size_bytes: z.number().int().nonnegative().nullable().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { data: row, error } = await context.supabase
+      .from("shared_documents")
+      .insert({
+        client_id: data.client_id,
+        file_name: data.file_name,
+        file_path: data.file_path,
+        mime_type: data.mime_type ?? null,
+        size_bytes: data.size_bytes ?? null,
+        uploaded_by: context.userId,
+      })
+      .select("id, file_name, file_path, created_at, size_bytes, mime_type")
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteSharedDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ id: z.string().uuid(), file_path: z.string().min(1) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.storage.from("client-documents").remove([data.file_path]);
+    const { error } = await context.supabase.from("shared_documents").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

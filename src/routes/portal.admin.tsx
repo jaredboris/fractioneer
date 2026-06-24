@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
-import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
+import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, approvePeriod, postClientAlert, clearClientAlert, recordSharedDocument, deleteSharedDocument, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
 import * as XLSX from "xlsx";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -140,12 +140,25 @@ function AdminPage() {
     total_ar: number | null;
     total_ap: number | null;
     document_id: string | null;
+    status: string;
+    published_at: string | null;
   };
   const [periods, setPeriods] = useState<PeriodRow[]>([]);
   const [openPeriod, setOpenPeriod] = useState<PeriodRow | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deletingPeriod, setDeletingPeriod] = useState(false);
   const [prefillPeriodEnd, setPrefillPeriodEnd] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+
+  // Active urgent alert for the selected client
+  const [activeAlert, setActiveAlert] = useState<{ id: string; message: string; created_at: string } | null>(null);
+  const [alertDraft, setAlertDraft] = useState("");
+  const [postingAlert, setPostingAlert] = useState(false);
+
+  // Admin-shared documents for the selected client
+  type SharedDoc = { id: string; file_name: string; file_path: string; size_bytes: number | null; created_at: string };
+  const [sharedDocs, setSharedDocs] = useState<SharedDoc[]>([]);
+  const [sharingDoc, setSharingDoc] = useState(false);
 
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
@@ -172,14 +185,27 @@ function AdminPage() {
   }, [loadClients]);
 
   const loadClientData = useCallback(async (clientId: string) => {
-    const [{ data: dash }, { data: docs }, { data: pers }] = await Promise.all([
+    const [{ data: dash }, { data: docs }, { data: pers }, { data: alertRow }, { data: shared }] = await Promise.all([
       supabase.from("dashboard_data").select("*").eq("client_id", clientId).maybeSingle(),
       supabase.from("documents").select("*").eq("client_id", clientId).order("created_at", { ascending: false }),
       supabase
         .from("periods")
-        .select("id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, document_id")
+        .select("id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, document_id, status, published_at")
         .eq("client_id", clientId)
         .order("period_end", { ascending: false }),
+      supabase
+        .from("client_alerts")
+        .select("id, message, created_at")
+        .eq("client_id", clientId)
+        .is("cleared_at", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("shared_documents")
+        .select("id, file_name, file_path, size_bytes, created_at")
+        .eq("client_id", clientId)
+        .order("created_at", { ascending: false }),
     ]);
     if (dash) {
       setForm({
@@ -202,7 +228,88 @@ function AdminPage() {
     }
     setDocuments(docs ?? []);
     setPeriods((pers ?? []) as PeriodRow[]);
+    setActiveAlert(alertRow ?? null);
+    setAlertDraft("");
+    setSharedDocs((shared ?? []) as SharedDoc[]);
   }, []);
+
+  async function handleApprovePeriod(id: string) {
+    setApprovingId(id);
+    try {
+      await approvePeriod({ data: { period_id: id } });
+      setStatus({ kind: "ok", msg: "Period approved & published." });
+      if (selectedId) loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Approve failed" });
+    } finally {
+      setApprovingId(null);
+    }
+  }
+
+  async function handlePostAlert() {
+    if (!selectedId || !alertDraft.trim()) return;
+    setPostingAlert(true);
+    try {
+      await postClientAlert({ data: { client_id: selectedId, message: alertDraft.trim() } });
+      setStatus({ kind: "ok", msg: "Alert posted." });
+      loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Failed to post alert" });
+    } finally {
+      setPostingAlert(false);
+    }
+  }
+
+  async function handleClearAlert() {
+    if (!activeAlert) return;
+    try {
+      await clearClientAlert({ data: { alert_id: activeAlert.id } });
+      setStatus({ kind: "ok", msg: "Alert cleared." });
+      if (selectedId) loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Failed to clear" });
+    }
+  }
+
+  async function handleShareDocument(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !selectedId) return;
+    setSharingDoc(true);
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const path = `shared/${selectedId}/${Date.now()}_${safeName}`;
+      const { error: upErr } = await supabase.storage
+        .from("client-documents")
+        .upload(path, file, { contentType: file.type });
+      if (upErr) throw new Error(upErr.message);
+      await recordSharedDocument({
+        data: {
+          client_id: selectedId,
+          file_name: file.name,
+          file_path: path,
+          mime_type: file.type || null,
+          size_bytes: file.size,
+        },
+      });
+      setStatus({ kind: "ok", msg: `Shared ${file.name}.` });
+      loadClientData(selectedId);
+    } catch (err) {
+      setStatus({ kind: "err", msg: err instanceof Error ? err.message : "Share failed" });
+    } finally {
+      setSharingDoc(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleDeleteShared(doc: { id: string; file_name: string; file_path: string }) {
+    if (!confirm(`Remove ${doc.file_name} from the client's Documents tab?`)) return;
+    try {
+      await deleteSharedDocument({ data: { id: doc.id, file_path: doc.file_path } });
+      if (selectedId) loadClientData(selectedId);
+    } catch (e) {
+      setStatus({ kind: "err", msg: e instanceof Error ? e.message : "Delete failed" });
+    }
+  }
 
   useEffect(() => {
     if (selectedId) loadClientData(selectedId);
@@ -781,6 +888,105 @@ function AdminPage() {
 
         {tab === "clients" && selectedId && (
           <section className="mt-6 rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground">Urgent alert on client dashboard</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Pinned message shown above this client&apos;s stat cards. Only one active alert at a time.
+            </p>
+            {activeAlert ? (
+              <div className="mt-4 flex items-start justify-between gap-3 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-3 text-sm">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                    Active · posted {new Date(activeAlert.created_at).toLocaleString()}
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-foreground">{activeAlert.message}</p>
+                </div>
+                <button
+                  onClick={handleClearAlert}
+                  className="shrink-0 rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted/40"
+                >
+                  Clear alert
+                </button>
+              </div>
+            ) : (
+              <div className="mt-4 space-y-2">
+                <textarea
+                  value={alertDraft}
+                  onChange={(e) => setAlertDraft(e.target.value)}
+                  placeholder="e.g. Your November close has been delayed — we'll have it ready by Friday."
+                  rows={3}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+                <button
+                  onClick={handlePostAlert}
+                  disabled={postingAlert || !alertDraft.trim()}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {postingAlert ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertTriangle className="h-4 w-4" />}
+                  Post alert
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {tab === "clients" && selectedId && (
+          <section className="mt-6 rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground">Shared files</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Polished deliverables — reports, reconciliations, tax prep summaries. Visible in the client&apos;s Documents tab.
+            </p>
+
+            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+              {sharingDoc ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Uploading…
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  Click to share a file with this client
+                </>
+              )}
+              <input
+                type="file"
+                className="hidden"
+                onChange={handleShareDocument}
+                disabled={sharingDoc}
+              />
+            </label>
+
+            <ul className="mt-5 divide-y divide-border rounded-md border border-border">
+              {sharedDocs.length === 0 && (
+                <li className="px-4 py-6 text-center text-sm text-muted-foreground">No files shared yet.</li>
+              )}
+              {sharedDocs.map((d) => (
+                <li key={d.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <FileText className="h-4 w-4 shrink-0 text-primary" />
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-foreground">{d.file_name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Shared {new Date(d.created_at).toLocaleDateString()}
+                        {d.size_bytes ? ` · ${(d.size_bytes / 1024).toFixed(0)} KB` : ""}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteShared(d)}
+                    className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    aria-label={`Remove ${d.file_name}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {tab === "clients" && selectedId && (
+          <section className="mt-6 rounded-xl border border-border bg-card p-6">
             <h2 className="text-lg font-semibold text-foreground">Reporting periods</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Uploaded via the Upload tab. Click a row to view, re-upload, or delete.
@@ -791,6 +997,7 @@ function AdminPage() {
                 <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">Period end</th>
+                    <th className="px-3 py-2 text-left font-medium">Status</th>
                     <th className="px-3 py-2 text-right font-medium">Net rev</th>
                     <th className="px-3 py-2 text-right font-medium">Net inc</th>
                     <th className="px-3 py-2 text-right font-medium">GM</th>
@@ -802,12 +1009,21 @@ function AdminPage() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {periods.length === 0 && (
-                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No periods yet — upload an Excel file on the Upload tab.</td></tr>
+                    <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">No periods yet — upload an Excel file on the Upload tab.</td></tr>
                   )}
-                  {periods.map((p) => {
-                    const gm = p.net_revenue && p.net_revenue !== 0
-                      ? (p.net_income ?? 0) / p.net_revenue
-                      : null;
+                  {[...periods].sort((a, b) => {
+                    // Pending review first, then by period_end desc
+                    const ap = a.status === "pending_review" ? 0 : 1;
+                    const bp = b.status === "pending_review" ? 0 : 1;
+                    if (ap !== bp) return ap - bp;
+                    return a.period_end < b.period_end ? 1 : -1;
+                  }).map((p) => {
+                    const gm = p.gross_margin != null
+                      ? Number(p.gross_margin)
+                      : (p.net_revenue && p.net_revenue !== 0
+                        ? (p.net_income ?? 0) / p.net_revenue
+                        : null);
+                    const isPending = p.status === "pending_review";
                     return (
                       <tr
                         key={p.id}
@@ -817,9 +1033,30 @@ function AdminPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setConfirmingDelete(false); setOpenPeriod(p); }
                         }}
-                        className="cursor-pointer text-foreground transition-colors hover:bg-muted/40 focus:bg-muted/40 focus:outline-none"
+                        className={`cursor-pointer text-foreground transition-colors hover:bg-muted/40 focus:bg-muted/40 focus:outline-none ${isPending ? "bg-amber-500/5" : ""}`}
                       >
                         <td className="px-3 py-2">{p.period_end}</td>
+                        <td className="px-3 py-2">
+                          {isPending ? (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleApprovePeriod(p.id); }}
+                              disabled={approvingId === p.id}
+                              className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-1 text-[11px] font-medium text-amber-700 hover:bg-amber-500/25 disabled:opacity-60 dark:text-amber-300"
+                            >
+                              {approvingId === p.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <CheckCircle2 className="h-3 w-3" />
+                              )}
+                              Approve & Publish
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-green-500/10 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:text-green-300">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Published
+                            </span>
+                          )}
+                        </td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.net_revenue)}</td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.net_income)}</td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtPercent(gm)}</td>
