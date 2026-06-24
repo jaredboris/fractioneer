@@ -1218,8 +1218,32 @@ function ClientDashboard({ role }: { role: string | null }) {
       ),
     [periodsRows, dashboardRows],
   );
-  const latest: NormalizedRow | null = mergedRows[mergedRows.length - 1] ?? null;
-  const prev: NormalizedRow | null = mergedRows.length >= 2 ? mergedRows[mergedRows.length - 2] : null;
+  // Period selector — drives the locked stat cards and AI Insights card on the dashboard.
+  const periodOptions = useMemo(
+    () =>
+      mergedRows
+        .filter((r) => !!r.period)
+        .map((r) => r.period as string)
+        .reverse(), // newest first for the dropdown
+    [mergedRows],
+  );
+  const [selectedPeriodEnd, setSelectedPeriodEnd] = useState<string | null>(null);
+  useEffect(() => {
+    if (periodOptions.length === 0) {
+      setSelectedPeriodEnd(null);
+      return;
+    }
+    if (!selectedPeriodEnd || !periodOptions.includes(selectedPeriodEnd)) {
+      setSelectedPeriodEnd(periodOptions[0]);
+    }
+  }, [periodOptions, selectedPeriodEnd]);
+
+  const selectedIndex = selectedPeriodEnd
+    ? mergedRows.findIndex((r) => r.period === selectedPeriodEnd)
+    : mergedRows.length - 1;
+  const latest: NormalizedRow | null =
+    selectedIndex >= 0 ? mergedRows[selectedIndex] : (mergedRows[mergedRows.length - 1] ?? null);
+  const prev: NormalizedRow | null = selectedIndex > 0 ? mergedRows[selectedIndex - 1] : null;
   const periodLabel = formatAsOf(latest?.period ?? null);
 
   function trendFor(curr: number | null | undefined, previous: number | null | undefined) {
@@ -1235,10 +1259,8 @@ function ClientDashboard({ role }: { role: string | null }) {
     () => docs.find((d) => /\.xlsx?$/i.test(d.file_name)) ?? null,
     [docs],
   );
-  // Last upload date = most recent period_end from the periods table.
-  const lastUploadAt = periodsRows.length
-    ? periodsRows[periodsRows.length - 1]?.period_end ?? null
-    : null;
+  // "Last upload" stat reflects the currently selected period.
+  const lastUploadAt = latest?.period ?? null;
 
   // Gross margin for the (non-widget) Period Summary panel.
   const grossMarginPct = (() => {
@@ -1252,17 +1274,15 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const isDark = useIsDark();
 
-  // Only show insights tied to the most recent reported period on the dashboard.
-  const latestPeriodEnd = periodsRows.length
-    ? (periodsRows[periodsRows.length - 1]?.period_end ?? null)
-    : null;
-  const latestInsights = useMemo(
+  // Insights tied to the selected period.
+  const selectedInsights = useMemo(
     () =>
       aiInsights
-        .filter((i) => (latestPeriodEnd ? i.period_end === latestPeriodEnd : i.period_end == null))
+        .filter((i) => (selectedPeriodEnd ? i.period_end === selectedPeriodEnd : i.period_end == null))
         .map(({ insight_text, category }) => ({ insight_text, category })),
-    [aiInsights, latestPeriodEnd],
+    [aiInsights, selectedPeriodEnd],
   );
+
 
   const widgetCtx = useMemo(
     () => ({
