@@ -171,11 +171,18 @@ function toneClasses(tone: Tone) {
 }
 
 function PortalShell() {
+  useInactivityTimeout();
   const pathname = useRouterState({
     select: (s) => s.resolvedLocation?.pathname ?? s.location.pathname,
   });
-  if (pathname !== "/portal") return <Outlet />;
-  return <PortalRouter />;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <BetaBanner />
+      <div className="flex-1">
+        {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
+      </div>
+    </div>
+  );
 }
 
 // Module-level cache so navigating back to /portal doesn't re-flash the
