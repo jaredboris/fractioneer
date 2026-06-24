@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
-import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
+import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, approvePeriod, postClientAlert, clearClientAlert, recordSharedDocument, deleteSharedDocument, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
 import * as XLSX from "xlsx";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
