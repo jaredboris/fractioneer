@@ -185,15 +185,15 @@ export const WIDGET_CATALOG: WidgetDef[] = [
   },
   {
     id: "gross_margin",
-    label: "Gross Margin",
+    label: "Net Margin",
     kind: "stat",
     render: (ctx) => {
-      const gm = computeGrossMargin(ctx.latest);
+      const nm = computeNetMargin(ctx.latest);
       return (
         <StatCard
-          label="Gross Margin"
-          value={gm == null ? "—" : `${gm.toFixed(1)}%`}
-          tone={gm == null ? "info" : gm < 0 ? "warn" : "ok"}
+          label="Net Margin"
+          value={nm == null ? "—" : `${nm.toFixed(1)}%`}
+          tone={nm == null ? "info" : nm < 0 ? "warn" : "ok"}
           icon={<TrendingUp className="h-5 w-5" />}
           periodLabel={formatAsOf(ctx.latest?.period ?? null)}
         />
@@ -1015,12 +1015,10 @@ function computeExpenses(r: NormalizedRow | null): number | null {
   return Math.max(0, Number(r.net_revenue) - Number(r.net_income));
 }
 
-function computeGrossMargin(r: NormalizedRow | null): number | null {
+function computeNetMargin(r: NormalizedRow | null): number | null {
   if (!r) return null;
-  if (r.gross_margin != null) return Number(r.gross_margin);
-  if (r.net_revenue == null || r.net_income == null || r.net_revenue === 0) return null;
-  const expenses = Math.max(0, Number(r.net_revenue) - Number(r.net_income));
-  return ((Number(r.net_revenue) - expenses) / Number(r.net_revenue)) * 100;
+  if (r.net_revenue == null || r.net_income == null || Number(r.net_revenue) === 0) return null;
+  return (Number(r.net_income) / Number(r.net_revenue)) * 100;
 }
 
 function computeWC(r: NormalizedRow | null): number | null {

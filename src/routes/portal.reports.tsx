@@ -210,7 +210,14 @@ function PeriodCard({
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-4 border-[#E5E9F1] dark:border-[#1E2A3A]">
         <Stat label="Net Revenue" value={fmtCurrency(period.net_revenue)} />
         <Stat label="Net Income" value={fmtCurrency(period.net_income)} />
-        <Stat label="Gross Margin" value={fmtPercent(period.gross_margin)} />
+        <Stat
+          label="Net Margin"
+          value={
+            period.net_revenue && period.net_income != null && Number(period.net_revenue) !== 0
+              ? fmtPercent((Number(period.net_income) / Number(period.net_revenue)) * 100)
+              : "—"
+          }
+        />
         <Stat label="Cash" value={fmtCurrency(period.cash_balance)} />
         <Stat label="AR" value={fmtCurrency(period.total_ar)} />
         <Stat label="AP" value={fmtCurrency(period.total_ap)} />
@@ -251,7 +258,7 @@ function PeriodCard({
           <div className="mt-3 space-y-2">
             {insights.length === 0 ? (
               <div className="rounded-lg border border-dashed border-[#E5E9F1] bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-500 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-[#9CA3AF]">
-                Insights were not generated for this period. Re-upload this period's financials from the admin portal to generate insights.
+                Insights are not available for this period.
               </div>
             ) : (
               insights.map((i, idx) => (
