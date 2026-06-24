@@ -59,8 +59,8 @@ function AdminGate() {
 
   if (status !== "ok") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/40">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#0F1729]">
+        <Loader2 className="h-5 w-5 animate-spin text-slate-500 dark:text-[#9CA3AF]" />
       </div>
     );
   }
@@ -662,17 +662,17 @@ function AdminPage() {
         <>
 
 
-        <section className="mb-6 rounded-xl border border-border bg-card p-6">
+        <section className="mb-6 rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex-1">
-              <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
                 Select client
               </label>
               <select
                 value={selectedId}
                 onChange={(e) => setSelectedId(e.target.value)}
                 disabled={loading}
-                className="mt-2 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                className="mt-2 block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
               >
                 <option value="">
                   {loading ? "Loading…" : clients.length === 0 ? "No clients yet" : "— choose a client —"}
@@ -686,7 +686,7 @@ function AdminPage() {
             </div>
             <button
               onClick={() => setAddOpen((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90"
             >
               <Plus className="h-4 w-4" />
               {addOpen ? "Cancel" : "Add client"}
@@ -696,43 +696,43 @@ function AdminPage() {
           {addOpen && (
             <form
               onSubmit={handleCreateClient}
-              className="mt-5 grid grid-cols-1 gap-4 rounded-lg border border-border bg-background p-5 sm:grid-cols-2"
+              className="mt-5 grid grid-cols-1 gap-4 rounded-lg border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] p-5 sm:grid-cols-2"
             >
               <div className="sm:col-span-2">
-                <h3 className="text-sm font-semibold text-foreground">New client</h3>
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">New client</h3>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-[#9CA3AF]">
                   Creates the login, profile, and <code>client</code> role in one step. Share the email and
                   temporary password with them.
                 </p>
               </div>
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-medium text-slate-500 dark:text-[#9CA3AF]">
                 Company name
                 <input
                   required
                   value={addForm.company_name}
                   onChange={(e) => setAddForm({ ...addForm, company_name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  className="mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
-              <label className="block text-xs font-medium text-muted-foreground">
-                Contact name <span className="text-muted-foreground/60">(optional)</span>
+              <label className="block text-xs font-medium text-slate-500 dark:text-[#9CA3AF]">
+                Contact name <span className="text-slate-500 dark:text-[#9CA3AF]/60">(optional)</span>
                 <input
                   value={addForm.full_name}
                   onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  className="mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-medium text-slate-500 dark:text-[#9CA3AF]">
                 Email
                 <input
                   required
                   type="email"
                   value={addForm.email}
                   onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  className="mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
-              <label className="block text-xs font-medium text-muted-foreground">
+              <label className="block text-xs font-medium text-slate-500 dark:text-[#9CA3AF]">
                 Temporary password
                 <input
                   required
@@ -741,21 +741,21 @@ function AdminPage() {
                   value={addForm.password}
                   onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
                   placeholder="At least 8 characters"
-                  className="mt-1 block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  className="mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
               <div className="sm:col-span-2 flex items-center justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setAddOpen(false)}
-                  className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                  className="inline-flex items-center rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-1.5 text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-50 dark:hover:bg-[#1a2335]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={addBusy}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90 disabled:opacity-60"
                 >
                   {addBusy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   Create client
@@ -767,9 +767,9 @@ function AdminPage() {
 
         {tab === "clients" && selectedId ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <section className="rounded-xl border border-border bg-card p-6">
-              <h2 className="text-lg font-semibold text-foreground">Dashboard values</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
+            <section className="rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] p-6">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Dashboard values</h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
                 Shown on the client's portal homepage.
               </p>
 
@@ -778,7 +778,7 @@ function AdminPage() {
                   <select
                     value={form.monthly_close}
                     onChange={(e) => setForm({ ...form, monthly_close: e.target.value })}
-                    className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    className="block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                   >
                     {MONTHLY_OPTIONS.map((o) => (
                       <option key={o} value={o}>{o}</option>
@@ -808,7 +808,7 @@ function AdminPage() {
                   <select
                     value={form.ap_ar_status}
                     onChange={(e) => setForm({ ...form, ap_ar_status: e.target.value })}
-                    className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                    className="block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                   >
                     {APAR_OPTIONS.map((o) => (
                       <option key={o} value={o}>{o}</option>
@@ -824,18 +824,18 @@ function AdminPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                  className="inline-flex w-full items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90 disabled:opacity-60"
                 >
                   {saving ? "Saving…" : "Save dashboard values"}
                 </button>
               </form>
             </section>
 
-            <section className="rounded-xl border border-border bg-card p-6">
-              <h2 className="text-lg font-semibold text-foreground">Documents</h2>
-              <p className="mt-1 text-sm text-muted-foreground">PDF or Excel files shared with this client.</p>
+            <section className="rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] p-6">
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Documents</h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">PDF or Excel files shared with this client.</p>
 
-              <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+              <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#E5E9F1] bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] px-4 py-6 text-sm text-slate-500 dark:text-[#9CA3AF] transition-colors hover:bg-slate-50 dark:bg-[#0F1729]">
                 {uploading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -856,17 +856,17 @@ function AdminPage() {
                 />
               </label>
 
-              <ul className="mt-5 divide-y divide-border rounded-md border border-border">
+              <ul className="mt-5 divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A] rounded-md border border-[#E5E9F1] dark:border-[#1E2A3A]">
                 {documents.length === 0 && (
-                  <li className="px-4 py-6 text-center text-sm text-muted-foreground">No files yet.</li>
+                  <li className="px-4 py-6 text-center text-sm text-slate-500 dark:text-[#9CA3AF]">No files yet.</li>
                 )}
                 {documents.map((d) => (
                   <li key={d.id} className="flex items-center justify-between gap-3 px-4 py-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <FileText className="h-4 w-4 shrink-0 text-primary" />
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-foreground">{d.file_name}</div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="truncate text-sm font-medium text-slate-900 dark:text-white">{d.file_name}</div>
+                        <div className="text-xs text-slate-500 dark:text-[#9CA3AF]">
                           {new Date(d.created_at).toLocaleDateString()}
                           {d.file_size ? ` · ${(d.file_size / 1024).toFixed(0)} KB` : ""}
                         </div>
@@ -874,7 +874,7 @@ function AdminPage() {
                     </div>
                     <button
                       onClick={() => handleDeleteDoc(d)}
-                      className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      className="rounded p-1.5 text-slate-500 dark:text-[#9CA3AF] transition-colors hover:bg-rose-600/10 hover:text-destructive"
                       aria-label={`Delete ${d.file_name}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -887,9 +887,9 @@ function AdminPage() {
         ) : null}
 
         {tab === "clients" && selectedId && (
-          <section className="mt-6 rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold text-foreground">Urgent alert on client dashboard</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+          <section className="mt-6 rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] p-6">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Urgent alert on client dashboard</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
               Pinned message shown above this client&apos;s stat cards. Only one active alert at a time.
             </p>
             {activeAlert ? (
@@ -898,11 +898,11 @@ function AdminPage() {
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
                     Active · posted {new Date(activeAlert.created_at).toLocaleString()}
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-foreground">{activeAlert.message}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-slate-900 dark:text-white">{activeAlert.message}</p>
                 </div>
                 <button
                   onClick={handleClearAlert}
-                  className="shrink-0 rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted/40"
+                  className="shrink-0 rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-1.5 text-xs text-slate-900 dark:text-white hover:bg-slate-50 dark:bg-[#0F1729]"
                 >
                   Clear alert
                 </button>
@@ -914,12 +914,12 @@ function AdminPage() {
                   onChange={(e) => setAlertDraft(e.target.value)}
                   placeholder="e.g. Your November close has been delayed — we'll have it ready by Friday."
                   rows={3}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  className="w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
                 <button
                   onClick={handlePostAlert}
                   disabled={postingAlert || !alertDraft.trim()}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 disabled:opacity-60"
                 >
                   {postingAlert ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertTriangle className="h-4 w-4" />}
                   Post alert
@@ -930,13 +930,13 @@ function AdminPage() {
         )}
 
         {tab === "clients" && selectedId && (
-          <section className="mt-6 rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold text-foreground">Shared files</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+          <section className="mt-6 rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] p-6">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Shared files</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
               Polished deliverables — reports, reconciliations, tax prep summaries. Visible in the client&apos;s Documents tab.
             </p>
 
-            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#E5E9F1] bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] px-4 py-6 text-sm text-slate-500 dark:text-[#9CA3AF] transition-colors hover:bg-slate-50 dark:bg-[#0F1729]">
               {sharingDoc ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -956,17 +956,17 @@ function AdminPage() {
               />
             </label>
 
-            <ul className="mt-5 divide-y divide-border rounded-md border border-border">
+            <ul className="mt-5 divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A] rounded-md border border-[#E5E9F1] dark:border-[#1E2A3A]">
               {sharedDocs.length === 0 && (
-                <li className="px-4 py-6 text-center text-sm text-muted-foreground">No files shared yet.</li>
+                <li className="px-4 py-6 text-center text-sm text-slate-500 dark:text-[#9CA3AF]">No files shared yet.</li>
               )}
               {sharedDocs.map((d) => (
                 <li key={d.id} className="flex items-center justify-between gap-3 px-4 py-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <FileText className="h-4 w-4 shrink-0 text-primary" />
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-foreground">{d.file_name}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="truncate text-sm font-medium text-slate-900 dark:text-white">{d.file_name}</div>
+                      <div className="text-xs text-slate-500 dark:text-[#9CA3AF]">
                         Shared {new Date(d.created_at).toLocaleDateString()}
                         {d.size_bytes ? ` · ${(d.size_bytes / 1024).toFixed(0)} KB` : ""}
                       </div>
@@ -974,7 +974,7 @@ function AdminPage() {
                   </div>
                   <button
                     onClick={() => handleDeleteShared(d)}
-                    className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    className="rounded p-1.5 text-slate-500 dark:text-[#9CA3AF] transition-colors hover:bg-rose-600/10 hover:text-destructive"
                     aria-label={`Remove ${d.file_name}`}
                   >
                     <Trash2 className="h-4 w-4" />
@@ -986,15 +986,15 @@ function AdminPage() {
         )}
 
         {tab === "clients" && selectedId && (
-          <section className="mt-6 rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold text-foreground">Reporting periods</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+          <section className="mt-6 rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] p-6">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Reporting periods</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
               Uploaded via the Upload tab. Click a row to view, re-upload, or delete.
             </p>
 
-            <div className="mt-5 overflow-x-auto rounded-md border border-border">
+            <div className="mt-5 overflow-x-auto rounded-md border border-[#E5E9F1] dark:border-[#1E2A3A]">
               <table className="w-full text-sm">
-                <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+                <thead className="bg-slate-50 dark:bg-[#0F1729] text-xs uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">Period end</th>
                     <th className="px-3 py-2 text-left font-medium">Status</th>
@@ -1007,9 +1007,9 @@ function AdminPage() {
                     <th className="px-3 py-2"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
                   {periods.length === 0 && (
-                    <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">No periods yet — upload an Excel file on the Upload tab.</td></tr>
+                    <tr><td colSpan={9} className="px-3 py-6 text-center text-slate-500 dark:text-[#9CA3AF]">No periods yet — upload an Excel file on the Upload tab.</td></tr>
                   )}
                   {[...periods].sort((a, b) => {
                     // Pending review first, then by period_end desc
@@ -1033,7 +1033,7 @@ function AdminPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setConfirmingDelete(false); setOpenPeriod(p); }
                         }}
-                        className={`cursor-pointer text-foreground transition-colors hover:bg-muted/40 focus:bg-muted/40 focus:outline-none ${isPending ? "bg-amber-500/5" : ""}`}
+                        className={`cursor-pointer text-slate-900 dark:text-white transition-colors hover:bg-slate-50 dark:bg-[#0F1729] focus:bg-slate-50 dark:bg-[#0F1729] focus:outline-none ${isPending ? "bg-amber-500/5" : ""}`}
                       >
                         <td className="px-3 py-2">{p.period_end}</td>
                         <td className="px-3 py-2">
@@ -1063,7 +1063,7 @@ function AdminPage() {
                         <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.cash_balance)}</td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.total_ar)}</td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.total_ap)}</td>
-                        <td className="px-3 py-2 text-right text-muted-foreground">
+                        <td className="px-3 py-2 text-right text-slate-500 dark:text-[#9CA3AF]">
                           <ChevronRight className="ml-auto h-4 w-4" />
                         </td>
                       </tr>
@@ -1095,11 +1095,11 @@ function AdminPage() {
 
 
         {tab === "upload" && selectedId && (
-          <section className="mt-6 rounded-xl border border-border bg-card p-6">
+          <section className="mt-6 rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-lg font-semibold text-foreground">Upload client financials</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Upload client financials</h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
                   Upload an Excel file (.xlsx). Lovable AI will extract cash, AR, AP, net revenue, and monthly close status, then you confirm before saving to the dashboard.
                 </p>
               </div>
@@ -1120,7 +1120,7 @@ function AdminPage() {
             )}
 
 
-            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-[#E5E9F1] bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] px-4 py-6 text-sm text-slate-500 dark:text-[#9CA3AF] transition-colors hover:bg-slate-50 dark:bg-[#0F1729]">
               {analyzing ? (
                 <ExtractionProgress phase={analyzePhase} fileName={xlsxFileName} />
               ) : (
@@ -1160,13 +1160,13 @@ function AdminPage() {
               const hasConflicts = rows.some((r) => r.status === "conflict");
               const allMissingIS = months.every((m) => m.net_revenue == null && m.net_income == null);
               return (
-                <div className="mt-5 rounded-lg border border-border bg-background p-5">
+                <div className="mt-5 rounded-lg border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-foreground">
+                      <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                         Extracted {months.length} month{months.length === 1 ? "" : "s"}
                       </h3>
-                      <p className="mt-0.5 text-xs text-muted-foreground">
+                      <p className="mt-0.5 text-xs text-slate-500 dark:text-[#9CA3AF]">
                         Review before saving. Most-recent-upload-wins per month.
                       </p>
                     </div>
@@ -1186,7 +1186,7 @@ function AdminPage() {
                   <div className="mt-4 overflow-x-auto">
                     <table className="w-full text-xs">
                       <thead>
-                        <tr className="border-b border-border text-left text-muted-foreground">
+                        <tr className="border-b border-[#E5E9F1] dark:border-[#1E2A3A] text-left text-slate-500 dark:text-[#9CA3AF]">
                           <th className="px-2 py-2 font-medium">Period</th>
                           <th className="px-2 py-2 font-medium text-right">Net revenue</th>
                           <th className="px-2 py-2 font-medium text-right">Net income</th>
@@ -1203,10 +1203,10 @@ function AdminPage() {
                             className={
                               status === "conflict"
                                 ? "border-b border-amber-500/30 bg-amber-500/5"
-                                : "border-b border-border"
+                                : "border-b border-[#E5E9F1] dark:border-[#1E2A3A]"
                             }
                           >
-                            <td className="px-2 py-2 font-medium text-foreground">{m.period_end}</td>
+                            <td className="px-2 py-2 font-medium text-slate-900 dark:text-white">{m.period_end}</td>
                             <DiffCell newVal={m.net_revenue} oldVal={existing?.net_revenue ?? null} diff={!!diffs.net_revenue} />
                             <DiffCell newVal={m.net_income} oldVal={existing?.net_income ?? null} diff={!!diffs.net_income} />
                             <DiffCell newVal={m.cash_balance} oldVal={existing?.cash_balance ?? null} diff={!!diffs.cash_balance} />
@@ -1214,7 +1214,7 @@ function AdminPage() {
                             <DiffCell newVal={m.total_ap} oldVal={existing?.total_ap ?? null} diff={!!diffs.total_ap} />
                             <td className="px-2 py-2 text-right">
                               {status === "new" && <span className="text-emerald-600 dark:text-emerald-400">New</span>}
-                              {status === "unchanged" && <span className="text-muted-foreground">Unchanged</span>}
+                              {status === "unchanged" && <span className="text-slate-500 dark:text-[#9CA3AF]">Unchanged</span>}
                               {status === "conflict" && <span className="text-amber-700 dark:text-amber-300">Overwrite</span>}
                             </td>
                           </tr>
@@ -1227,7 +1227,7 @@ function AdminPage() {
                     <button
                       type="button"
                       onClick={() => { setExtracted(null); setExtractedSourceRows(null); setExistingByPeriod({}); setXlsxFileName(null); setIncomeStatementDetected(false); }}
-                      className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+                      className="inline-flex items-center rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-1.5 text-xs font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-50 dark:hover:bg-[#1a2335]"
                     >
                       Discard
                     </button>
@@ -1235,7 +1235,7 @@ function AdminPage() {
                       type="button"
                       onClick={handleConfirmExtracted}
                       disabled={savingExtracted}
-                      className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90 disabled:opacity-60"
                     >
                       {savingExtracted && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                       Confirm & save {months.length} month{months.length === 1 ? "" : "s"}
@@ -1262,7 +1262,7 @@ function AdminPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</label>
+      <label className="block text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">{label}</label>
       <div className="mt-2 space-y-2">{children}</div>
     </div>
   );
@@ -1283,7 +1283,7 @@ function Input({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="block w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+      className="block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:text-[#9CA3AF] focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
     />
   );
 }
@@ -1294,12 +1294,12 @@ function DiffCell({ newVal, oldVal, diff }: { newVal: number | null; oldVal: num
   if (diff && oldVal !== null) {
     return (
       <td className="px-2 py-2 text-right tabular-nums">
-        <div className="text-muted-foreground line-through">{fmt(oldVal)}</div>
+        <div className="text-slate-500 dark:text-[#9CA3AF] line-through">{fmt(oldVal)}</div>
         <div className="font-medium text-amber-700 dark:text-amber-300">{fmt(newVal)}</div>
       </td>
     );
   }
-  return <td className="px-2 py-2 text-right tabular-nums text-foreground">{fmt(newVal)}</td>;
+  return <td className="px-2 py-2 text-right tabular-nums text-slate-900 dark:text-white">{fmt(newVal)}</td>;
 }
 
 function ExtractedRow({
@@ -1319,9 +1319,9 @@ function ExtractedRow({
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value))
     : String(value);
   return (
-    <div className="rounded-md border border-border bg-muted/30 px-3 py-2">
-      <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={`mt-1 text-sm font-semibold ${missing ? "text-destructive" : "text-foreground"}`}>
+    <div className="rounded-md border border-[#E5E9F1] dark:border-[#1E2A3A] bg-slate-50 dark:bg-[#0F1729] px-3 py-2">
+      <div className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">{label}</div>
+      <div className={`mt-1 text-sm font-semibold ${missing ? "text-destructive" : "text-slate-900 dark:text-white"}`}>
         {display}
       </div>
     </div>
@@ -1342,7 +1342,7 @@ function NumField({
   required?: boolean;
 }) {
   return (
-    <label className="block text-xs font-medium text-muted-foreground">
+    <label className="block text-xs font-medium text-slate-500 dark:text-[#9CA3AF]">
       {label}
       <input
         type={type}
@@ -1350,7 +1350,7 @@ function NumField({
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-input bg-background px-2 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+        className="mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-2 py-2 text-sm text-slate-900 dark:text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
       />
     </label>
   );
@@ -1426,17 +1426,17 @@ function PeriodDetailSheet({
         onClick={onClose}
         aria-label="Close panel"
       />
-      <aside className="flex h-full w-full max-w-md flex-col border-l border-border bg-card shadow-2xl">
-        <header className="flex items-start justify-between gap-3 border-b border-border px-6 py-5">
+      <aside className="flex h-full w-full max-w-md flex-col border-l border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827] shadow-2xl">
+        <header className="flex items-start justify-between gap-3 border-b border-[#E5E9F1] dark:border-[#1E2A3A] px-6 py-5">
           <div>
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
               Period ending
             </div>
-            <h3 className="mt-0.5 text-lg font-semibold text-foreground">{label}</h3>
+            <h3 className="mt-0.5 text-lg font-semibold text-slate-900 dark:text-white">{label}</h3>
           </div>
           <button
             onClick={onClose}
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="rounded-md p-1 text-slate-500 dark:text-[#9CA3AF] transition-colors hover:bg-slate-50 dark:hover:bg-[#1a2335] hover:text-slate-900 dark:text-white"
             aria-label="Close"
           >
             ✕
@@ -1453,42 +1453,42 @@ function PeriodDetailSheet({
             <DetailRow label="Total AP" value={fmtMoneyCompact(period.total_ap)} />
           </dl>
 
-          <div className="mt-6 border-t border-border pt-4">
-            <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="mt-6 border-t border-[#E5E9F1] dark:border-[#1E2A3A] pt-4">
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
               Source file
             </div>
             {doc ? (
               <button
                 onClick={() => onDownload(doc.file_path, doc.file_name)}
-                className="mt-2 inline-flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted/40"
+                className="mt-2 inline-flex items-center gap-2 rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm text-slate-900 dark:text-white transition-colors hover:bg-slate-50 dark:bg-[#0F1729]"
               >
                 <Download className="h-4 w-4" />
                 {doc.file_name}
               </button>
             ) : (
-              <div className="mt-2 text-sm text-muted-foreground">No source file linked</div>
+              <div className="mt-2 text-sm text-slate-500 dark:text-[#9CA3AF]">No source file linked</div>
             )}
           </div>
         </div>
 
-        <footer className="border-t border-border px-6 py-4">
+        <footer className="border-t border-[#E5E9F1] dark:border-[#1E2A3A] px-6 py-4">
           {confirmingDelete ? (
             <div>
-              <p className="text-sm text-foreground">
+              <p className="text-sm text-slate-900 dark:text-white">
                 This will permanently remove <strong>{label}</strong> data from the client dashboard and charts. This cannot be undone.
               </p>
               <div className="mt-4 flex items-center justify-end gap-2">
                 <button
                   onClick={() => setConfirmingDelete(false)}
                   disabled={deleting}
-                  className="rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 disabled:opacity-60"
+                  className="rounded-md border border-[#E5E9F1] dark:border-[#1E2A3A] px-3 py-2 text-sm font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-50 dark:bg-[#0F1729] disabled:opacity-60"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => onDelete(period.id)}
                   disabled={deleting}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:opacity-60"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-600/90 disabled:opacity-60"
                 >
                   {deleting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   Delete permanently
@@ -1499,14 +1499,14 @@ function PeriodDetailSheet({
             <div className="flex items-center justify-between gap-2">
               <button
                 onClick={() => onReupload(period.period_end)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#0F1729] px-3 py-2 text-sm font-medium text-slate-900 dark:text-white transition-colors hover:bg-slate-50 dark:bg-[#0F1729]"
               >
                 <Upload className="h-4 w-4" />
                 Re-upload
               </button>
               <button
                 onClick={() => setConfirmingDelete(true)}
-                className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
+                className="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-rose-600/90"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete period
@@ -1522,8 +1522,8 @@ function PeriodDetailSheet({
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between text-sm">
-      <dt className="text-muted-foreground">{label}</dt>
-      <dd className="font-semibold tabular-nums text-foreground">{value}</dd>
+      <dt className="text-slate-500 dark:text-[#9CA3AF]">{label}</dt>
+      <dd className="font-semibold tabular-nums text-slate-900 dark:text-white">{value}</dd>
     </div>
   );
 }
@@ -1677,7 +1677,7 @@ function ExtractionProgress({
   const currentIdx = phase ? order[phase] : -1;
   return (
     <div className="flex w-full flex-col items-center gap-2">
-      <div className="text-xs text-muted-foreground">
+      <div className="text-xs text-slate-500 dark:text-[#9CA3AF]">
         Analyzing {fileName ?? "spreadsheet"}…
       </div>
       <ul className="flex w-full max-w-md flex-col gap-1.5">
@@ -1692,7 +1692,7 @@ function ExtractionProgress({
                     ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
                     : active
                       ? "bg-blue-500/20 text-blue-600 dark:text-blue-300"
-                      : "bg-muted text-muted-foreground/50"
+                      : "bg-muted text-slate-500 dark:text-[#9CA3AF]/50"
                 }`}
               >
                 {done ? (
@@ -1703,7 +1703,7 @@ function ExtractionProgress({
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
                 )}
               </span>
-              <span className={done || active ? "text-foreground" : "text-muted-foreground/60"}>
+              <span className={done || active ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-[#9CA3AF]/60"}>
                 {s.label}
               </span>
             </li>
