@@ -417,19 +417,19 @@ export const generateAiInsights = createServerFn({ method: "POST" })
       source_file_rows: data.source_rows ?? null,
     }).slice(0, 380_000);
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const modelId = "claude-sonnet-4-6";
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPayload },
-        ],
-        response_format: { type: "json_object" },
+        model: modelId,
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userPayload }],
       }),
     });
 
@@ -441,19 +441,22 @@ export const generateAiInsights = createServerFn({ method: "POST" })
     }
 
     const payload = await res.json();
-    const content: string = payload?.choices?.[0]?.message?.content ?? "";
+    const content: string =
+      (Array.isArray(payload?.content)
+        ? payload.content.find((b: any) => b?.type === "text")?.text
+        : "") ?? "";
 
     try {
       const usage = payload?.usage ?? {};
-      const pIn = Number(usage.prompt_tokens ?? 0);
-      const pOut = Number(usage.completion_tokens ?? 0);
-      const total = Number(usage.total_tokens ?? pIn + pOut);
+      const pIn = Number(usage.input_tokens ?? 0);
+      const pOut = Number(usage.output_tokens ?? 0);
+      const total = pIn + pOut;
       const cost = (pIn / 1_000_000) * 1.25 + (pOut / 1_000_000) * 5;
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin.from("ai_usage").insert({
         admin_user_id: context.userId,
         client_id: data.client_id,
-        model: "google/gemini-2.5-pro",
+        model: modelId,
         operation: "generate_ai_insights",
         prompt_tokens: pIn || null,
         completion_tokens: pOut || null,
