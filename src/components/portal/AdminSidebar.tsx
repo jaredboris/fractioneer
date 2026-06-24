@@ -61,7 +61,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const search = useRouterState({ select: (s) => s.location.search as Record<string, string> });
-  const { theme, setTheme } = useTheme();
+  useForceDarkTheme();
   const [viewerId, setViewerId] = useState<string | null>(null);
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setViewerId(data.user?.id ?? null));
@@ -76,70 +76,45 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const activeTab = (search?.tab as string) || "clients";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#05070D]">
+    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#05070D]">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
         <div className="relative h-[90px] w-[90px] shrink-0">
           <img
-            src={logoDark}
-            alt="Fractioneer"
-            className="absolute inset-0 h-[90px] w-[90px] object-contain transition-opacity duration-500 ease-in-out opacity-100 dark:opacity-0"
-          />
-          <img
             src={logoWhite}
-            alt=""
-            aria-hidden="true"
-            className="absolute inset-0 h-[90px] w-[90px] object-contain transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100"
+            alt="Fractioneer"
+            className="h-[90px] w-[90px] object-contain"
           />
         </div>
       </div>
 
       {/* User card */}
-      <div className="rounded-2xl border p-4 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+      <div className="rounded-2xl border p-4 bg-[#111827] border-[#1E2A3A]">
         <div className="flex items-start justify-between">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-sm font-semibold text-white">
             <ShieldCheck className="h-5 w-5" />
           </div>
-          <div className="inline-flex items-center gap-0.5 rounded-full border p-0.5 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
-            <button
-              type="button"
-              onClick={() => setTheme("dark")}
-              aria-label="Dark mode"
-              className={`flex h-6 w-6 items-center justify-center rounded-full transition-colors ${
-                theme === "dark" ? "bg-[#1E2A3A] text-white" : "text-slate-500 hover:text-slate-700"
-              }`}
-            >
-              <Moon className="h-3 w-3" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setTheme("light")}
-              aria-label="Light mode"
-              className={`flex h-6 w-6 items-center justify-center rounded-full transition-colors ${
-                theme === "light" ? "bg-white text-amber-500 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <Sun className="h-3 w-3" />
-            </button>
-          </div>
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#1E2A3A] text-white">
+            <Moon className="h-3 w-3" />
+          </span>
         </div>
-        <div className="mt-4 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
+        <div className="mt-4 text-[10px] font-semibold uppercase tracking-wider text-[#6B7280]">
           {todayLabel()}
         </div>
-        <div className="mt-1 truncate text-lg font-bold leading-tight text-slate-900 dark:text-white">
+        <div className="mt-1 truncate text-lg font-bold leading-tight text-white">
           Admin Console
         </div>
         {email && (
-          <div className="mt-1 truncate text-xs text-slate-500 dark:text-[#9CA3AF]">{email}</div>
+          <div className="mt-1 truncate text-xs text-[#9CA3AF]">{email}</div>
         )}
-        <span className="mt-2 inline-flex items-center rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:bg-amber-500/15 dark:text-amber-300">
+        <span className="mt-2 inline-flex items-center rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
           Admin
         </span>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 rounded-2xl border p-2 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+      <nav className="flex-1 rounded-2xl border p-2 bg-[#111827] border-[#1E2A3A]">
         <ul className="space-y-1">
           {NAV.map((item) => {
             let active = false;
@@ -156,8 +131,8 @@ export function AdminSidebar({ email }: { email: string | null }) {
                   preload="render"
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                     active
-                      ? "bg-slate-100 text-slate-900 font-medium dark:bg-[#1E2A3A] dark:text-white"
-                      : "text-slate-600 hover:bg-slate-50 dark:text-[#9CA3AF] dark:hover:bg-[#1a2335] dark:hover:text-white"
+                      ? "bg-[#1E2A3A] text-white font-medium"
+                      : "text-[#9CA3AF] hover:bg-[#1a2335] hover:text-white"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -173,11 +148,11 @@ export function AdminSidebar({ email }: { email: string | null }) {
               </li>
             );
           })}
-          <li className="mt-2 border-t pt-2 border-[#E5E9F1] dark:border-[#1E2A3A]">
+          <li className="mt-2 border-t pt-2 border-[#1E2A3A]">
             <button
               type="button"
               onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-slate-600 transition-colors hover:bg-slate-50 dark:text-[#9CA3AF] dark:hover:bg-[#1a2335] dark:hover:text-white"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#9CA3AF] transition-colors hover:bg-[#1a2335] hover:text-white"
             >
               <LogOut className="h-4 w-4" />
               <span>Log out</span>
@@ -191,7 +166,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
 
 export function AdminShell({ email, children }: { email: string | null; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full bg-[#EEF2FA] dark:bg-[#05070D]">
+    <div className="flex min-h-screen w-full bg-[#05070D]">
       <AdminSidebar email={email} />
       <main className="flex-1 min-w-0 p-6 md:p-8">{children}</main>
     </div>
