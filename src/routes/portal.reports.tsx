@@ -242,7 +242,7 @@ function PeriodCard({
             <Sparkles className="h-3.5 w-3.5 text-blue-500" />
             AI Insights
             <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-[#1E2A3A] dark:text-[#9CA3AF]">
-              {insights.length || (open ? "Generating" : "—")}
+              {insights.length || "—"}
             </span>
           </span>
           <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
@@ -250,9 +250,8 @@ function PeriodCard({
         {open && (
           <div className="mt-3 space-y-2">
             {insights.length === 0 ? (
-              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-[#6B7280]">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Generating insights for this period…
+              <div className="rounded-lg border border-dashed border-[#E5E9F1] bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-500 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-[#9CA3AF]">
+                Insights were not generated for this period. Re-upload this period's financials from the admin portal to generate insights.
               </div>
             ) : (
               insights.map((i, idx) => (
