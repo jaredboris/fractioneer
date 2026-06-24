@@ -1252,6 +1252,18 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const isDark = useIsDark();
 
+  // Only show insights tied to the most recent reported period on the dashboard.
+  const latestPeriodEnd = periodsRows.length
+    ? (periodsRows[periodsRows.length - 1]?.period_end ?? null)
+    : null;
+  const latestInsights = useMemo(
+    () =>
+      aiInsights
+        .filter((i) => (latestPeriodEnd ? i.period_end === latestPeriodEnd : i.period_end == null))
+        .map(({ insight_text, category }) => ({ insight_text, category })),
+    [aiInsights, latestPeriodEnd],
+  );
+
   const widgetCtx = useMemo(
     () => ({
       rows: mergedRows,
@@ -1264,10 +1276,10 @@ function ClientDashboard({ role }: { role: string | null }) {
       viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
         | "admin"
         | "client",
-      aiInsights,
+      aiInsights: latestInsights,
       generatingInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights, generatingInsights],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, latestInsights, generatingInsights],
   );
 
 
