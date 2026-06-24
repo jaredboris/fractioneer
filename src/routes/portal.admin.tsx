@@ -1692,7 +1692,7 @@ function ExtractionProgress({
                     ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
                     : active
                       ? "bg-blue-500/20 text-blue-600 dark:text-blue-300"
-                      : "bg-muted text-slate-500 dark:text-[#9CA3AF]/50"
+                      : "bg-slate-100 text-slate-500 dark:bg-[#0F1729] dark:text-[#9CA3AF]/50"
                 }`}
               >
                 {done ? (
