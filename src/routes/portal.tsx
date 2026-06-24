@@ -1296,10 +1296,10 @@ function ClientDashboard({ role }: { role: string | null }) {
       viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
         | "admin"
         | "client",
-      aiInsights: latestInsights,
+      aiInsights: selectedInsights,
       generatingInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, latestInsights, generatingInsights],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, selectedInsights, generatingInsights],
   );
 
 
