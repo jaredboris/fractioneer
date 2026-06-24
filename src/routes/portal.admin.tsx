@@ -898,6 +898,7 @@ function AdminPage() {
                 <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">Period end</th>
+                    <th className="px-3 py-2 text-left font-medium">Status</th>
                     <th className="px-3 py-2 text-right font-medium">Net rev</th>
                     <th className="px-3 py-2 text-right font-medium">Net inc</th>
                     <th className="px-3 py-2 text-right font-medium">GM</th>
@@ -909,12 +910,21 @@ function AdminPage() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   {periods.length === 0 && (
-                    <tr><td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">No periods yet — upload an Excel file on the Upload tab.</td></tr>
+                    <tr><td colSpan={9} className="px-3 py-6 text-center text-muted-foreground">No periods yet — upload an Excel file on the Upload tab.</td></tr>
                   )}
-                  {periods.map((p) => {
-                    const gm = p.net_revenue && p.net_revenue !== 0
-                      ? (p.net_income ?? 0) / p.net_revenue
-                      : null;
+                  {[...periods].sort((a, b) => {
+                    // Pending review first, then by period_end desc
+                    const ap = a.status === "pending_review" ? 0 : 1;
+                    const bp = b.status === "pending_review" ? 0 : 1;
+                    if (ap !== bp) return ap - bp;
+                    return a.period_end < b.period_end ? 1 : -1;
+                  }).map((p) => {
+                    const gm = p.gross_margin != null
+                      ? Number(p.gross_margin)
+                      : (p.net_revenue && p.net_revenue !== 0
+                        ? (p.net_income ?? 0) / p.net_revenue
+                        : null);
+                    const isPending = p.status === "pending_review";
                     return (
                       <tr
                         key={p.id}
@@ -924,9 +934,30 @@ function AdminPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setConfirmingDelete(false); setOpenPeriod(p); }
                         }}
-                        className="cursor-pointer text-foreground transition-colors hover:bg-muted/40 focus:bg-muted/40 focus:outline-none"
+                        className={`cursor-pointer text-foreground transition-colors hover:bg-muted/40 focus:bg-muted/40 focus:outline-none ${isPending ? "bg-amber-500/5" : ""}`}
                       >
                         <td className="px-3 py-2">{p.period_end}</td>
+                        <td className="px-3 py-2">
+                          {isPending ? (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleApprovePeriod(p.id); }}
+                              disabled={approvingId === p.id}
+                              className="inline-flex items-center gap-1 rounded-md bg-amber-500/15 px-2 py-1 text-[11px] font-medium text-amber-700 hover:bg-amber-500/25 disabled:opacity-60 dark:text-amber-300"
+                            >
+                              {approvingId === p.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <CheckCircle2 className="h-3 w-3" />
+                              )}
+                              Approve & Publish
+                            </button>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-green-500/10 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:text-green-300">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Published
+                            </span>
+                          )}
+                        </td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.net_revenue)}</td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtMoneyCompact(p.net_income)}</td>
                         <td className="px-3 py-2 text-right tabular-nums">{fmtPercent(gm)}</td>
