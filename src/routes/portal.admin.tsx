@@ -1,9 +1,9 @@
 import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download } from "lucide-react";
+import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
-import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, approvePeriod, postClientAlert, clearClientAlert, recordSharedDocument, deleteSharedDocument, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
+import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, generateInsightsForPeriod, approvePeriod, postClientAlert, clearClientAlert, recordSharedDocument, deleteSharedDocument, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
 import * as XLSX from "xlsx";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -159,6 +159,80 @@ function AdminPage() {
   type SharedDoc = { id: string; file_name: string; file_path: string; size_bytes: number | null; created_at: string };
   const [sharedDocs, setSharedDocs] = useState<SharedDoc[]>([]);
   const [sharingDoc, setSharingDoc] = useState(false);
+
+  // Backfill state for "Generate missing insights"
+  const [backfillRunning, setBackfillRunning] = useState(false);
+  const [backfillProgress, setBackfillProgress] = useState<{
+    done: number;
+    total: number;
+    label: string;
+    succeeded: number;
+    failed: number;
+    finished: boolean;
+  } | null>(null);
+
+  const handleBackfillInsights = useCallback(async () => {
+    setBackfillRunning(true);
+    setBackfillProgress({ done: 0, total: 0, label: "Scanning periods…", succeeded: 0, failed: 0, finished: false });
+    try {
+      const [{ data: allPeriods, error: pErr }, { data: allInsights, error: iErr }] = await Promise.all([
+        supabase.from("periods").select("client_id, period_end"),
+        supabase.from("ai_insights").select("client_id, period_end"),
+      ]);
+      if (pErr) throw new Error(pErr.message);
+      if (iErr) throw new Error(iErr.message);
+
+      const have = new Set(
+        (allInsights ?? [])
+          .filter((r) => r.period_end)
+          .map((r) => `${r.client_id}::${r.period_end}`),
+      );
+      const missing = (allPeriods ?? []).filter(
+        (p) => !have.has(`${p.client_id}::${p.period_end}`),
+      );
+
+      const nameById = new Map(clients.map((c) => [c.id, c.company_name || c.full_name || c.id]));
+
+      if (missing.length === 0) {
+        setBackfillProgress({ done: 0, total: 0, label: "No missing periods — nothing to generate.", succeeded: 0, failed: 0, finished: true });
+        return;
+      }
+
+      let succeeded = 0;
+      let failed = 0;
+      for (let i = 0; i < missing.length; i++) {
+        const m = missing[i];
+        const label = `${nameById.get(m.client_id) ?? m.client_id} · ${m.period_end}`;
+        setBackfillProgress({ done: i, total: missing.length, label, succeeded, failed, finished: false });
+        try {
+          await generateInsightsForPeriod({ data: { client_id: m.client_id, period_end: m.period_end } });
+          succeeded++;
+        } catch (e) {
+          console.error("[backfill insights] failed", m, e);
+          failed++;
+        }
+      }
+      setBackfillProgress({
+        done: missing.length,
+        total: missing.length,
+        label: `Done. Generated insights for ${succeeded} period${succeeded === 1 ? "" : "s"}${failed ? `, ${failed} failed.` : "."}`,
+        succeeded,
+        failed,
+        finished: true,
+      });
+    } catch (e) {
+      setBackfillProgress({
+        done: 0,
+        total: 0,
+        label: e instanceof Error ? e.message : "Backfill failed",
+        succeeded: 0,
+        failed: 0,
+        finished: true,
+      });
+    } finally {
+      setBackfillRunning(false);
+    }
+  }, [clients]);
 
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
@@ -684,14 +758,61 @@ function AdminPage() {
                 ))}
               </select>
             </div>
-            <button
-              onClick={() => setAddOpen((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90"
-            >
-              <Plus className="h-4 w-4" />
-              {addOpen ? "Cancel" : "Add client"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleBackfillInsights}
+                disabled={backfillRunning}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50 disabled:opacity-60 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white dark:hover:bg-[#1a2335]"
+                title="Generate AI insights for every period that doesn't have any yet, across all clients. Runs sequentially."
+              >
+                {backfillRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                Generate missing insights
+              </button>
+              <button
+                onClick={() => setAddOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90"
+              >
+                <Plus className="h-4 w-4" />
+                {addOpen ? "Cancel" : "Add client"}
+              </button>
+            </div>
           </div>
+
+          {backfillProgress && (
+            <div className="mt-4 rounded-lg border border-[#E5E9F1] bg-slate-50 px-4 py-3 dark:border-[#1E2A3A] dark:bg-[#0F1729]">
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <span className="font-medium text-slate-700 dark:text-[#E5E7EB]">
+                  {backfillProgress.total > 0
+                    ? `Generating insights — ${backfillProgress.done} of ${backfillProgress.total}`
+                    : backfillProgress.label}
+                </span>
+                {backfillProgress.finished && (
+                  <button
+                    type="button"
+                    onClick={() => setBackfillProgress(null)}
+                    className="text-slate-500 hover:text-slate-700 dark:text-[#9CA3AF] dark:hover:text-white"
+                  >
+                    Dismiss
+                  </button>
+                )}
+              </div>
+              {backfillProgress.total > 0 && (
+                <>
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-[#1E2A3A]">
+                    <div
+                      className="h-full bg-blue-600 transition-all"
+                      style={{ width: `${(backfillProgress.done / Math.max(1, backfillProgress.total)) * 100}%` }}
+                    />
+                  </div>
+                  <div className="mt-1.5 truncate text-[11px] text-slate-500 dark:text-[#9CA3AF]">
+                    {backfillProgress.finished ? backfillProgress.label : backfillProgress.label}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
 
           {addOpen && (
             <form

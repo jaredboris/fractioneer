@@ -1,45 +1,39 @@
-## Goal
+# Fix AI Insights on Reports + add admin backfill
 
-Change Admin Override behavior in spy mode. Today, toggling it ON swaps to the default 4-card layout (read-only-ish). New behavior: the toggle controls **edit access** to the client's actual layout, not which layout is shown.
-
-## Behavior matrix
-
-| Spy mode | Override | Widgets shown | Edit controls | Persists to client's `widget_prefs`? |
-|---|---|---|---|---|
-| Off (normal client) | n/a | Client's own | Yes | Yes (own row) |
-| On | OFF | Client's actual | Hidden (read-only) | No |
-| On | ON | Client's actual | Visible (Manage Widgets, Add Widget, drag, remove) | **Yes — writes to that client's row** |
+## Problem
+1. The Reports tab's AI Insights dropdown currently shows a "Generating insights for this period…" spinner when a period has none, implying live generation is happening. Even though no generation is triggered from Reports, the UX is misleading — and the user wants any path that *could* trigger on-demand generation from Reports removed.
+2. There's no way to backfill insights for periods that were uploaded before insights generation was wired up (or where generation failed).
 
 ## Changes
 
-### 1. `src/lib/dashboard-widgets.tsx` — `useWidgetPrefs`
+### 1. `src/routes/portal.reports.tsx` (UI only)
+- In `PeriodCard`, when `insights.length === 0` and the dropdown is open, replace the spinner + "Generating insights for this period…" with a static informational message:
+  > *Insights were not generated for this period. Re-upload this period's financials from the admin portal to generate insights.*
+- In the badge next to "AI Insights", change the `open ? "Generating" : "—"` fallback to always show `—` when there are zero insights (no "Generating" state anywhere).
+- Keep the existing realtime subscription so that if insights *do* appear (via backfill or re-upload), the card updates live.
 
-- Drop the `overrideIds` option entirely (no more seeding the default layout on toggle).
-- Keep only the `readOnly` option. Override no longer affects which layout is fetched — always fetch the client's real `widget_prefs` row, always subscribe to realtime updates.
-- Remove the prevOverrideRef / fetchNonce-on-exit logic tied to override transitions (keep fetchNonce for post-persist refetch).
-- `persist()` writes to `widget_prefs` keyed on `clientId` (the effective/impersonated id) — already correct, just needs `readOnly` to be `false` when admin override is on.
+### 2. `src/lib/portal.functions.ts` (new server fn)
+Add `generateInsightsForPeriod` — admin-only, like `generateAiInsights` but scoped to a single `period_end`:
+- Input: `{ client_id: uuid, period_end: string }`
+- Loads periods history (same query as today) for context, but stores results tagged to the **specified** `period_end` rather than the latest.
+- Same Lovable AI Gateway call, same prompt, same ai_usage logging.
+- Deletes any existing rows for `(client_id, period_end)` and inserts the new batch.
 
-### 2. `src/routes/portal.tsx` — `ClientDashboard`
+The existing `generateAiInsights` (tied to latest period) stays as-is for the normal post-upload flow.
 
-- Change the hook call:
-  ```ts
-  const widgets = useWidgetPrefs(effectiveId, {
-    readOnly: !!impersonation && !override, // override ON unlocks editing
-  });
-  ```
-- Remove the `overrideIds` prop and the `DEFAULT_IDS` reference for override.
-- When `impersonation && override`, render an extra **"Reset to default layout"** button next to Manage Widgets / Add Widget. Style as destructive (red/rose). Wire to an `AlertDialog` confirm; on confirm call `widgets.setIds(DEFAULT_IDS)` which persists to the client's row.
+### 3. `src/routes/portal.admin.tsx` (Clients tab — new button)
+Add a single admin-only button **"Generate missing insights"** in the Clients tab header area (near the existing client list controls — alongside the search / add-client row).
 
-### 3. `src/components/portal/ImpersonationBanner.tsx`
+Behavior:
+- On click, query `periods` joined against `ai_insights` to find all `(client_id, period_end)` pairs where no insight rows exist yet (across all clients).
+- Show a small inline progress panel: `Generating insights — {n} of {total} ({clientName} · {period_end})` plus a progress bar.
+- Iterate sequentially, awaiting each `generateInsightsForPeriod` call. Catch errors per-period, count failures, continue.
+- On completion: show summary `Generated insights for X periods. Y failed.` Auto-dismiss after a few seconds or on next click.
+- Disable the button while running. No parallelism (avoids rate limits + matches "won't time out" requirement).
 
-- Update the toggle's title/tooltip text to reflect new meaning: "Admin Override unlocks editing the client's layout" instead of "default widget layout".
-- Remove the `(Override — default layout)` hint in the banner text.
-
-### 4. No DB / migration changes
-
-`widget_prefs` already keyed by `user_id` (the client). Admin in spy mode is already writing as the admin's auth identity but to the client's row — confirm RLS allows admins to upsert other users' rows. If RLS currently restricts to `auth.uid() = user_id`, a migration is needed to allow `has_role(auth.uid(), 'admin')` to upsert/select any row. I'll verify before implementation and add a migration only if needed.
+No changes to RLS, schema, or other tabs.
 
 ## Out of scope
-
-- No changes to widget catalog, layout structure, or non-override flows.
-- No change to how spy mode itself (impersonation) works.
+- No changes to the post-upload insights flow.
+- No changes to widgets, dashboards, or the admin spy mode.
+- No schema changes (uses existing `ai_insights` + `periods` tables).
