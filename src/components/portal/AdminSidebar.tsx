@@ -21,23 +21,17 @@ import { ImpersonationBanner } from "@/components/portal/ImpersonationBanner";
 
 const THEME_KEY = "fractioneer-portal-theme";
 
-function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
-    const stored = window.localStorage.getItem(THEME_KEY);
-    return stored === "dark" ? "dark" : "light";
-  });
+function useForceDarkTheme() {
   useEffect(() => {
     const root = document.documentElement;
     root.classList.add("theme-transition");
-    root.classList.toggle("dark", theme === "dark");
-    root.style.colorScheme = theme;
-    document.body.style.backgroundColor = theme === "dark" ? "#05070D" : "#EEF2FA";
-    window.localStorage.setItem(THEME_KEY, theme);
+    root.classList.add("dark");
+    root.style.colorScheme = "dark";
+    document.body.style.backgroundColor = "#05070D";
+    window.localStorage.setItem(THEME_KEY, "dark");
     const t = window.setTimeout(() => root.classList.remove("theme-transition"), 500);
     return () => window.clearTimeout(t);
-  }, [theme]);
-  return { theme, setTheme };
+  }, []);
 }
 
 type NavItem = {
