@@ -1015,12 +1015,10 @@ function computeExpenses(r: NormalizedRow | null): number | null {
   return Math.max(0, Number(r.net_revenue) - Number(r.net_income));
 }
 
-function computeGrossMargin(r: NormalizedRow | null): number | null {
+function computeNetMargin(r: NormalizedRow | null): number | null {
   if (!r) return null;
-  if (r.gross_margin != null) return Number(r.gross_margin);
-  if (r.net_revenue == null || r.net_income == null || r.net_revenue === 0) return null;
-  const expenses = Math.max(0, Number(r.net_revenue) - Number(r.net_income));
-  return ((Number(r.net_revenue) - expenses) / Number(r.net_revenue)) * 100;
+  if (r.net_revenue == null || r.net_income == null || Number(r.net_revenue) === 0) return null;
+  return (Number(r.net_income) / Number(r.net_revenue)) * 100;
 }
 
 function computeWC(r: NormalizedRow | null): number | null {
