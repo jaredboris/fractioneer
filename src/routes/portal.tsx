@@ -1105,7 +1105,7 @@ function ClientDashboard({ role }: { role: string | null }) {
   >([]);
 
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
-  const [aiInsights, setAiInsights] = useState<{ insight_text: string; category: string }[]>([]);
+  const [aiInsights, setAiInsights] = useState<{ insight_text: string; category: string; period_end: string | null }[]>([]);
 
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
@@ -1145,8 +1145,9 @@ function ClientDashboard({ role }: { role: string | null }) {
         supabase.from("documents").select("*").eq("client_id", effectiveId).order("created_at", { ascending: false }),
         supabase
           .from("ai_insights")
-          .select("insight_text, category, created_at")
+          .select("insight_text, category, period_end, created_at")
           .eq("client_id", effectiveId)
+          .order("period_end", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: true }),
       ]);
 
@@ -1155,7 +1156,7 @@ function ClientDashboard({ role }: { role: string | null }) {
       setDashboardRows((dash ?? []) as DashboardFinancialRow[]);
       setPeriodsRows((pers ?? []) as PeriodRow[]);
       setDocs(documents ?? []);
-      setAiInsights((insights ?? []) as { insight_text: string; category: string }[]);
+      setAiInsights((insights ?? []) as { insight_text: string; category: string; period_end: string | null }[]);
     }
     void loadAll();
     // Realtime: refresh insights when admin regenerates them, plus listen for
@@ -1251,6 +1252,18 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const isDark = useIsDark();
 
+  // Only show insights tied to the most recent reported period on the dashboard.
+  const latestPeriodEnd = periodsRows.length
+    ? (periodsRows[periodsRows.length - 1]?.period_end ?? null)
+    : null;
+  const latestInsights = useMemo(
+    () =>
+      aiInsights
+        .filter((i) => (latestPeriodEnd ? i.period_end === latestPeriodEnd : i.period_end == null))
+        .map(({ insight_text, category }) => ({ insight_text, category })),
+    [aiInsights, latestPeriodEnd],
+  );
+
   const widgetCtx = useMemo(
     () => ({
       rows: mergedRows,
@@ -1263,10 +1276,10 @@ function ClientDashboard({ role }: { role: string | null }) {
       viewerRole: (impersonation ? "admin" : (role === "admin" ? "admin" : "client")) as
         | "admin"
         | "client",
-      aiInsights,
+      aiInsights: latestInsights,
       generatingInsights,
     }),
-    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, aiInsights, generatingInsights],
+    [mergedRows, latest, prev, lastUploadAt, isDark, effectiveId, user.id, impersonation, role, latestInsights, generatingInsights],
   );
 
 
@@ -1447,113 +1460,6 @@ function ClientDashboard({ role }: { role: string | null }) {
         </DndContext>
 
 
-        <section className="mt-5">
-          <div
-            className="relative flex min-h-[360px] flex-col overflow-hidden rounded-xl p-5 nb-card nb-rise"
-            style={{ animationDelay: "660ms" }}
-          >
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
-              Period Summary
-            </h2>
-            <p className="text-xs text-slate-400 dark:text-[#6B7280]">
-              {latest?.period ? formatMonthYear(latest.period) : "No period set"}
-            </p>
-
-            <div className="relative mt-5">
-              <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
-                Net Revenue
-              </div>
-              <div className="mt-1 text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-                <CountUpValue value={latest?.net_revenue ?? null} format={(n) => formatCurrencyOrDash(n)} fallback="—" />
-              </div>
-              <svg
-                aria-hidden
-                className="pointer-events-none absolute -bottom-4 left-0 right-0 h-12 w-full opacity-70"
-                viewBox="0 0 200 40"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <linearGradient id="nbSpark" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.5" />
-                    <stop offset="100%" stopColor="#3B82F6" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M0,30 C30,22 50,28 75,18 C100,8 125,22 150,14 C175,8 190,18 200,12 L200,40 L0,40 Z"
-                  fill="url(#nbSpark)"
-                />
-                <path
-                  d="M0,30 C30,22 50,28 75,18 C100,8 125,22 150,14 C175,8 190,18 200,12"
-                  stroke="#3B82F6"
-                  strokeWidth="1.5"
-                  fill="none"
-                  style={{ filter: "drop-shadow(0 0 4px rgba(59,130,246,0.7))" }}
-                />
-              </svg>
-            </div>
-
-            <dl className="mt-10 space-y-4">
-              <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
-                  Net Income
-                </dt>
-                <dd
-                  className="mt-1 inline-flex items-center gap-1.5 text-xl font-semibold"
-                  style={{
-                    color:
-                      latest?.net_income == null
-                        ? undefined
-                        : latest.net_income < 0
-                          ? "#F87171"
-                          : "#10B981",
-                  }}
-                >
-                  {latest?.net_income == null && (
-                    <span className="text-slate-900 dark:text-[#E5E7EB]">—</span>
-                  )}
-                  {latest?.net_income != null && (
-                    <>
-                      {latest.net_income < 0 ? (
-                        <TrendingDown className="h-4 w-4" />
-                      ) : (
-                        <TrendingUp className="h-4 w-4" />
-                      )}
-                      {formatCurrencyOrDash(latest.net_income)}
-                    </>
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
-                  Gross Margin
-                </dt>
-                <dd
-                  className="mt-1 text-xl font-semibold"
-                  style={{
-                    color:
-                      grossMarginPct == null
-                        ? undefined
-                        : grossMarginPct < 0
-                          ? "#F87171"
-                          : "#10B981",
-                  }}
-                >
-                  {grossMarginPct == null ? (
-                    <span className="text-slate-900 dark:text-[#E5E7EB]">—</span>
-                  ) : (
-                    `${grossMarginPct.toFixed(1)}%`
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[11px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
-                  AR vs AP
-                </dt>
-                <ArApBar ar={latest?.total_ar ?? null} ap={latest?.total_ap ?? null} />
-              </div>
-            </dl>
-          </div>
-        </section>
 
 
 

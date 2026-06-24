@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Download, Loader2, FileSpreadsheet } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Download, Loader2, FileSpreadsheet, Sparkles, ChevronDown } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
@@ -26,8 +26,17 @@ type PeriodRow = {
   net_revenue: number | null;
   net_income: number | null;
   gross_margin: number | null;
+  cash_balance: number | null;
+  total_ar: number | null;
+  total_ap: number | null;
   document_id: string | null;
   documents: { file_name: string; file_path: string } | null;
+};
+
+type InsightRow = {
+  insight_text: string;
+  category: string;
+  period_end: string | null;
 };
 
 const fmtCurrency = (v: number | null) =>
@@ -41,7 +50,6 @@ const fmtCurrency = (v: number | null) =>
 
 const fmtPercent = (v: number | null) => {
   if (v === null || v === undefined) return "—";
-  // Accept either fractional (0.42) or whole percent (42)
   const pct = Math.abs(v) <= 1 ? v * 100 : v;
   return `${pct.toFixed(1)}%`;
 };
@@ -63,34 +71,63 @@ function ReportsPage() {
   const [periods, setPeriods] = useState<PeriodRow[] | null>(
     () => getCached<PeriodRow[]>("reports", effectiveId) ?? null,
   );
+  const [insights, setInsights] = useState<InsightRow[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     const cached = getCached<PeriodRow[]>("reports", effectiveId);
     setPeriods(cached ?? null);
-    (async () => {
-      const { data } = await supabase
-        .from("periods")
-        .select(
-          "id, period_end, net_revenue, net_income, gross_margin, document_id, documents(file_name, file_path)",
-        )
-        .eq("client_id", effectiveId)
-        .order("period_end", { ascending: false });
+    async function loadAll() {
+      const [{ data: periodData }, { data: insightData }] = await Promise.all([
+        supabase
+          .from("periods")
+          .select(
+            "id, period_end, net_revenue, net_income, gross_margin, cash_balance, total_ar, total_ap, document_id, documents(file_name, file_path)",
+          )
+          .eq("client_id", effectiveId)
+          .order("period_end", { ascending: false }),
+        supabase
+          .from("ai_insights")
+          .select("insight_text, category, period_end")
+          .eq("client_id", effectiveId),
+      ]);
       if (cancelled) return;
-      const fresh = (data ?? []) as unknown as PeriodRow[];
+      const fresh = (periodData ?? []) as unknown as PeriodRow[];
       setCached("reports", effectiveId, fresh);
       setPeriods(fresh);
+      setInsights((insightData ?? []) as InsightRow[]);
       try {
         const r = await getMyRole();
         if (cancelled) return;
         setCached("role", user.id, r.role ?? "");
         setRole(r.role);
       } catch {}
-    })();
+    }
+    void loadAll();
+    // Realtime: refresh insights when admin regenerates them for any period.
+    const channel = supabase
+      .channel(`reports_ai_insights:${effectiveId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ai_insights", filter: `client_id=eq.${effectiveId}` },
+        () => { void loadAll(); },
+      )
+      .subscribe();
     return () => {
       cancelled = true;
+      supabase.removeChannel(channel);
     };
   }, [effectiveId, user.id]);
+
+  const insightsByPeriod = useMemo(() => {
+    const m = new Map<string, InsightRow[]>();
+    for (const i of insights) {
+      const key = i.period_end ?? "";
+      if (!m.has(key)) m.set(key, []);
+      m.get(key)!.push(i);
+    }
+    return m;
+  }, [insights]);
 
   async function handleDownload(path: string, name: string) {
     const { data } = await supabase.storage
@@ -112,7 +149,7 @@ function ReportsPage() {
             Reports
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
-            Period snapshots prepared by your Fractioneer team.
+            Period-by-period snapshots with the AI insights generated for each upload.
           </p>
         </div>
 
@@ -125,48 +162,12 @@ function ReportsPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {periods.map((p) => (
-              <article
+              <PeriodCard
                 key={p.id}
-                className="group flex flex-col rounded-2xl border bg-white p-5 transition-colors border-[#E5E9F1] hover:border-blue-400/40 dark:bg-[#111827] dark:border-[#1E2A3A] dark:hover:border-blue-500/40"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
-                      Period ending
-                    </div>
-                    <div className="mt-1 text-lg font-bold leading-tight text-slate-900 dark:text-white">
-                      {fmtDate(p.period_end)}
-                    </div>
-                  </div>
-                  <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
-                    <FileSpreadsheet className="h-4 w-4" />
-                  </span>
-                </div>
-
-                <dl className="mt-5 space-y-3 border-t pt-4 border-[#E5E9F1] dark:border-[#1E2A3A]">
-                  <Stat label="Net revenue" value={fmtCurrency(p.net_revenue)} />
-                  <Stat label="Net income" value={fmtCurrency(p.net_income)} />
-                  <Stat label="Gross margin" value={fmtPercent(p.gross_margin)} />
-                </dl>
-
-                <div className="mt-5 flex items-center gap-2">
-                  {p.documents ? (
-                    <button
-                      onClick={() =>
-                        handleDownload(p.documents!.file_path, p.documents!.file_name)
-                      }
-                      className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-500"
-                    >
-                      <Download className="h-3.5 w-3.5" />
-                      Download Excel
-                    </button>
-                  ) : (
-                    <div className="w-full rounded-lg border border-dashed px-3 py-2 text-center text-xs text-slate-400 border-[#E5E9F1] dark:border-[#1E2A3A] dark:text-[#6B7280]">
-                      No source file attached
-                    </div>
-                  )}
-                </div>
-              </article>
+                period={p}
+                insights={insightsByPeriod.get(p.period_end) ?? []}
+                onDownload={handleDownload}
+              />
             ))}
           </div>
         )}
@@ -175,11 +176,104 @@ function ReportsPage() {
   );
 }
 
+function PeriodCard({
+  period,
+  insights,
+  onDownload,
+}: {
+  period: PeriodRow;
+  insights: InsightRow[];
+  onDownload: (path: string, name: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <article className="group flex flex-col rounded-2xl border bg-white p-5 transition-colors border-[#E5E9F1] hover:border-blue-400/40 dark:bg-[#0A0E18] dark:border-[#1E2A3A] dark:hover:border-blue-500/40">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
+            Period ending
+          </div>
+          <div className="mt-1 text-lg font-bold leading-tight text-slate-900 dark:text-white">
+            {fmtDate(period.period_end)}
+          </div>
+        </div>
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
+          <FileSpreadsheet className="h-4 w-4" />
+        </span>
+      </div>
+
+      <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-4 border-[#E5E9F1] dark:border-[#1E2A3A]">
+        <Stat label="Net Revenue" value={fmtCurrency(period.net_revenue)} />
+        <Stat label="Net Income" value={fmtCurrency(period.net_income)} />
+        <Stat label="Gross Margin" value={fmtPercent(period.gross_margin)} />
+        <Stat label="Cash" value={fmtCurrency(period.cash_balance)} />
+        <Stat label="AR" value={fmtCurrency(period.total_ar)} />
+        <Stat label="AP" value={fmtCurrency(period.total_ap)} />
+      </dl>
+
+      <div className="mt-5 flex items-center gap-2">
+        {period.documents ? (
+          <button
+            onClick={() => onDownload(period.documents!.file_path, period.documents!.file_name)}
+            className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-blue-500"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Download Excel
+          </button>
+        ) : (
+          <div className="w-full rounded-lg border border-dashed px-3 py-2 text-center text-xs text-slate-400 border-[#E5E9F1] dark:border-[#1E2A3A] dark:text-[#6B7280]">
+            No source file attached
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 border-t pt-3 border-[#E5E9F1] dark:border-[#1E2A3A]">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex w-full items-center justify-between gap-2 text-left"
+        >
+          <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
+            <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+            AI Insights
+            <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-[#1E2A3A] dark:text-[#9CA3AF]">
+              {insights.length || (open ? "Generating" : "—")}
+            </span>
+          </span>
+          <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+        {open && (
+          <div className="mt-3 space-y-2">
+            {insights.length === 0 ? (
+              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-[#6B7280]">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Generating insights for this period…
+              </div>
+            ) : (
+              insights.map((i, idx) => (
+                <div
+                  key={`${i.category}-${idx}`}
+                  className="rounded-lg border bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-700 border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB]"
+                >
+                  <span className="mr-2 inline-block rounded bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-blue-600 dark:text-blue-300">
+                    {i.category.replace(/_/g, " ")}
+                  </span>
+                  {i.insight_text}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between text-sm">
-      <dt className="text-slate-500 dark:text-[#9CA3AF]">{label}</dt>
-      <dd className="font-semibold tabular-nums text-slate-900 dark:text-white">{value}</dd>
+    <div>
+      <dt className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">{label}</dt>
+      <dd className="mt-0.5 text-sm font-semibold tabular-nums text-slate-900 dark:text-white">{value}</dd>
     </div>
   );
 }

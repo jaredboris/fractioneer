@@ -119,6 +119,7 @@ export const WIDGET_CATALOG: WidgetDef[] = [
     id: "accounts_receivable",
     label: "Accounts Receivable",
     kind: "stat",
+    locked: true,
     defaultOn: true,
     render: (ctx) => (
       <StatCard
@@ -136,6 +137,7 @@ export const WIDGET_CATALOG: WidgetDef[] = [
     id: "accounts_payable",
     label: "Accounts Payable",
     kind: "stat",
+    locked: true,
     defaultOn: true,
     render: (ctx) => (
       <StatCard
@@ -272,7 +274,6 @@ export const WIDGET_CATALOG: WidgetDef[] = [
   {
     id: "chart_rev_exp",
     label: "Revenue vs Expenses",
-
     kind: "chart",
     render: (ctx) => <RevExpChart ctx={ctx} />,
   },
@@ -289,6 +290,22 @@ export const WIDGET_CATALOG: WidgetDef[] = [
     render: (ctx) => <ArApChart ctx={ctx} />,
   },
 ];
+
+// Widgets eligible for the dashboard (Manage / Add Widget surfaces only these).
+// Charts are excluded from the dashboard — they live on the Cash Flow page.
+export const DASHBOARD_WIDGET_IDS = new Set<string>([
+  "monthly_close",
+  "cash_position",
+  "accounts_receivable",
+  "accounts_payable",
+  "net_revenue",
+  "net_income",
+  "gross_margin",
+  "total_expenses",
+  "working_capital",
+  "last_upload",
+  "ai_insights",
+]);
 
 export const WIDGET_BY_ID = Object.fromEntries(WIDGET_CATALOG.map((w) => [w.id, w]));
 export const LOCKED_IDS = WIDGET_CATALOG.filter((w) => w.locked).map((w) => w.id);
@@ -313,7 +330,7 @@ function cleanupLegacyStorage() {
 }
 
 function normalize(ids: string[]): string[] {
-  const filtered = ids.filter((id) => WIDGET_BY_ID[id]);
+  const filtered = ids.filter((id) => WIDGET_BY_ID[id] && DASHBOARD_WIDGET_IDS.has(id));
   for (const lid of LOCKED_IDS) {
     if (!filtered.includes(lid)) filtered.unshift(lid);
   }
@@ -586,7 +603,7 @@ export function AddWidgetModal({
   onAdd: (id: string) => void;
   onClose: () => void;
 }) {
-  const available = WIDGET_CATALOG.filter((w) => !ids.includes(w.id));
+  const available = WIDGET_CATALOG.filter((w) => !ids.includes(w.id) && DASHBOARD_WIDGET_IDS.has(w.id));
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
