@@ -160,6 +160,80 @@ function AdminPage() {
   const [sharedDocs, setSharedDocs] = useState<SharedDoc[]>([]);
   const [sharingDoc, setSharingDoc] = useState(false);
 
+  // Backfill state for "Generate missing insights"
+  const [backfillRunning, setBackfillRunning] = useState(false);
+  const [backfillProgress, setBackfillProgress] = useState<{
+    done: number;
+    total: number;
+    label: string;
+    succeeded: number;
+    failed: number;
+    finished: boolean;
+  } | null>(null);
+
+  const handleBackfillInsights = useCallback(async () => {
+    setBackfillRunning(true);
+    setBackfillProgress({ done: 0, total: 0, label: "Scanning periods…", succeeded: 0, failed: 0, finished: false });
+    try {
+      const [{ data: allPeriods, error: pErr }, { data: allInsights, error: iErr }] = await Promise.all([
+        supabase.from("periods").select("client_id, period_end"),
+        supabase.from("ai_insights").select("client_id, period_end"),
+      ]);
+      if (pErr) throw new Error(pErr.message);
+      if (iErr) throw new Error(iErr.message);
+
+      const have = new Set(
+        (allInsights ?? [])
+          .filter((r) => r.period_end)
+          .map((r) => `${r.client_id}::${r.period_end}`),
+      );
+      const missing = (allPeriods ?? []).filter(
+        (p) => !have.has(`${p.client_id}::${p.period_end}`),
+      );
+
+      const nameById = new Map(clients.map((c) => [c.id, c.company_name || c.full_name || c.id]));
+
+      if (missing.length === 0) {
+        setBackfillProgress({ done: 0, total: 0, label: "No missing periods — nothing to generate.", succeeded: 0, failed: 0, finished: true });
+        return;
+      }
+
+      let succeeded = 0;
+      let failed = 0;
+      for (let i = 0; i < missing.length; i++) {
+        const m = missing[i];
+        const label = `${nameById.get(m.client_id) ?? m.client_id} · ${m.period_end}`;
+        setBackfillProgress({ done: i, total: missing.length, label, succeeded, failed, finished: false });
+        try {
+          await generateInsightsForPeriod({ data: { client_id: m.client_id, period_end: m.period_end } });
+          succeeded++;
+        } catch (e) {
+          console.error("[backfill insights] failed", m, e);
+          failed++;
+        }
+      }
+      setBackfillProgress({
+        done: missing.length,
+        total: missing.length,
+        label: `Done. Generated insights for ${succeeded} period${succeeded === 1 ? "" : "s"}${failed ? `, ${failed} failed.` : "."}`,
+        succeeded,
+        failed,
+        finished: true,
+      });
+    } catch (e) {
+      setBackfillProgress({
+        done: 0,
+        total: 0,
+        label: e instanceof Error ? e.message : "Backfill failed",
+        succeeded: 0,
+        failed: 0,
+        finished: true,
+      });
+    } finally {
+      setBackfillRunning(false);
+    }
+  }, [clients]);
+
   const loadClients = useCallback(async () => {
     const { data: roles } = await supabase
       .from("user_roles")
