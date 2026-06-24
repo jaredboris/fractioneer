@@ -758,14 +758,61 @@ function AdminPage() {
                 ))}
               </select>
             </div>
-            <button
-              onClick={() => setAddOpen((v) => !v)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90"
-            >
-              <Plus className="h-4 w-4" />
-              {addOpen ? "Cancel" : "Add client"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleBackfillInsights}
+                disabled={backfillRunning}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm font-medium text-slate-900 transition-colors hover:bg-slate-50 disabled:opacity-60 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white dark:hover:bg-[#1a2335]"
+                title="Generate AI insights for every period that doesn't have any yet, across all clients. Runs sequentially."
+              >
+                {backfillRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                Generate missing insights
+              </button>
+              <button
+                onClick={() => setAddOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-600/90"
+              >
+                <Plus className="h-4 w-4" />
+                {addOpen ? "Cancel" : "Add client"}
+              </button>
+            </div>
           </div>
+
+          {backfillProgress && (
+            <div className="mt-4 rounded-lg border border-[#E5E9F1] bg-slate-50 px-4 py-3 dark:border-[#1E2A3A] dark:bg-[#0F1729]">
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <span className="font-medium text-slate-700 dark:text-[#E5E7EB]">
+                  {backfillProgress.total > 0
+                    ? `Generating insights — ${backfillProgress.done} of ${backfillProgress.total}`
+                    : backfillProgress.label}
+                </span>
+                {backfillProgress.finished && (
+                  <button
+                    type="button"
+                    onClick={() => setBackfillProgress(null)}
+                    className="text-slate-500 hover:text-slate-700 dark:text-[#9CA3AF] dark:hover:text-white"
+                  >
+                    Dismiss
+                  </button>
+                )}
+              </div>
+              {backfillProgress.total > 0 && (
+                <>
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-[#1E2A3A]">
+                    <div
+                      className="h-full bg-blue-600 transition-all"
+                      style={{ width: `${(backfillProgress.done / Math.max(1, backfillProgress.total)) * 100}%` }}
+                    />
+                  </div>
+                  <div className="mt-1.5 truncate text-[11px] text-slate-500 dark:text-[#9CA3AF]">
+                    {backfillProgress.finished ? backfillProgress.label : backfillProgress.label}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
 
           {addOpen && (
             <form
