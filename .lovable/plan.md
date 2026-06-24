@@ -1,43 +1,31 @@
-# Match admin UI to client dashboard
+### 1. Reports tab — insights empty message
+In `src/routes/portal.reports.tsx` (~line 254), replace the current message with exactly: **"Insights are not available for this period."** No mention of admin/re-upload.
 
-The client portal screenshot is the target: dark navy background (`#05070D`), `#111827` cards with `#1E2A3A` borders, rounded-2xl, uppercase tracked labels, subtle widget glow. The admin already uses these tokens for many cards but two things break the parity:
+### 2. Fix gross_margin extraction prompt (new uploads only)
+In `src/lib/portal.functions.ts` (~line 188), the extraction prompt currently says "Compute it from (Total Revenue - Total Cost of Goods Sold) / Total Revenue" — but evidence shows the model is returning net profit margin. Tighten the prompt to:
+- Pull the **Gross Profit** line directly from the income statement (rows labeled "Gross Profit", "Total Gross Profit", or "Gross Margin"), divided by total revenue for that month.
+- Fallback only if no Gross Profit row exists: compute as (Total Revenue − Total COGS) / Total Revenue.
+- Explicitly forbid using Net Income / Net Operating Income in this calculation.
+- Return null if neither Gross Profit nor a COGS row is present.
 
-1. Admin loads in light mode (theme is per-user via localStorage; admins often see white).
-2. Several admin surfaces (tab strip, tables, buttons, inputs, activity rows, period dialog, empty states) still use light-first slate styling that doesn't read as "widgets".
+No DB migration, no backfill — existing rows untouched.
 
-## Changes
+### 3. Replace Gross Margin → Net Margin in client UI
+Net margin = `net_income / net_revenue * 100`. Calculated on the fly from existing fields; no schema change.
 
-### 1. Force dark on the admin shell
-`src/components/portal/AdminSidebar.tsx`
-- Drop the light branch from the `useTheme` hook used by admin: default to `dark`, persist `dark`, and remove the light-mode toggle button (keep a single static moon indicator, or hide the toggle entirely for admin).
-- Keep the amber/rose admin avatar + shield as-is (per user choice).
-- Result: the admin shell, sidebar card, and nav always render with the same `#05070D` / `#111827` / `#1E2A3A` palette as the screenshot.
+**a. `src/lib/dashboard-widgets.tsx`** (dashboard stat card):
+- Rename widget `id: "gross_margin"` → `id: "net_margin"`, label "Net Margin".
+- Replace `computeGrossMargin` with `computeNetMargin(r)` = `r.net_income / r.net_revenue * 100` when both present and revenue ≠ 0.
+- Update the widget id in the default-order array (line 303) accordingly.
+- Note: the `NormalizedRow.gross_margin` field and DB column remain — only the displayed metric changes.
 
-### 2. Restyle admin page content to widget aesthetic
-`src/routes/portal.admin.tsx` — sweep every section so the dark variant is the *only* variant (remove light-mode classes that currently dominate when no `dark` class is present):
+**b. `src/routes/portal.reports.tsx`** (period cards, ~line 213):
+- Replace `<Stat label="Gross Margin" value={fmtPercent(period.gross_margin)} />` with a Net Margin stat computed inline from `period.net_income / period.net_revenue`.
 
-- **Tab strip** (Clients / Upload Financials / Activity Log): convert to the same pill style used on the client dashboard period selector — `rounded-xl border border-[#1E2A3A] bg-[#111827]` container, active tab `bg-[#1E2A3A] text-white`, inactive `text-[#9CA3AF] hover:text-white`.
-- **Section cards** (`Reporting periods`, `Dashboard values`, `Documents`, `Shared files`, `Urgent alert`, `New client` panel, Activity log card): unify to `rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6`, headings `text-white`, sub-copy `text-[#9CA3AF]`, uppercase eyebrow labels `text-[10px] tracking-wider text-[#9CA3AF]`.
-- **Inputs / selects / textareas**: `bg-[#0F1729] border-[#1E2A3A] text-white placeholder:text-[#6B7280] focus:border-blue-500/60 focus:ring-blue-500/40`. Remove `bg-white` / `text-slate-900` light fallbacks.
-- **Primary buttons**: `bg-blue-600 hover:bg-blue-500 text-white` (kept). **Secondary buttons**: `border-[#1E2A3A] bg-[#0F1729] text-white hover:bg-[#1a2335]`. **Destructive**: rose-500/10 bg, rose-300 text, rose-500/30 border.
-- **Tables** (Clients list, Reporting periods, Activity log): header row `bg-[#0F1729] text-[#9CA3AF] uppercase tracking-wider`, body rows `border-t border-[#1E2A3A] hover:bg-[#1a2335] text-[#E5E7EB]`, numeric/secondary cells `text-[#9CA3AF]`.
-- **Empty states** ("No periods yet", "No files shared yet", etc.): `text-[#9CA3AF]` on `bg-[#0F1729]` dashed border `border-[#1E2A3A]`.
-- **Period detail dialog / modals**: same card chrome — `bg-[#111827] border-[#1E2A3A]`, headings white, copy `#9CA3AF`.
-- **Status pills** (On track / Delayed / Ready / Current / Behind): match client widget glow style — soft tinted bg + matching text (`bg-emerald-500/10 text-emerald-300`, `bg-amber-500/10 text-amber-300`, `bg-rose-500/10 text-rose-300`).
-- **Progress bar** for backfill / uploads: track `bg-[#1E2A3A]`, fill `bg-blue-500`.
-- **Page background**: ensure `AdminShell` main wrapper is `bg-[#05070D]` (already set) and remove any inner `bg-slate-50` fallbacks.
+**c. `src/routes/portal.tsx`** (~line 1289 dashboard fallback):
+- Update the latest-value lookup to compute net margin from net_income/net_revenue instead of reading `gross_margin`.
 
-### 3. Loader / role-check screen
-`AdminGate` loader: change `bg-slate-50 dark:bg-[#0F1729]` → `bg-[#05070D]` so the flash before role check matches.
-
-## Out of scope
-
-- No changes to data, server functions, routing, or client portal files.
-- Admin avatar stays amber/rose with shield.
-- Light mode is removed for admin only; client portal keeps its toggle.
-
-## Technical notes
-
-- Sweep is class-rename only; no markup restructure needed.
-- After the sweep, run `rg "bg-white|bg-slate-50|text-slate-900|text-slate-700|text-slate-600|text-slate-500" src/routes/portal.admin.tsx src/components/portal/AdminSidebar.tsx` to confirm no light-mode residue remains (allow only inside conditional dark: pairs that have been collapsed to dark-only values).
-- Verify visually with a Playwright screenshot of `/portal/admin?tab=clients`, `?tab=upload`, `?tab=activity` against the client screenshot.
+### Out of scope
+- Admin portal (`portal.admin.tsx`) — keeps Gross Margin label since it's internal.
+- No DB migration, no backfill of existing periods.
+- AI insights generation logic unchanged (only the empty-state message).
