@@ -522,3 +522,113 @@ export const generateAiInsights = createServerFn({ method: "POST" })
     return { ok: true, count: safe.length };
   });
 
+
+// ---------------------------------------------------------------------------
+// Admin-only: approve & publish a pending period (clients can then see it).
+// ---------------------------------------------------------------------------
+export const approvePeriod = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ period_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { error } = await context.supabase
+      .from("periods")
+      .update({
+        status: "published",
+        published_at: new Date().toISOString(),
+        published_by: context.userId,
+      })
+      .eq("id", data.period_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Urgent client alerts (pinned message on the client's dashboard).
+// ---------------------------------------------------------------------------
+export const postClientAlert = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ client_id: z.string().uuid(), message: z.string().min(1).max(500) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    // Clear any previous active alert first — at most one active per client.
+    await context.supabase
+      .from("client_alerts")
+      .update({ cleared_at: new Date().toISOString() })
+      .eq("client_id", data.client_id)
+      .is("cleared_at", null);
+    const { data: row, error } = await context.supabase
+      .from("client_alerts")
+      .insert({
+        client_id: data.client_id,
+        message: data.message,
+        created_by: context.userId,
+      })
+      .select("id, message, created_at")
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const clearClientAlert = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ alert_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { error } = await context.supabase
+      .from("client_alerts")
+      .update({ cleared_at: new Date().toISOString() })
+      .eq("id", data.alert_id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Admin-shared documents (polished deliverables in the client Documents tab).
+// ---------------------------------------------------------------------------
+export const recordSharedDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        client_id: z.string().uuid(),
+        file_name: z.string().min(1).max(255),
+        file_path: z.string().min(1).max(512),
+        mime_type: z.string().max(255).nullable().optional(),
+        size_bytes: z.number().int().nonnegative().nullable().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { data: row, error } = await context.supabase
+      .from("shared_documents")
+      .insert({
+        client_id: data.client_id,
+        file_name: data.file_name,
+        file_path: data.file_path,
+        mime_type: data.mime_type ?? null,
+        size_bytes: data.size_bytes ?? null,
+        uploaded_by: context.userId,
+      })
+      .select("id, file_name, file_path, created_at, size_bytes, mime_type")
+      .single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteSharedDocument = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ id: z.string().uuid(), file_path: z.string().min(1) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.storage.from("client-documents").remove([data.file_path]);
+    const { error } = await context.supabase.from("shared_documents").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
