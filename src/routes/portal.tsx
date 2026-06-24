@@ -1469,6 +1469,39 @@ function ClientDashboard({ role }: { role: string | null }) {
           />
         )}
 
+        {resetConfirmOpen && (
+          <Dialog open={resetConfirmOpen} onOpenChange={setResetConfirmOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reset client layout to default?</DialogTitle>
+                <DialogDescription>
+                  This wipes <strong>{companyName ?? "this client"}</strong>&apos;s saved widget layout and
+                  replaces it with the 4 default cards. The change saves immediately to their
+                  account and is visible to them on next refresh.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-2 flex justify-end gap-2">
+                <button
+                  onClick={() => setResetConfirmOpen(false)}
+                  className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    widgets.setIds(DEFAULT_IDS);
+                    setResetConfirmOpen(false);
+                  }}
+                  className="rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-500"
+                >
+                  Reset layout
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
