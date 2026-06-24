@@ -1372,27 +1372,31 @@ function ClientDashboard({ role }: { role: string | null }) {
           </p>
         </div>
 
+        {activeAlert && (
+          <UrgentAlert message={activeAlert.message} createdAt={activeAlert.created_at} />
+        )}
+
+        {periodOptions.length === 0 ? (
+          <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center nb-rise border-[#E5E9F1] dark:bg-[#0A0E18] dark:border-[#1E2A3A]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </div>
+            <h2 className="mt-5 text-lg font-semibold text-slate-900 dark:text-white">
+              Your dashboard is being prepared
+            </h2>
+            <p className="mt-2 max-w-md text-sm text-slate-500 dark:text-[#9CA3AF]">
+              Your financials are being prepared by your Fractioneer team.
+              You&apos;ll be notified when your dashboard is ready.
+            </p>
+          </div>
+        ) : (
+        <>
         <div
-          className="mb-4 flex items-start gap-2 rounded-md border px-3 py-2 text-xs nb-rise bg-amber-50 border-amber-200 text-amber-900 dark:bg-[#1C1500] dark:border-[#92400E] dark:text-[#FCD34D]"
+          className="mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium nb-rise bg-blue-500/5 border-blue-500/20 text-blue-700 dark:text-blue-300"
           style={{ animationDelay: "60ms" }}
         >
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-[#F59E0B]" />
-          <p>
-            These figures are AI-extracted from your uploaded financials and may contain errors. For
-            verified data,{" "}
-            {latestExcel ? (
-              <button
-                type="button"
-                onClick={() => handleDownload(latestExcel.file_path, latestExcel.file_name)}
-                className="font-medium underline underline-offset-2 text-amber-800 dark:text-[#FDE68A]"
-              >
-                download the source file
-              </button>
-            ) : (
-              <span className="font-medium opacity-60">download the source file</span>
-            )}
-            .
-          </p>
+          <CheckCircle2 className="h-3 w-3" />
+          Reviewed by your Fractioneer team
         </div>
 
         <div className="mb-3 flex items-center justify-between gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
