@@ -385,8 +385,8 @@ export const generateAiInsights = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.supabase, context.userId);
 
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
 
     const { data: periods, error: periodsErr } = await context.supabase
       .from("periods")
@@ -422,19 +422,22 @@ export const generateAiInsights = createServerFn({ method: "POST" })
       source_file_rows: data.source_rows ?? null,
     }).slice(0, 380_000);
 
-    const modelId = "claude-sonnet-4-6";
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const modelId = "google/gemini-2.5-pro";
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
+        "Authorization": `Bearer ${apiKey}`,
+        "Lovable-API-Key": apiKey,
       },
       body: JSON.stringify({
         model: modelId,
-        max_tokens: 4096,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPayload }],
+        max_tokens: 8192,
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPayload },
+        ],
       }),
     });
 
@@ -446,15 +449,12 @@ export const generateAiInsights = createServerFn({ method: "POST" })
     }
 
     const payload = await res.json();
-    const content: string =
-      (Array.isArray(payload?.content)
-        ? payload.content.find((b: any) => b?.type === "text")?.text
-        : "") ?? "";
+    const content: string = payload?.choices?.[0]?.message?.content ?? "";
 
     try {
       const usage = payload?.usage ?? {};
-      const pIn = Number(usage.input_tokens ?? 0);
-      const pOut = Number(usage.output_tokens ?? 0);
+      const pIn = Number(usage.prompt_tokens ?? 0);
+      const pOut = Number(usage.completion_tokens ?? 0);
       const total = pIn + pOut;
       const cost = (pIn / 1_000_000) * 1.25 + (pOut / 1_000_000) * 5;
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
