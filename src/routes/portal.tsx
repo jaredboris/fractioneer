@@ -1116,6 +1116,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
   const [periodsRows, setPeriodsRows] = useState<PeriodRow[]>([]);
   const [aiInsights, setAiInsights] = useState<{ insight_text: string; category: string; period_end: string | null }[]>([]);
+  const [activeAlert, setActiveAlert] = useState<{ id: string; message: string; created_at: string } | null>(null);
 
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
