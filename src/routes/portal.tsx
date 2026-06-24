@@ -1121,8 +1121,9 @@ function ClientDashboard({ role }: { role: string | null }) {
   const [override] = useAdminOverride();
   const widgets = useWidgetPrefs(effectiveId, {
     readOnly: !!impersonation && !override,
-    overrideIds: impersonation && override ? DEFAULT_IDS : null,
   });
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+
   const [editMode, setEditMode] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
