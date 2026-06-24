@@ -210,7 +210,14 @@ function PeriodCard({
       <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-t pt-4 border-[#E5E9F1] dark:border-[#1E2A3A]">
         <Stat label="Net Revenue" value={fmtCurrency(period.net_revenue)} />
         <Stat label="Net Income" value={fmtCurrency(period.net_income)} />
-        <Stat label="Gross Margin" value={fmtPercent(period.gross_margin)} />
+        <Stat
+          label="Net Margin"
+          value={
+            period.net_revenue && period.net_income != null && Number(period.net_revenue) !== 0
+              ? fmtPercent((Number(period.net_income) / Number(period.net_revenue)) * 100)
+              : "—"
+          }
+        />
         <Stat label="Cash" value={fmtCurrency(period.cash_balance)} />
         <Stat label="AR" value={fmtCurrency(period.total_ar)} />
         <Stat label="AP" value={fmtCurrency(period.total_ap)} />
