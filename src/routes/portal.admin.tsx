@@ -888,6 +888,105 @@ function AdminPage() {
 
         {tab === "clients" && selectedId && (
           <section className="mt-6 rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground">Urgent alert on client dashboard</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Pinned message shown above this client&apos;s stat cards. Only one active alert at a time.
+            </p>
+            {activeAlert ? (
+              <div className="mt-4 flex items-start justify-between gap-3 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-3 text-sm">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
+                    Active · posted {new Date(activeAlert.created_at).toLocaleString()}
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-foreground">{activeAlert.message}</p>
+                </div>
+                <button
+                  onClick={handleClearAlert}
+                  className="shrink-0 rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground hover:bg-muted/40"
+                >
+                  Clear alert
+                </button>
+              </div>
+            ) : (
+              <div className="mt-4 space-y-2">
+                <textarea
+                  value={alertDraft}
+                  onChange={(e) => setAlertDraft(e.target.value)}
+                  placeholder="e.g. Your November close has been delayed — we'll have it ready by Friday."
+                  rows={3}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+                <button
+                  onClick={handlePostAlert}
+                  disabled={postingAlert || !alertDraft.trim()}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
+                >
+                  {postingAlert ? <Loader2 className="h-4 w-4 animate-spin" /> : <AlertTriangle className="h-4 w-4" />}
+                  Post alert
+                </button>
+              </div>
+            )}
+          </section>
+        )}
+
+        {tab === "clients" && selectedId && (
+          <section className="mt-6 rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold text-foreground">Shared files</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Polished deliverables — reports, reconciliations, tax prep summaries. Visible in the client&apos;s Documents tab.
+            </p>
+
+            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground transition-colors hover:bg-muted/40">
+              {sharingDoc ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Uploading…
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4" />
+                  Click to share a file with this client
+                </>
+              )}
+              <input
+                type="file"
+                className="hidden"
+                onChange={handleShareDocument}
+                disabled={sharingDoc}
+              />
+            </label>
+
+            <ul className="mt-5 divide-y divide-border rounded-md border border-border">
+              {sharedDocs.length === 0 && (
+                <li className="px-4 py-6 text-center text-sm text-muted-foreground">No files shared yet.</li>
+              )}
+              {sharedDocs.map((d) => (
+                <li key={d.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <FileText className="h-4 w-4 shrink-0 text-primary" />
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-foreground">{d.file_name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Shared {new Date(d.created_at).toLocaleDateString()}
+                        {d.size_bytes ? ` · ${(d.size_bytes / 1024).toFixed(0)} KB` : ""}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteShared(d)}
+                    className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    aria-label={`Remove ${d.file_name}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {tab === "clients" && selectedId && (
+          <section className="mt-6 rounded-xl border border-border bg-card p-6">
             <h2 className="text-lg font-semibold text-foreground">Reporting periods</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Uploaded via the Upload tab. Click a row to view, re-upload, or delete.
