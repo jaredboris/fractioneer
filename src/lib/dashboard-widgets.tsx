@@ -341,14 +341,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function useWidgetPrefs(
   clientId: string,
-  opts?: { readOnly?: boolean; overrideIds?: string[] | null },
+  opts?: { readOnly?: boolean },
 ) {
   const readOnly = !!opts?.readOnly;
-  const overrideIds = opts?.overrideIds ?? null;
 
   const [ids, setIdsState] = useState<string[]>(DEFAULT_IDS);
-  // Track override transitions so we can seed state on enter and refetch on exit.
-  const prevOverrideRef = useRef<string[] | null>(null);
   const [fetchNonce, setFetchNonce] = useState(0);
 
   // Clear any legacy localStorage entries left over from the cached implementation.
@@ -362,23 +359,9 @@ export function useWidgetPrefs(
     setIdsState(DEFAULT_IDS);
   }, [clientId]);
 
-  // Handle override toggle:
-  //  - flipping ON seeds local state with the override list (no persist).
-  //  - flipping OFF triggers a server refetch to restore the client's saved layout.
+  // Pull authoritative prefs from the database. Always reads the client's
+  // real saved layout — admin override no longer swaps to a default draft.
   useEffect(() => {
-    const prev = prevOverrideRef.current;
-    if (overrideIds && !prev) {
-      setIdsState(normalize(overrideIds));
-    } else if (!overrideIds && prev) {
-      setFetchNonce((n) => n + 1);
-    }
-    prevOverrideRef.current = overrideIds;
-  }, [overrideIds]);
-
-  // Pull authoritative prefs from the database. Skipped while override is active
-  // so the admin's working draft isn't clobbered.
-  useEffect(() => {
-    if (overrideIds) return;
     let cancelled = false;
     (async () => {
       const { data, error } = await supabase
@@ -394,14 +377,11 @@ export function useWidgetPrefs(
     return () => {
       cancelled = true;
     };
-  }, [clientId, overrideIds, fetchNonce]);
+  }, [clientId, fetchNonce]);
 
   // Live updates: any change to this client's widget_prefs row (made by the
   // client themselves or by an admin in spy mode) is pushed to every open tab.
-  // Skipped while override is active so the admin's draft isn't overwritten by
-  // their own write echo.
   useEffect(() => {
-    if (overrideIds) return;
     const channel = supabase
       .channel(`widget_prefs:${clientId}`)
       .on(
@@ -424,7 +404,8 @@ export function useWidgetPrefs(
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [clientId, overrideIds]);
+  }, [clientId]);
+
 
   // Persist to the server — unless we're read-only. After a successful write,
   // bump fetchNonce so the canonical row is re-read from Supabase.
