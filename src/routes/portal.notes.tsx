@@ -304,7 +304,7 @@ function NotesThread({
   }, [notes, viewerRole]);
 
   return (
-    <div className="flex min-h-[400px] flex-col rounded-xl border border-[#E5E9F1] bg-white p-5 dark:border-[#1E2A3A] dark:bg-[#111827]">
+    <div className="flex min-h-[400px] flex-col rounded-xl border border-[#E5E9F1] bg-white p-5 dark:border-[#1E2A3A] dark:bg-[#040316]">
       <div className="mb-4 flex items-center gap-3">
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
           <MessageSquare className="h-4 w-4" />
