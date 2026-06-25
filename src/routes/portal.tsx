@@ -1593,7 +1593,7 @@ function ClientDashboard({ role }: { role: string | null }) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="overflow-hidden rounded-xl border border-border bg-card dark:bg-[#040316]">
             <ul className="divide-y divide-border">
               {docs.length === 0 && (
                 <li className="px-5 py-8 text-center text-sm text-muted-foreground">
