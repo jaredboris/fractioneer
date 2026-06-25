@@ -4,6 +4,7 @@ import { MessageSquare, Send, Loader2, Users } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { AdminShell } from "@/components/portal/AdminSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
