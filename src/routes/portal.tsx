@@ -1621,7 +1621,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => handleView(doc.file_path)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground dark:bg-[#10111a]"
                       aria-label={`View ${doc.file_name}`}
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
