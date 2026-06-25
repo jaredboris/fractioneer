@@ -113,7 +113,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 rounded-2xl border p-2 bg-[#111827] border-[#1E2A3A]">
+      <nav className="flex-1 rounded-2xl border p-2 bg-[#040316] border-[#1E2A3A]">
         <ul className="space-y-1">
           {NAV.map((item) => {
             let active = false;
@@ -130,7 +130,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
                   preload="render"
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                     active
-                      ? "bg-[#1E2A3A] text-white font-medium"
+                      ? "bg-[#21222d] text-white font-medium"
                       : "text-[#9CA3AF] hover:bg-[#1a2335] hover:text-white"
                   }`}
                 >
