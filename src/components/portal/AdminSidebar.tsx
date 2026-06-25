@@ -25,7 +25,7 @@ function useForceDarkTheme() {
     root.classList.add("theme-transition");
     root.classList.add("dark");
     root.style.colorScheme = "dark";
-    document.body.style.backgroundColor = "#05070D";
+    document.body.style.backgroundColor = "#070B1A";
     window.localStorage.setItem(THEME_KEY, "dark");
     const t = window.setTimeout(() => root.classList.remove("theme-transition"), 500);
     return () => window.clearTimeout(t);
