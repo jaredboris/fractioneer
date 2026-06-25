@@ -671,7 +671,7 @@ function AdminOverview({ role: _role }: { role: string }) {
             </section>
 
             {/* Recent activity */}
-            <section className="rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827]">
+            <section className="rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#040316]">
               <div className="border-b border-[#E5E9F1] px-5 py-4 dark:border-[#1E2A3A]">
                 <h2 className="text-base font-semibold text-slate-900 dark:text-white">Recent activity</h2>
                 <p className="text-xs text-slate-500 dark:text-[#9CA3AF]">Last 10 uploads & extractions.</p>
