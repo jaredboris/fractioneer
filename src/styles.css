@@ -101,7 +101,7 @@
   --background: oklch(0.13 0.04 258);
   --foreground: oklch(0.98 0.003 250);
   --card: oklch(0.18 0.06 258);
-  --card-foreground: oklch(1 0 0);
+  --card-foreground: oklch(0.98 0.003 250);
   --popover: oklch(0.18 0.06 258);
   --popover-foreground: oklch(0.98 0.003 250);
   --primary: oklch(0.98 0.003 250);
@@ -117,9 +117,6 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.7 0.17 240 / 50%);
-  --sidebar: transparent;
-  --sidebar-foreground: #cdd0d8;
-  --sidebar-accent: #21222d;
 }
 
 @layer base {
@@ -230,7 +227,7 @@
 
 /* ===== NeuroBank shared widget shell ===== */
 .nb-card {
-  background-color: #040316;
+  background-color: #ffffff;
   border: 1px solid #e5e9f1;
   border-radius: 1rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
