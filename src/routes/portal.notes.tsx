@@ -331,7 +331,7 @@ function NotesThread({
           }
           rows={3}
           maxLength={4000}
-          className="block w-full resize-y rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white dark:placeholder:text-[#6B7280]"
+          className="block w-full resize-y rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-white dark:placeholder:text-[#6B7280]"
         />
         {error && (
           <div className="rounded-md border border-rose-500/30 bg-rose-500/5 px-3 py-1.5 text-xs text-rose-600 dark:text-rose-300">
