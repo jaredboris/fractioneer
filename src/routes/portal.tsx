@@ -1362,24 +1362,20 @@ function ClientDashboard({ role }: { role: string | null }) {
 
 
   return (
-    <div className="relative flex min-h-full bg-[#EEF2FA] dark:bg-transparent">
+    <main className="flex-1 px-8 py-8">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
       `}</style>
 
-      <PortalSidebar companyName={companyName || null} email={user.email ?? null} role={role} />
-
-      <main className="flex-1 px-8 py-8">
-
-        <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-            Welcome back{companyName ? `, ${companyName}` : ""}
-          </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
-            Here's the latest snapshot of your finance operations.
-          </p>
-        </div>
+      <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          Welcome back{companyName ? `, ${companyName}` : ""}
+        </h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
+          Here&apos;s the latest snapshot of your finance operations.
+        </p>
+      </div>
 
         {activeAlert && (
           <UrgentAlert message={activeAlert.message} createdAt={activeAlert.created_at} />
