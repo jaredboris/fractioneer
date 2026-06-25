@@ -72,7 +72,7 @@ export function PortalSidebar({
   const displayName = companyName || email || "Welcome";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4">
+    <aside className="flex h-full w-72 shrink-0 flex-col gap-3 p-4">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
@@ -92,7 +92,7 @@ export function PortalSidebar({
       </div>
 
       {/* User card */}
-      <div className="rounded-2xl border p-4 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+      <div className="rounded-2xl border p-4 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
         <div className="flex items-start justify-between">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-semibold text-white">
             {(companyName || email || "?").trim().charAt(0).toUpperCase()}
@@ -141,7 +141,7 @@ export function PortalSidebar({
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 rounded-2xl border p-2 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+      <nav className="flex-1 rounded-2xl border p-2 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
         <ul className="space-y-1">
           {NAV.map((item) => {
             const active =
@@ -154,7 +154,7 @@ export function PortalSidebar({
                   preload="render"
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                     active
-                      ? "bg-slate-100 text-slate-900 font-medium dark:bg-[#1E2A3A] dark:text-white"
+                      ? "bg-slate-100 text-slate-900 font-medium dark:bg-[#21222d] dark:text-white"
                       : "text-slate-600 hover:bg-slate-50 dark:text-[#9CA3AF] dark:hover:bg-[#1a2335] dark:hover:text-white"
                   }`}
                 >

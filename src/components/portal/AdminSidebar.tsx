@@ -16,6 +16,7 @@ import { useNotesUnread } from "@/hooks/useNotesUnread";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { ImpersonationBanner } from "@/components/portal/ImpersonationBanner";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 
 const THEME_KEY = "fractioneer-portal-theme";
 
@@ -74,7 +75,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const activeTab = (search?.tab as string) || "clients";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4">
+    <aside className="flex h-full w-72 shrink-0 flex-col gap-3 p-4">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
@@ -88,7 +89,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
       </div>
 
       {/* User card */}
-      <div className="rounded-2xl border p-4 bg-[#111827] border-[#1E2A3A]">
+      <div className="rounded-2xl border p-4 bg-[#040316] border-[#1E2A3A]">
         <div className="flex items-start justify-between">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-sm font-semibold text-white">
             <ShieldCheck className="h-5 w-5" />
@@ -112,7 +113,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 rounded-2xl border p-2 bg-[#111827] border-[#1E2A3A]">
+      <nav className="flex-1 rounded-2xl border p-2 bg-[#040316] border-[#1E2A3A]">
         <ul className="space-y-1">
           {NAV.map((item) => {
             let active = false;
@@ -129,7 +130,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
                   preload="render"
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${
                     active
-                      ? "bg-[#1E2A3A] text-white font-medium"
+                      ? "bg-[#21222d] text-white font-medium"
                       : "text-[#9CA3AF] hover:bg-[#1a2335] hover:text-white"
                   }`}
                 >
@@ -164,16 +165,8 @@ export function AdminSidebar({ email }: { email: string | null }) {
 
 export function AdminShell({ email, children }: { email: string | null; children: React.ReactNode }) {
   return (
-    <div
-      className="nb-grid-overlay flex min-h-screen w-full p-3 md:p-5"
-      style={{
-        background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
-      }}
-    >
-      <div className="flex flex-1 overflow-hidden rounded-2xl bg-[#10111a]">
-        <AdminSidebar email={email} />
-        <main className="flex-1 min-w-0 p-6 md:p-8">{children}</main>
-      </div>
-    </div>
+    <PortalLayout sidebar={<AdminSidebar email={email} />}>
+      {children}
+    </PortalLayout>
   );
 }

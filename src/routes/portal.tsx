@@ -62,7 +62,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import { AdminShell } from "@/components/portal/AdminSidebar";
-import { BetaBanner } from "@/components/portal/BetaBanner";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { UrgentAlert } from "@/components/portal/UrgentAlert";
 import { useCompanyName } from "@/hooks/useProfile";
 
@@ -188,18 +188,12 @@ function PortalShell() {
   });
   return (
     <div
-      className="nb-grid-overlay flex flex-col p-3 md:p-5"
+      className="nb-grid-overlay flex h-screen w-full overflow-hidden gap-3 md:gap-5 p-3 md:p-5"
       style={{
-        minHeight: "100vh",
         background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
       }}
     >
-      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-[#10111a]">
-        <BetaBanner />
-        <div className="flex-1">
-          {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
-        </div>
-      </div>
+      {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
     </div>
   );
 }
@@ -211,6 +205,7 @@ let cachedRole: { userId: string; role: "admin" | "client" | null } | null = nul
 function PortalRouter() {
   const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
   const impersonation = useImpersonation();
+  const companyName = useCompanyName(user?.id ?? undefined);
   const [role, setRole] = useState<"admin" | "client" | null | undefined>(() =>
     user ? (getCached<"admin" | "client" | null>("role", user.id) ?? (cachedRole?.userId === user.id ? cachedRole.role : undefined)) : undefined,
   );
@@ -234,15 +229,36 @@ function PortalRouter() {
 
   if (!user || role === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/40">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="flex h-full w-full flex-col items-center justify-center rounded-2xl bg-[#10111a]">
+        <Loader2 className="h-5 w-5 animate-spin text-[#9CA3AF]" />
       </div>
     );
   }
 
+  const clientSidebar = (
+    <PortalSidebar
+      companyName={companyName || null}
+      email={user.email ?? null}
+      role={role}
+    />
+  );
+
   // Admin viewing a client in spy mode → render the real client dashboard.
-  if (role === "admin" && impersonation) return <ClientDashboard role="client" />;
-  return role === "admin" ? <AdminOverview role={role} /> : <ClientDashboard role={role} />;
+  if (role === "admin" && impersonation) {
+    return (
+      <PortalLayout sidebar={clientSidebar}>
+        <ClientDashboard role="client" />
+      </PortalLayout>
+    );
+  }
+  if (role === "admin") {
+    return <AdminOverview role={role} />;
+  }
+  return (
+    <PortalLayout sidebar={clientSidebar}>
+      <ClientDashboard role={role} />
+    </PortalLayout>
+  );
 }
 
 function PortalHeader({
@@ -473,7 +489,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                   value={previewId}
                   onChange={(e) => setPreviewId(e.target.value)}
                   disabled={!rows || rows.length === 0}
-                  className="block min-w-[16rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
+                  className="block min-w-[16rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#040316] dark:text-white"
                 >
                   <option value="">— Select client —</option>
                   {(rows ?? []).map((r) => (
@@ -549,7 +565,7 @@ function AdminOverview({ role: _role }: { role: string }) {
           </section>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <section className="lg:col-span-2 overflow-hidden rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827]">
+            <section className="lg:col-span-2 overflow-hidden rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#040316]">
               <div className="flex items-center justify-between border-b border-[#E5E9F1] px-5 py-4 dark:border-[#1E2A3A]">
                 <div>
                   <h2 className="text-base font-semibold text-slate-900 dark:text-white">Clients</h2>
@@ -637,7 +653,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                                 )}
                                 <button
                                   onClick={() => setPreviewId(r.id)}
-                                  className="inline-flex items-center gap-1 rounded-md border border-[#E5E9F1] bg-white px-2 py-1 text-[11px] font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white dark:hover:bg-[#1a2335]"
+                                  className="inline-flex items-center gap-1 rounded-md border border-[#E5E9F1] bg-white px-2 py-1 text-[11px] font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-white dark:hover:bg-[#1a2335]"
                                   aria-label={`Preview as ${r.company_name || r.full_name || "client"}`}
                                 >
                                   <Eye className="h-3 w-3" />
@@ -655,7 +671,7 @@ function AdminOverview({ role: _role }: { role: string }) {
             </section>
 
             {/* Recent activity */}
-            <section className="rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#111827]">
+            <section className="rounded-2xl border border-[#E5E9F1] bg-white dark:border-[#1E2A3A] dark:bg-[#040316]">
               <div className="border-b border-[#E5E9F1] px-5 py-4 dark:border-[#1E2A3A]">
                 <h2 className="text-base font-semibold text-slate-900 dark:text-white">Recent activity</h2>
                 <p className="text-xs text-slate-500 dark:text-[#9CA3AF]">Last 10 uploads & extractions.</p>
@@ -1346,31 +1362,27 @@ function ClientDashboard({ role }: { role: string | null }) {
 
 
   return (
-    <div className="relative flex min-h-full bg-[#EEF2FA] dark:bg-transparent">
+    <main className="flex-1 px-8 py-8">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
       `}</style>
 
-      <PortalSidebar companyName={companyName || null} email={user.email ?? null} role={role} />
-
-      <main className="flex-1 px-8 py-8">
-
-        <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-            Welcome back{companyName ? `, ${companyName}` : ""}
-          </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
-            Here's the latest snapshot of your finance operations.
-          </p>
-        </div>
+      <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          Welcome back{companyName ? `, ${companyName}` : ""}
+        </h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
+          Here&apos;s the latest snapshot of your finance operations.
+        </p>
+      </div>
 
         {activeAlert && (
           <UrgentAlert message={activeAlert.message} createdAt={activeAlert.created_at} />
         )}
 
         {periodOptions.length === 0 ? (
-          <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center nb-rise border-[#E5E9F1] dark:bg-[#0A0E18] dark:border-[#1E2A3A]">
+          <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center nb-rise border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
@@ -1402,7 +1414,7 @@ function ClientDashboard({ role }: { role: string | null }) {
               value={selectedPeriodEnd ?? ""}
               onChange={(e) => setSelectedPeriodEnd(e.target.value || null)}
               disabled={periodOptions.length === 0}
-              className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
+              className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#040316] dark:text-white"
             >
               {periodOptions.length === 0 ? (
                 <option value="">No periods</option>
@@ -1425,7 +1437,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                 className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
                   editMode
                     ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
-                    : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                    : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#040316] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                 }`}
               >
                 {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
@@ -1475,7 +1487,7 @@ function ClientDashboard({ role }: { role: string | null }) {
               <div className="mt-2 flex justify-end gap-2">
                 <button
                   onClick={() => setResetConfirmOpen(false)}
-                  className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                  className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:bg-[#040316] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                 >
                   Cancel
                 </button>
@@ -1581,7 +1593,7 @@ function ClientDashboard({ role }: { role: string | null }) {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="overflow-hidden rounded-xl border border-border bg-card dark:bg-[#040316]">
             <ul className="divide-y divide-border">
               {docs.length === 0 && (
                 <li className="px-5 py-8 text-center text-sm text-muted-foreground">
@@ -1609,7 +1621,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => handleView(doc.file_path)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground dark:bg-[#10111a]"
                       aria-label={`View ${doc.file_name}`}
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
@@ -1617,7 +1629,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                     </button>
                     <button
                       onClick={() => handleDownload(doc.file_path, doc.file_name)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground dark:bg-[#10111a]"
                       aria-label={`Download ${doc.file_name}`}
                     >
                       <Download className="h-3.5 w-3.5" />
@@ -1639,7 +1651,6 @@ function ClientDashboard({ role }: { role: string | null }) {
           </a>
         </footer>
       </main>
-    </div>
   );
 }
 
