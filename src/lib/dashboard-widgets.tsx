@@ -1164,11 +1164,12 @@ function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
       className="relative flex min-h-[280px] flex-col overflow-hidden rounded-xl p-5 h-full"
       style={{
         background:
-          "radial-gradient(120% 80% at 80% 90%, rgba(59,130,246,0.35) 0%, rgba(59,130,246,0.10) 35%, rgba(10,15,30,0) 70%), linear-gradient(180deg, #0B1226 0%, #060A18 100%)",
-        border: "1px solid #1E2A3A",
-        boxShadow: "inset 0 0 60px rgba(59,130,246,0.06)",
+          "radial-gradient(120% 80% at 50% 110%, rgba(99,114,255,0.55) 0%, rgba(99,114,255,0.18) 35%, rgba(4,3,22,0) 70%), #040316",
+        border: "1px solid rgba(99,114,255,0.35)",
+        boxShadow: "inset 0 -40px 80px rgba(99,114,255,0.15)",
       }}
     >
+
       {/* Subtle grid texture overlay */}
       <div
         aria-hidden
