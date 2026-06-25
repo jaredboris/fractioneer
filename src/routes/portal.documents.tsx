@@ -4,7 +4,7 @@ import { FileText, Download, ExternalLink, Loader2 } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
-// BetaBanner is mounted in the parent /portal route shell.
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
 import { useEffectiveClientId } from "@/lib/impersonation";
