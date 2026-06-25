@@ -86,7 +86,7 @@ function Setup2FAPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/40">
+    <div className="min-h-screen bg-transparent">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-4">
           <img src={logo} alt="Fractioneer" className="h-7 w-auto" />

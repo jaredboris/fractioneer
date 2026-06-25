@@ -63,7 +63,7 @@ function NotesPage() {
 
   if (role === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#EEF2FA] dark:bg-[#05070D]">
+      <div className="flex min-h-screen items-center justify-center bg-transparent">
         <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
       </div>
     );
@@ -78,7 +78,7 @@ function NotesPage() {
 function ClientNotesPage({ userId, email }: { userId: string; email: string | null }) {
   const companyName = useCompanyName(userId);
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
+    <div className="flex min-h-screen bg-transparent">
       <PortalSidebar companyName={companyName} email={email} role="client" />
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
