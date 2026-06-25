@@ -257,14 +257,14 @@ function PeriodCard({
         {open && (
           <div className="mt-3 space-y-2">
             {insights.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-[#E5E9F1] bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-500 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-[#9CA3AF]">
+              <div className="rounded-lg border border-dashed border-[#E5E9F1] bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-500 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-[#9CA3AF]">
                 Insights are not available for this period.
               </div>
             ) : (
               insights.map((i, idx) => (
                 <div
                   key={`${i.category}-${idx}`}
-                  className="rounded-lg border bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-700 border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB]"
+                  className="rounded-lg border bg-slate-50 px-3 py-2 text-xs leading-relaxed text-slate-700 border-[#E5E9F1] dark:bg-[#10111a] dark:border-[#1E2A3A] dark:text-[#E5E7EB]"
                 >
                   <span className="mr-2 inline-block rounded bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-blue-600 dark:text-blue-300">
                     {i.category.replace(/_/g, " ")}
