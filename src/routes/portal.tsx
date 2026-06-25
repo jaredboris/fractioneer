@@ -1414,7 +1414,7 @@ function ClientDashboard({ role }: { role: string | null }) {
               value={selectedPeriodEnd ?? ""}
               onChange={(e) => setSelectedPeriodEnd(e.target.value || null)}
               disabled={periodOptions.length === 0}
-              className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
+              className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#040316] dark:text-white"
             >
               {periodOptions.length === 0 ? (
                 <option value="">No periods</option>
