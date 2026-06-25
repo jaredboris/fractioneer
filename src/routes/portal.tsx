@@ -205,6 +205,7 @@ let cachedRole: { userId: string; role: "admin" | "client" | null } | null = nul
 function PortalRouter() {
   const { user } = Route.useRouteContext() as { user?: { id: string; email?: string | null } };
   const impersonation = useImpersonation();
+  const { companyName } = useCompanyName(user?.id ?? null);
   const [role, setRole] = useState<"admin" | "client" | null | undefined>(() =>
     user ? (getCached<"admin" | "client" | null>("role", user.id) ?? (cachedRole?.userId === user.id ? cachedRole.role : undefined)) : undefined,
   );
