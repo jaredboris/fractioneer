@@ -179,7 +179,7 @@ function ChangePasswordCard({ email }: { email: string | null }) {
   const labelCls = "block text-xs font-medium text-slate-700 dark:text-[#E5E7EB]";
 
   return (
-    <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A] md:col-span-2">
+    <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A] md:col-span-2">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
         Change Password
       </h2>
