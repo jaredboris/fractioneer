@@ -1330,34 +1330,8 @@ function ClientDashboard({ role }: { role: string | null }) {
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
-        .nb-card {
-          background-color: #FFFFFF;
-          border: 1px solid #E5E9F1;
-          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-        }
-        .nb-card:hover { transform: scale(1.01); box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06); }
-        .dark .nb-card {
-          background-color: #0A0E18;
-          background-image:
-            radial-gradient(120% 80% at 50% -10%, rgba(59,130,246,0.10), transparent 60%),
-            linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 30%);
-          border: 1px solid rgba(255,255,255,0.06);
-          box-shadow:
-            inset 0 1px 0 0 rgba(255,255,255,0.06),
-            0 1px 0 0 rgba(0,0,0,0.4),
-            0 10px 30px -12px rgba(0,0,0,0.6);
-        }
-        .dark .nb-card:hover {
-          border-color: rgba(96,165,250,0.35);
-          box-shadow:
-            inset 0 1px 0 0 rgba(255,255,255,0.08),
-            0 0 0 1px rgba(59,130,246,0.15),
-            0 0 32px -4px rgba(59,130,246,0.35),
-            0 10px 30px -12px rgba(0,0,0,0.6);
-        }
-        .nb-chart-bar { filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.45)); }
-        .dark .nb-chart-bar { filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.85)) drop-shadow(0 0 22px rgba(59, 130, 246, 0.5)); }
       `}</style>
+
       <PortalSidebar companyName={companyName || null} email={user.email ?? null} role={role} />
 
       <main className="flex-1 px-8 py-8">
