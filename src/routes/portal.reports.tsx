@@ -189,7 +189,7 @@ function PeriodCard({
 }) {
   const [open, setOpen] = useState(false);
   return (
-    <article className="group flex flex-col rounded-2xl border bg-white p-5 transition-colors border-[#E5E9F1] hover:border-blue-400/40 dark:bg-[#0A0E18] dark:border-[#1E2A3A] dark:hover:border-blue-500/40">
+    <article className="group flex flex-col rounded-2xl border bg-white p-5 transition-colors border-[#E5E9F1] hover:border-blue-400/40 dark:bg-[#040316] dark:border-[#1E2A3A] dark:hover:border-blue-500/40">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">
