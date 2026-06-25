@@ -653,7 +653,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                                 )}
                                 <button
                                   onClick={() => setPreviewId(r.id)}
-                                  className="inline-flex items-center gap-1 rounded-md border border-[#E5E9F1] bg-white px-2 py-1 text-[11px] font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white dark:hover:bg-[#1a2335]"
+                                  className="inline-flex items-center gap-1 rounded-md border border-[#E5E9F1] bg-white px-2 py-1 text-[11px] font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-white dark:hover:bg-[#1a2335]"
                                   aria-label={`Preview as ${r.company_name || r.full_name || "client"}`}
                                 >
                                   <Eye className="h-3 w-3" />
