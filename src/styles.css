@@ -253,6 +253,36 @@
   box-shadow: none;
 }
 
+/* All primary text inside portal cards */
+.dark .nb-card h1,
+.dark .nb-card h2,
+.dark .nb-card h3,
+.dark .nb-card h4,
+.dark .nb-card h5,
+.dark .nb-card h6,
+.dark .nb-card p,
+.dark .nb-card div,
+.dark .nb-card span,
+.dark .nb-card label,
+.dark .nb-card strong,
+.dark .nb-card .value,
+.dark .nb-card [class*="text-foreground"],
+.dark .nb-card [class*="text-primary"] {
+  color: #ffffff;
+}
+
+/* Secondary / muted text inside portal cards */
+.dark .nb-card small,
+.dark .nb-card .text-muted,
+.dark .nb-card .text-muted-foreground,
+.dark .nb-card .text-secondary,
+.dark .nb-card .text-xs,
+.dark .nb-card .text-sm,
+.dark .nb-card [class*="subtitle"],
+.dark .nb-card [class*="date"] {
+  color: #cdd0d8;
+}
+
 .nb-chart-bar { filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.45)); }
 .dark .nb-chart-bar { filter: drop-shadow(0 0 10px rgba(96, 165, 250, 0.85)) drop-shadow(0 0 22px rgba(59, 130, 246, 0.5)); }
 
