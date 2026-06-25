@@ -244,7 +244,7 @@ function RangeSelector({ value, onChange }: { value: RangeKey; onChange: (v: Ran
     { key: "ALL", label: "All" },
   ];
   return (
-    <div className="inline-flex rounded-lg border bg-white p-0.5 border-[#E5E9F1] dark:bg-[#0A0E18] dark:border-[#1E2A3A]">
+    <div className="inline-flex rounded-lg border p-0.5 border-[#E5E9F1] dark:bg-[#10111a] dark:border-[#1E2A3A]">
       {options.map((o) => (
         <button
           key={o.key}
