@@ -19,6 +19,7 @@ import {
   TrendingUp,
   TrendingDown,
   Plus,
+  ArrowUpRight,
 } from "lucide-react";
 import {
   BarChart,
@@ -438,10 +439,10 @@ function AdminOverview({ role: _role }: { role: string }) {
     <AdminShell email={user.email ?? null}>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl font-semibold tracking-tight text-white">
             Operations overview
           </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-[#9CA3AF]">
+          <p className="mt-1 text-sm text-[#9CA3AF]">
             Status of every client portal at a glance.
           </p>
         </div>
@@ -512,7 +513,7 @@ function AdminOverview({ role: _role }: { role: string }) {
             <button
               type="button"
               onClick={() => setAiSpendOpen(true)}
-              className="text-left transition hover:-translate-y-0.5"
+              className="block h-full text-left transition hover:-translate-y-0.5"
             >
               <DarkStatCard
                 label="AI spend (month)"
@@ -876,20 +877,24 @@ function DarkStatCard({
   tone: Tone;
   icon: React.ReactNode;
 }) {
-  const toneBg =
-    tone === "ok"
-      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300"
-      : tone === "warn"
-        ? "bg-rose-500/10 text-rose-600 dark:text-rose-300"
-        : "bg-blue-500/10 text-blue-600 dark:text-blue-300";
+  const iconColor = tone === "ok" ? "#10B981" : tone === "warn" ? "#EF4444" : "#3B82F6";
   return (
-    <div className="rounded-2xl border border-[#E5E9F1] bg-white p-5 dark:border-[#1E2A3A] dark:bg-[#111827]">
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">{label}</span>
-        <span className={`inline-flex h-8 w-8 items-center justify-center rounded-lg ${toneBg}`}>{icon}</span>
+    <div className="nb-card nb-card-glow rounded-2xl p-5 h-full">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-[#6B7280]">
+            {label}
+          </span>
+          <div className="mt-2 flex items-center gap-1.5" style={{ color: iconColor }}>
+            <span className="opacity-80">{icon}</span>
+          </div>
+        </div>
+        <span className="nb-arrow shrink-0" aria-hidden>
+          <ArrowUpRight className="h-4 w-4" />
+        </span>
       </div>
-      <div className="mt-3 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{value}</div>
-      <div className="mt-1 text-xs text-slate-500 dark:text-[#9CA3AF]">{detail}</div>
+      <div className="mt-3 text-3xl font-semibold tracking-tight text-white">{value}</div>
+      <div className="mt-2 text-[11px] text-[#6B7280]">{detail}</div>
     </div>
   );
 }
