@@ -97,7 +97,7 @@ export function PortalSidebar({
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-semibold text-white">
             {(companyName || email || "?").trim().charAt(0).toUpperCase()}
           </div>
-          <div className="inline-flex items-center gap-0.5 rounded-full border p-0.5 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
+          <div className="inline-flex items-center gap-0.5 rounded-full border p-0.5 bg-slate-50 border-[#E5E9F1] dark:bg-[#10111a] dark:border-[#1E2A3A]">
             <button
               type="button"
               onClick={() => setTheme("dark")}
