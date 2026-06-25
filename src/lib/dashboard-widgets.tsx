@@ -33,8 +33,10 @@ import {
   Sparkles,
   ChevronLeft,
   ChevronRight,
+  ArrowUpRight,
 
 } from "lucide-react";
+
 
 
 
@@ -671,20 +673,28 @@ export function StatCard({
         ? "rgba(248, 113, 113, 0.12)"
         : "rgba(59, 130, 246, 0.12)";
   const iconColor = tone === "ok" ? "#10B981" : tone === "warn" ? "#EF4444" : "#3B82F6";
+  const trendColor = trend ? (trend.dir === "up" ? "#6ee7b7" : "#fda4af") : undefined;
   return (
-    <div className="rounded-xl p-5 nb-card h-full">
-      <div className="flex items-start justify-between">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">
-          {label}
-        </span>
-        <span
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg"
-          style={{ backgroundColor: iconBg, color: iconColor, boxShadow: `0 0 12px ${iconBg}` }}
+    <div className="nb-card nb-card-glow rounded-2xl p-5 h-full">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <span className="text-[11px] font-medium uppercase tracking-wider text-slate-500 dark:text-[#6B7280]">
+            {label}
+          </span>
+          <div className="mt-2 flex items-center gap-1.5" style={{ color: iconColor }}>
+            <span className="opacity-80">{icon}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          aria-label={label}
+          className="nb-arrow shrink-0"
+          tabIndex={-1}
         >
-          {icon}
-        </span>
+          <ArrowUpRight className="h-4 w-4" />
+        </button>
       </div>
-      <div className="mt-3 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+      <div className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
         {numericValue != null && Number.isFinite(numericValue) ? (
           <CountUpValue value={numericValue} format={(n) => fmtCurr(n)} fallback={value} />
         ) : (
@@ -695,8 +705,12 @@ export function StatCard({
         <span className="text-[11px] text-slate-400 dark:text-[#6B7280]">{periodLabel || "—"}</span>
         {trend && (
           <span
-            className="inline-flex items-center gap-0.5 text-[11px] font-medium"
-            style={{ color: trend.dir === "up" ? "#10B981" : "#EF4444" }}
+            className="inline-flex items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-[11px] font-medium"
+            style={{
+              color: trendColor,
+              borderColor: trend.dir === "up" ? "rgba(16,185,129,0.25)" : "rgba(244,63,94,0.25)",
+              background: trend.dir === "up" ? "rgba(16,185,129,0.08)" : "rgba(244,63,94,0.08)",
+            }}
           >
             {trend.dir === "up" ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
             {trend.pct.toFixed(1)}%
@@ -706,6 +720,7 @@ export function StatCard({
     </div>
   );
 }
+
 
 function CountUpValue({
   value,
@@ -767,12 +782,17 @@ function ChartShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col rounded-xl p-4 nb-card h-full">
-      <div className="mb-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
-          {title}
-        </h2>
-        <p className="text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
+    <div className="nb-card nb-card-glow flex flex-col rounded-2xl p-5 h-full">
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h2 className="text-[15px] font-medium text-slate-900 dark:text-white truncate">
+            {title}
+          </h2>
+          <p className="mt-0.5 text-[11px] text-slate-400 dark:text-[#6B7280]">{subtitle}</p>
+        </div>
+        <button type="button" aria-label={title} className="nb-arrow shrink-0" tabIndex={-1}>
+          <ArrowUpRight className="h-4 w-4" />
+        </button>
       </div>
       {empty ? (
         <div className="flex h-[240px] items-center justify-center px-6 text-center text-xs leading-relaxed text-slate-400 dark:text-[#6B7280]">
@@ -784,6 +804,7 @@ function ChartShell({
     </div>
   );
 }
+
 
 
 

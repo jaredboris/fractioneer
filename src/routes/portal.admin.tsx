@@ -736,7 +736,7 @@ function AdminPage() {
         <>
 
 
-        <section className="mb-6 rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6">
+        <section className="mb-6 nb-card nb-card-glow rounded-2xl p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex-1">
               <label className="block text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">
@@ -888,7 +888,7 @@ function AdminPage() {
 
         {tab === "clients" && selectedId ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <section className="rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6">
+            <section className="nb-card nb-card-glow rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-white">Dashboard values</h2>
               <p className="mt-1 text-sm text-[#9CA3AF]">
                 Shown on the client's portal homepage.
@@ -952,7 +952,7 @@ function AdminPage() {
               </form>
             </section>
 
-            <section className="rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6">
+            <section className="nb-card nb-card-glow rounded-2xl p-6">
               <h2 className="text-lg font-semibold text-white">Documents</h2>
               <p className="mt-1 text-sm text-[#9CA3AF]">PDF or Excel files shared with this client.</p>
 
@@ -1008,7 +1008,7 @@ function AdminPage() {
         ) : null}
 
         {tab === "clients" && selectedId && (
-          <section className="mt-6 rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6">
+          <section className="mt-6 nb-card nb-card-glow rounded-2xl p-6">
             <h2 className="text-lg font-semibold text-white">Urgent alert on client dashboard</h2>
             <p className="mt-1 text-sm text-[#9CA3AF]">
               Pinned message shown above this client&apos;s stat cards. Only one active alert at a time.
@@ -1051,7 +1051,7 @@ function AdminPage() {
         )}
 
         {tab === "clients" && selectedId && (
-          <section className="mt-6 rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6">
+          <section className="mt-6 nb-card nb-card-glow rounded-2xl p-6">
             <h2 className="text-lg font-semibold text-white">Shared files</h2>
             <p className="mt-1 text-sm text-[#9CA3AF]">
               Polished deliverables — reports, reconciliations, tax prep summaries. Visible in the client&apos;s Documents tab.
@@ -1107,7 +1107,7 @@ function AdminPage() {
         )}
 
         {tab === "clients" && selectedId && (
-          <section className="mt-6 rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6">
+          <section className="mt-6 nb-card nb-card-glow rounded-2xl p-6">
             <h2 className="text-lg font-semibold text-white">Reporting periods</h2>
             <p className="mt-1 text-sm text-[#9CA3AF]">
               Uploaded via the Upload tab. Click a row to view, re-upload, or delete.
@@ -1216,7 +1216,7 @@ function AdminPage() {
 
 
         {tab === "upload" && selectedId && (
-          <section className="mt-6 rounded-2xl border border-[#1E2A3A] bg-[#111827] p-6">
+          <section className="mt-6 nb-card nb-card-glow rounded-2xl p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-white">Upload client financials</h2>
