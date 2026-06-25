@@ -264,7 +264,7 @@ function RangeSelector({ value, onChange }: { value: RangeKey; onChange: (v: Ran
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-white p-5 border-[#E5E9F1] dark:bg-[#0A0E18] dark:border-[#1E2A3A]">
+    <section className="rounded-2xl border p-5 border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">{title}</h2>
       <div className="mt-4 text-slate-500 dark:text-[#9CA3AF]">{children}</div>
     </section>
