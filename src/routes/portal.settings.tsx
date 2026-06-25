@@ -376,7 +376,7 @@ function SecurityCard() {
                 {secret && (
                   <div className="mt-2 text-xs text-slate-500 dark:text-[#9CA3AF]">
                     Or enter this key:{" "}
-                    <code className="break-all rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-800 dark:bg-[#1E2A3A] dark:text-[#E5E7EB]">
+                    <code className="break-all rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-800 dark:bg-[#10111a] dark:text-[#E5E7EB]">
                       {secret}
                     </code>
                   </div>
