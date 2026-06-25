@@ -121,7 +121,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const THEME_INIT_SCRIPT = `(function(){try{var p=location.pathname.indexOf('/portal')===0;if(!p)return;var t=localStorage.getItem('fractioneer-portal-theme');if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();`;`;
+const THEME_INIT_SCRIPT = `(function(){try{var p=location.pathname.indexOf('/portal')===0;if(!p)return;var t=localStorage.getItem('fractioneer-portal-theme');if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}}catch(e){}})();`;
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
