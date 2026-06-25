@@ -58,14 +58,14 @@ export function useInactivityTimeout() {
     })();
 
     const onActivity = () => markActive();
-    const events: (keyof WindowEventMap)[] = [
+    const events = [
       "click",
       "keydown",
       "pointerdown",
       "scroll",
       "touchstart",
       "visibilitychange",
-    ];
+    ] as const;
     for (const ev of events) window.addEventListener(ev, onActivity, { passive: true });
 
     return () => {
