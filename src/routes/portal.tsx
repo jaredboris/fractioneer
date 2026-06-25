@@ -70,7 +70,7 @@ import { getMyRole, ensureMyRole } from "@/lib/portal.functions";
 import { useImpersonation, startImpersonation, useAdminOverride } from "@/lib/impersonation";
 import { getCached, setCached } from "@/lib/portal-cache";
 import { DEFAULT_IDS } from "@/lib/dashboard-widgets";
-import { useInactivityTimeout } from "@/lib/session-timeout";
+import { useInactivityTimeout, enforceInactivityTimeout } from "@/lib/session-timeout";
 
 let cachedPortalGate: {
   user: { id: string; email?: string | null };
@@ -108,6 +108,13 @@ export const Route = createFileRoute("/portal")({
     ) {
       return;
     }
+
+    // 8-hour inactivity timeout — enforced BEFORE any render or identity lookup.
+    if (await enforceInactivityTimeout()) {
+      cachedPortalGate = null;
+      throw redirect({ to: "/portal/login" });
+    }
+
 
     // Identity lookup — may be served from the short-lived cache.
     let user: { id: string; email?: string | null };
