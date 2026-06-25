@@ -1338,7 +1338,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
 
   return (
-    <div className="relative flex min-h-screen bg-[#EEF2FA] dark:bg-[#04060B] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_120%,rgba(59,130,246,0.22),transparent_70%),radial-gradient(ellipse_60%_40%_at_50%_-10%,rgba(59,130,246,0.08),transparent_70%)]">
+    <div className="relative flex min-h-screen bg-[#EEF2FA] dark:bg-transparent">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
