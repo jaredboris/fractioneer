@@ -86,8 +86,9 @@ function DocumentsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
-      <PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />
+    <PortalLayout
+      sidebar={<PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />}
+    >
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -97,7 +98,7 @@ function DocumentsPage() {
             Reports, reconciliations, and other files shared by your Fractioneer team.
           </p>
         </div>
-        <div className="overflow-hidden rounded-xl border bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+        <div className="overflow-hidden rounded-xl border bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
           <ul className="divide-y divide-[#E5E9F1] dark:divide-[#1E2A3A]">
             {docs === null && (
               <li className="flex items-center justify-center px-5 py-10 text-sm text-slate-500 dark:text-[#9CA3AF]">
@@ -113,7 +114,7 @@ function DocumentsPage() {
             {(docs ?? []).map((doc) => (
               <li
                 key={doc.id}
-                className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-slate-50 dark:hover:bg-[#1a2335]"
+                className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-slate-50 dark:hover:bg-[#10111a]"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
@@ -132,14 +133,14 @@ function DocumentsPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleView(doc.file_path)}
-                    className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#0F1729] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                    className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#10111a] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />
                     View
                   </button>
                   <button
                     onClick={() => handleDownload(doc.file_path, doc.file_name)}
-                    className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#0F1729] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                    className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#10111a] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                   >
                     <Download className="h-3.5 w-3.5" />
                     Download
@@ -150,6 +151,6 @@ function DocumentsPage() {
           </ul>
         </div>
       </main>
-    </div>
+    </PortalLayout>
   );
 }
