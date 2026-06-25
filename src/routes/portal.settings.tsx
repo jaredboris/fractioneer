@@ -4,6 +4,7 @@ import { Loader2, ShieldCheck, RefreshCw } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { AdminSidebar } from "@/components/portal/AdminSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
