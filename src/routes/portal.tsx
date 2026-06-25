@@ -489,7 +489,7 @@ function AdminOverview({ role: _role }: { role: string }) {
                   value={previewId}
                   onChange={(e) => setPreviewId(e.target.value)}
                   disabled={!rows || rows.length === 0}
-                  className="block min-w-[16rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
+                  className="block min-w-[16rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#040316] dark:text-white"
                 >
                   <option value="">— Select client —</option>
                   {(rows ?? []).map((r) => (
