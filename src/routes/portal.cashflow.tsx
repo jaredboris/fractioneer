@@ -252,7 +252,7 @@ function RangeSelector({ value, onChange }: { value: RangeKey; onChange: (v: Ran
           className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
             value === o.key
               ? "bg-blue-600 text-white shadow-[0_0_12px_rgba(59,130,246,0.4)]"
-              : "text-slate-600 hover:bg-slate-50 dark:text-[#9CA3AF] dark:hover:bg-[#111827]"
+              : "text-slate-600 hover:bg-slate-50 dark:text-[#9CA3AF] dark:hover:bg-[#10111a]"
           }`}
         >
           {o.label}
