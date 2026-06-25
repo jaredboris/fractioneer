@@ -137,10 +137,13 @@
   }
 
   body {
-    background-color: var(--color-background);
+    background: linear-gradient(135deg, #040316 0%, #11184c 100%) fixed;
+    min-height: 100vh;
     color: var(--color-foreground);
     font-feature-settings: "cv11", "ss01";
   }
+  html { min-height: 100vh; }
+
 
   /* Smooth theme transitions */
   html.theme-transition,
