@@ -354,7 +354,7 @@ function SecurityCard() {
           </p>
         </>
       ) : (
-        <div className="mt-4 rounded-lg border border-[#E5E9F1] bg-slate-50/60 p-4 dark:border-[#1E2A3A] dark:bg-[#0F1729]">
+        <div className="mt-4 rounded-lg border border-[#E5E9F1] bg-slate-50/60 p-4 dark:border-[#1E2A3A] dark:bg-[#10111a]">
           {error && (
             <div className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-600 dark:text-red-300">
               {error}
