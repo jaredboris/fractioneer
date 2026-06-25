@@ -4,6 +4,7 @@ import { Download, Loader2, FileSpreadsheet, Sparkles, ChevronDown } from "lucid
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { PortalEmptyState } from "@/components/portal/EmptyState";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
