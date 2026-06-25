@@ -395,7 +395,7 @@ function SecurityCard() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                     placeholder="123456"
-                    className="block w-36 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-center font-mono text-base tracking-widest text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#05070D] dark:text-white"
+                    className="block w-36 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-center font-mono text-base tracking-widest text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-white"
                   />
                   <button
                     type="submit"
