@@ -75,7 +75,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const activeTab = (search?.tab as string) || "clients";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4">
+    <aside className="flex h-full w-72 shrink-0 flex-col gap-3 p-4">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
@@ -89,7 +89,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
       </div>
 
       {/* User card */}
-      <div className="rounded-2xl border p-4 bg-[#111827] border-[#1E2A3A]">
+      <div className="rounded-2xl border p-4 bg-[#040316] border-[#1E2A3A]">
         <div className="flex items-start justify-between">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-amber-500 to-rose-600 text-sm font-semibold text-white">
             <ShieldCheck className="h-5 w-5" />
