@@ -262,14 +262,24 @@
 .nb-card-glow::before {
   content: "";
   position: absolute;
-  inset: auto -20% -40% -20%;
-  height: 70%;
-  background: radial-gradient(60% 100% at 50% 100%, rgba(59, 130, 246, 0.28), transparent 70%);
-  filter: blur(40px);
+  inset: auto -10% -50% -10%;
+  height: 80%;
+  background: radial-gradient(60% 100% at 50% 100%, rgba(59, 130, 246, 0.45), transparent 70%);
+  filter: blur(60px);
   pointer-events: none;
   z-index: 0;
 }
-.nb-card-glow > * { position: relative; z-index: 1; }
+.nb-card-glow::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(96,165,250,0.55), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+.nb-card-glow > * { position: relative; z-index: 2; }
+
 
 .nb-arrow {
   display: inline-flex;
