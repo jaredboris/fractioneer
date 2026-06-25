@@ -165,13 +165,15 @@ export function AdminSidebar({ email }: { email: string | null }) {
 export function AdminShell({ email, children }: { email: string | null; children: React.ReactNode }) {
   return (
     <div
-      className="nb-grid-overlay flex min-h-screen w-full"
+      className="nb-grid-overlay flex min-h-screen w-full p-3 md:p-5"
       style={{
         background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
       }}
     >
-      <AdminSidebar email={email} />
-      <main className="flex-1 min-w-0 p-6 md:p-8">{children}</main>
+      <div className="flex flex-1 overflow-hidden rounded-2xl bg-[#10111a]">
+        <AdminSidebar email={email} />
+        <main className="flex-1 min-w-0 p-6 md:p-8">{children}</main>
+      </div>
     </div>
   );
 }

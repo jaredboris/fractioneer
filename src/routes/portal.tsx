@@ -188,16 +188,17 @@ function PortalShell() {
   });
   return (
     <div
-      className="nb-grid-overlay flex flex-col"
+      className="nb-grid-overlay flex flex-col p-3 md:p-5"
       style={{
         minHeight: "100vh",
         background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
       }}
     >
-
-      <BetaBanner />
-      <div className="flex-1">
-        {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
+      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-[#10111a]">
+        <BetaBanner />
+        <div className="flex-1">
+          {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
+        </div>
       </div>
     </div>
   );
@@ -1345,7 +1346,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
 
   return (
-    <div className="relative flex min-h-screen bg-[#EEF2FA] dark:bg-transparent">
+    <div className="relative flex min-h-full bg-[#EEF2FA] dark:bg-transparent">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
