@@ -1525,18 +1525,31 @@ function ClientDashboard({ role }: { role: string | null }) {
                 );
               };
               const ordered = [...statIds, ...chartIds, ...wideIds];
-              const spanClass = (kind: string | undefined) =>
-                kind === "stat"
-                  ? "col-span-12 sm:col-span-6 lg:col-span-3"
-                  : kind === "chart"
-                    ? "col-span-12 lg:col-span-6"
-                    : "col-span-12";
+              const statCount = statIds.length;
+              const chartCount = chartIds.length;
+              const statSpan = (localIdx: number) => {
+                const rem = statCount % 4;
+                const tailStart = statCount - rem;
+                if (rem === 0 || localIdx < tailStart) return "col-span-12 sm:col-span-6 lg:col-span-3";
+                if (rem === 1) return "col-span-12";
+                if (rem === 2) return "col-span-12 sm:col-span-6";
+                return "col-span-12 sm:col-span-6 lg:col-span-4";
+              };
+              const chartSpan = (localIdx: number) => {
+                const rem = chartCount % 2;
+                const tailStart = chartCount - rem;
+                if (rem === 0 || localIdx < tailStart) return "col-span-12 lg:col-span-6";
+                return "col-span-12";
+              };
               return (
                 <section className="grid grid-cols-12 gap-4 pt-2">
                   {ordered.map((id, i) => {
                     const def = WIDGET_BY_ID[id];
+                    let cls = "col-span-12";
+                    if (def?.kind === "stat") cls = statSpan(statIds.indexOf(id));
+                    else if (def?.kind === "chart") cls = chartSpan(chartIds.indexOf(id));
                     return (
-                      <div key={id} className={spanClass(def?.kind)}>
+                      <div key={id} className={cls}>
                         {renderItem(id, i)}
                       </div>
                     );
