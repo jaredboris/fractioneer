@@ -1487,7 +1487,7 @@ function ClientDashboard({ role }: { role: string | null }) {
               <div className="mt-2 flex justify-end gap-2">
                 <button
                   onClick={() => setResetConfirmOpen(false)}
-                  className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                  className="rounded-md border border-[#E5E9F1] bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:bg-[#040316] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                 >
                   Cancel
                 </button>
