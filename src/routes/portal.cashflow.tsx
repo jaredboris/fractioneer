@@ -117,7 +117,7 @@ function CashFlowPage() {
   });
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
       <PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />
       <main className="flex flex-1 flex-col px-8 py-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">

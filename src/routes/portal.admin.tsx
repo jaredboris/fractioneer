@@ -59,7 +59,7 @@ function AdminGate() {
 
   if (status !== "ok") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-transparent">
+      <div className="flex min-h-screen items-center justify-center bg-[#0F1729]">
         <Loader2 className="h-5 w-5 animate-spin text-[#9CA3AF]" />
       </div>
     );

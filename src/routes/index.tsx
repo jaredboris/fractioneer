@@ -70,7 +70,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <BookingProvider>
-      <div className="min-h-screen bg-transparent">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <main>
           <Hero />

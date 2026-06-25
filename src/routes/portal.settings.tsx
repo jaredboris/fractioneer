@@ -62,7 +62,7 @@ function SettingsPage() {
   const displayCompanyName = impersonation ? companyName : (isAdmin ? "Fractioneer" : companyName);
 
   return (
-    <div className="flex min-h-screen bg-transparent">
+    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
       {isAdmin ? (
         <AdminSidebar email={displayEmail} />
       ) : (

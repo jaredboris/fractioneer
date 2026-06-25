@@ -106,7 +106,7 @@ function OnePager() {
         }
       `}</style>
 
-      <div className="onepager-page min-h-screen bg-transparent py-6">
+      <div className="onepager-page min-h-screen bg-muted/40 py-6">
         <button
           onClick={() => window.print()}
           className="no-print fixed top-4 right-4 z-50 inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium shadow-lg hover:bg-primary/90"
