@@ -62,13 +62,14 @@ function SettingsPage() {
   const isAdmin = !impersonation && role === "admin";
   const displayCompanyName = impersonation ? companyName : (isAdmin ? "Fractioneer" : companyName);
 
+  const sidebar = isAdmin ? (
+    <AdminSidebar email={displayEmail} />
+  ) : (
+    <PortalSidebar companyName={displayCompanyName} email={displayEmail} role={impersonation ? "client" : role} />
+  );
+
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
-      {isAdmin ? (
-        <AdminSidebar email={displayEmail} />
-      ) : (
-        <PortalSidebar companyName={displayCompanyName} email={displayEmail} role={impersonation ? "client" : role} />
-      )}
+    <PortalLayout sidebar={sidebar}>
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -80,7 +81,7 @@ function SettingsPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+          <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
               Account
             </h2>
@@ -109,7 +110,7 @@ function SettingsPage() {
           </section>
 
           {impersonation ? (
-            <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+            <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
                 Security
               </h2>
@@ -123,7 +124,7 @@ function SettingsPage() {
           {!impersonation && <ChangePasswordCard email={user.email ?? null} />}
         </div>
       </main>
-    </div>
+    </PortalLayout>
   );
 }
 
