@@ -72,7 +72,7 @@ export function PortalSidebar({
   const displayName = companyName || email || "Welcome";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#05070D]">
+    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#EEF2FA] dark:bg-[#080C12] dark:border-r dark:border-[rgba(255,255,255,0.06)]">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
