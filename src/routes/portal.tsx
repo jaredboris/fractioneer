@@ -188,18 +188,12 @@ function PortalShell() {
   });
   return (
     <div
-      className="nb-grid-overlay flex flex-col p-3 md:p-5"
+      className="nb-grid-overlay flex h-screen w-full overflow-hidden gap-3 md:gap-5 p-3 md:p-5"
       style={{
-        minHeight: "100vh",
         background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
       }}
     >
-      <div className="flex flex-1 flex-col overflow-hidden rounded-2xl bg-[#10111a]">
-        <BetaBanner />
-        <div className="flex-1">
-          {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
-        </div>
-      </div>
+      {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
     </div>
   );
 }
