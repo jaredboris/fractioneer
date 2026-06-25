@@ -1437,7 +1437,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                 className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors ${
                   editMode
                     ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-500"
-                    : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#111827] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                    : "bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#040316] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                 }`}
               >
                 {editMode ? null : <SlidersHorizontal className="h-3.5 w-3.5" />}
