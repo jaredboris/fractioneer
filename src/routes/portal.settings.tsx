@@ -408,7 +408,7 @@ function SecurityCard() {
                   <button
                     type="button"
                     onClick={cancelReenroll}
-                    className="inline-flex items-center rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                    className="inline-flex items-center rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                   >
                     Cancel
                   </button>
