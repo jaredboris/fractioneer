@@ -362,7 +362,7 @@ function NotesThread({
           </div>
         )}
         {notes && notes.length === 0 && (
-          <div className="rounded-md border border-dashed border-[#E5E9F1] px-4 py-10 text-center text-xs text-slate-400 dark:border-[#1E2A3A] dark:text-[#6B7280]">
+          <div className="rounded-md border border-dashed border-[#E5E9F1] px-4 py-10 text-center text-xs text-slate-400 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-[#6B7280]">
             No notes yet.
           </div>
         )}
