@@ -7,7 +7,7 @@ export function PortalEmptyState({
   message?: string;
 }) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border bg-white border-[#E5E9F1] px-8 py-24 dark:bg-[#111827] dark:border-[#1E2A3A]">
+    <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border bg-white border-[#E5E9F1] px-8 py-24 dark:bg-[#040316] dark:border-[#1E2A3A]">
       <div className="relative h-20 w-20">
         <img
           src={logoDark}
