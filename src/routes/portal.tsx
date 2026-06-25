@@ -109,6 +109,13 @@ export const Route = createFileRoute("/portal")({
       return;
     }
 
+    // 8-hour inactivity timeout — enforced BEFORE any render or identity lookup.
+    if (await enforceInactivityTimeout()) {
+      cachedPortalGate = null;
+      throw redirect({ to: "/portal/login" });
+    }
+
+
     // Identity lookup — may be served from the short-lived cache.
     let user: { id: string; email?: string | null };
     if (cachedPortalGate && Date.now() - cachedPortalGate.checkedAt < PORTAL_GATE_CACHE_MS) {

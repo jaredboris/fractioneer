@@ -4,25 +4,43 @@ import { supabase } from "@/integrations/supabase/client";
 
 const KEY = "fr_last_active";
 const TIMEOUT_MS = 8 * 60 * 60 * 1000; // 8 hours
-const WRITE_THROTTLE_MS = 30 * 1000;
 
-let lastWrite = 0;
-function markActive() {
-  const now = Date.now();
-  if (now - lastWrite < WRITE_THROTTLE_MS) return;
-  lastWrite = now;
+export function markActive() {
   try {
-    window.localStorage.setItem(KEY, String(now));
+    window.localStorage.setItem(KEY, String(Date.now()));
   } catch {
     /* ignore quota errors */
   }
 }
 
 /**
- * Hook mounted inside the portal shell. On first load, if it's been more than
- * 8 hours since the last recorded activity, sign the user out and bounce to
- * /portal/login — re-auth (password + 2FA) is then required. Otherwise wires
- * up listeners that record activity on user interaction and route changes.
+ * Synchronous-ish gate. Run this BEFORE rendering any protected route. If
+ * `last_active` is older than 8 hours, sign the session out and return true so
+ * the caller can redirect to login before render.
+ */
+export async function enforceInactivityTimeout(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    const last = raw ? Number(raw) : NaN;
+    if (Number.isFinite(last) && Date.now() - last > TIMEOUT_MS) {
+      window.localStorage.removeItem(KEY);
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        /* ignore — we redirect regardless */
+      }
+      return true;
+    }
+  } catch {
+    /* ignore */
+  }
+  return false;
+}
+
+/**
+ * Mounted inside the portal shell. Records user activity on every interaction
+ * so the gate above can detect inactivity on the next app load.
  */
 export function useInactivityTimeout() {
   const navigate = useNavigate();
@@ -31,36 +49,31 @@ export function useInactivityTimeout() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      try {
-        const raw = window.localStorage.getItem(KEY);
-        const last = raw ? Number(raw) : NaN;
-        if (Number.isFinite(last) && Date.now() - last > TIMEOUT_MS) {
-          window.localStorage.removeItem(KEY);
-          await supabase.auth.signOut();
-          if (cancelled) return;
-          navigate({ to: "/portal/login", replace: true });
-          return;
-        }
-      } catch {
-        /* ignore */
+      if (await enforceInactivityTimeout()) {
+        if (cancelled) return;
+        navigate({ to: "/portal/login", replace: true });
+        return;
       }
       markActive();
     })();
 
     const onActivity = () => markActive();
-    window.addEventListener("click", onActivity, { passive: true });
-    window.addEventListener("keydown", onActivity);
-    window.addEventListener("visibilitychange", onActivity);
+    const events: (keyof WindowEventMap)[] = [
+      "click",
+      "keydown",
+      "pointerdown",
+      "scroll",
+      "touchstart",
+      "visibilitychange",
+    ];
+    for (const ev of events) window.addEventListener(ev, onActivity, { passive: true });
 
     return () => {
       cancelled = true;
-      window.removeEventListener("click", onActivity);
-      window.removeEventListener("keydown", onActivity);
-      window.removeEventListener("visibilitychange", onActivity);
+      for (const ev of events) window.removeEventListener(ev, onActivity);
     };
   }, [navigate]);
 
-  // Route changes count as activity.
   useEffect(() => {
     markActive();
   }, [pathname]);
