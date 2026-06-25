@@ -16,6 +16,7 @@ import { useNotesUnread } from "@/hooks/useNotesUnread";
 import logoWhite from "@/assets/fractioneer-logo-white.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { ImpersonationBanner } from "@/components/portal/ImpersonationBanner";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 
 const THEME_KEY = "fractioneer-portal-theme";
 
