@@ -25,7 +25,7 @@ function useForceDarkTheme() {
     root.classList.add("theme-transition");
     root.classList.add("dark");
     root.style.colorScheme = "dark";
-    document.body.style.backgroundColor = "#05070D";
+    document.body.style.backgroundColor = "#070B1A";
     window.localStorage.setItem(THEME_KEY, "dark");
     const t = window.setTimeout(() => root.classList.remove("theme-transition"), 500);
     return () => window.clearTimeout(t);
@@ -74,7 +74,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
   const activeTab = (search?.tab as string) || "clients";
 
   return (
-    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#05070D]">
+    <aside className="sticky top-0 flex h-screen w-72 shrink-0 flex-col gap-3 p-4 bg-[#080C12] border-r border-[rgba(255,255,255,0.06)]">
       <ImpersonationBanner />
       {/* Brand */}
       <div className="flex items-center px-2 -mt-2 -mb-2">
@@ -164,9 +164,9 @@ export function AdminSidebar({ email }: { email: string | null }) {
 
 export function AdminShell({ email, children }: { email: string | null; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full bg-[#05070D]">
+    <div className="flex min-h-screen w-full">
       <AdminSidebar email={email} />
-      <main className="flex-1 min-w-0 p-6 md:p-8">{children}</main>
+      <main className="nb-app flex-1 min-w-0 p-6 md:p-8">{children}</main>
     </div>
   );
 }

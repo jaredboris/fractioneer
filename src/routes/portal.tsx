@@ -1338,7 +1338,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
 
   return (
-    <div className="relative flex min-h-screen bg-[#EEF2FA] dark:bg-[#04060B] dark:bg-[radial-gradient(ellipse_80%_50%_at_50%_120%,rgba(59,130,246,0.22),transparent_70%),radial-gradient(ellipse_60%_40%_at_50%_-10%,rgba(59,130,246,0.08),transparent_70%)]">
+    <div className="relative flex min-h-screen">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
@@ -1346,7 +1346,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
       <PortalSidebar companyName={companyName || null} email={user.email ?? null} role={role} />
 
-      <main className="flex-1 px-8 py-8">
+      <main className="nb-app flex-1 px-8 py-8">
 
         <div className="mb-4 nb-rise" style={{ animationDelay: "0ms" }}>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -1376,13 +1376,8 @@ function ClientDashboard({ role }: { role: string | null }) {
           </div>
         ) : (
         <>
-        <div
-          className="mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium nb-rise bg-blue-500/5 border-blue-500/20 text-blue-700 dark:text-blue-300"
-          style={{ animationDelay: "60ms" }}
-        >
-          <CheckCircle2 className="h-3 w-3" />
-          Reviewed by your Fractioneer team
-        </div>
+
+
 
         <div className="mb-3 flex items-center justify-between gap-2 nb-rise" style={{ animationDelay: "120ms" }}>
           <div className="flex items-center gap-2">
@@ -1530,18 +1525,31 @@ function ClientDashboard({ role }: { role: string | null }) {
                 );
               };
               const ordered = [...statIds, ...chartIds, ...wideIds];
-              const spanClass = (kind: string | undefined) =>
-                kind === "stat"
-                  ? "col-span-12 sm:col-span-6 lg:col-span-3"
-                  : kind === "chart"
-                    ? "col-span-12 lg:col-span-6"
-                    : "col-span-12";
+              const statCount = statIds.length;
+              const chartCount = chartIds.length;
+              const statSpan = (localIdx: number) => {
+                const rem = statCount % 4;
+                const tailStart = statCount - rem;
+                if (rem === 0 || localIdx < tailStart) return "col-span-12 sm:col-span-6 lg:col-span-3";
+                if (rem === 1) return "col-span-12";
+                if (rem === 2) return "col-span-12 sm:col-span-6";
+                return "col-span-12 sm:col-span-6 lg:col-span-4";
+              };
+              const chartSpan = (localIdx: number) => {
+                const rem = chartCount % 2;
+                const tailStart = chartCount - rem;
+                if (rem === 0 || localIdx < tailStart) return "col-span-12 lg:col-span-6";
+                return "col-span-12";
+              };
               return (
                 <section className="grid grid-cols-12 gap-4 pt-2">
                   {ordered.map((id, i) => {
                     const def = WIDGET_BY_ID[id];
+                    let cls = "col-span-12";
+                    if (def?.kind === "stat") cls = statSpan(statIds.indexOf(id));
+                    else if (def?.kind === "chart") cls = chartSpan(chartIds.indexOf(id));
                     return (
-                      <div key={id} className={spanClass(def?.kind)}>
+                      <div key={id} className={cls}>
                         {renderItem(id, i)}
                       </div>
                     );
