@@ -187,7 +187,13 @@ function PortalShell() {
     select: (s) => s.resolvedLocation?.pathname ?? s.location.pathname,
   });
   return (
-    <div className="flex min-h-screen flex-col">
+    <div
+      className="flex flex-col"
+      style={{
+        minHeight: "100vh",
+        background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
+      }}
+    >
       <BetaBanner />
       <div className="flex-1">
         {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}
