@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download, Sparkles } from "lucide-react";
+import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download, Sparkles, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
 import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, generateInsightsForPeriod, approvePeriod, postClientAlert, clearClientAlert, recordSharedDocument, deleteSharedDocument, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
