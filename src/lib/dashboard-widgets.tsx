@@ -1160,25 +1160,8 @@ function AiInsightsCard({ ctx }: { ctx: WidgetContext }) {
   const canNext = idx < insights.length - 1;
 
   return (
-    <div
-      className="relative flex min-h-[280px] flex-col overflow-hidden rounded-xl p-5 h-full"
-      style={{
-        background:
-          "radial-gradient(120% 80% at 80% 90%, rgba(59,130,246,0.35) 0%, rgba(59,130,246,0.10) 35%, rgba(10,15,30,0) 70%), linear-gradient(180deg, #0B1226 0%, #060A18 100%)",
-        border: "1px solid #1E2A3A",
-        boxShadow: "inset 0 0 60px rgba(59,130,246,0.06)",
-      }}
-    >
-      {/* Subtle grid texture overlay */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
+    <div className="nb-card nb-card--insight relative flex min-h-[280px] flex-col p-5 h-full">
+
 
       <div className="relative flex items-center gap-2">
         <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-blue-500/15 text-blue-300 ring-1 ring-blue-400/30">
