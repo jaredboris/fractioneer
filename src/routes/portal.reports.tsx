@@ -248,7 +248,7 @@ function PeriodCard({
           <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
             <Sparkles className="h-3.5 w-3.5 text-blue-500" />
             AI Insights
-            <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-[#1E2A3A] dark:text-[#9CA3AF]">
+            <span className="ml-1 rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:bg-[#10111a] dark:text-[#9CA3AF]">
               {insights.length || "—"}
             </span>
           </span>

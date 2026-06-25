@@ -4,6 +4,7 @@ import { Loader2, ShieldCheck, RefreshCw } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { AdminSidebar } from "@/components/portal/AdminSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
@@ -61,13 +62,14 @@ function SettingsPage() {
   const isAdmin = !impersonation && role === "admin";
   const displayCompanyName = impersonation ? companyName : (isAdmin ? "Fractioneer" : companyName);
 
+  const sidebar = isAdmin ? (
+    <AdminSidebar email={displayEmail} />
+  ) : (
+    <PortalSidebar companyName={displayCompanyName} email={displayEmail} role={impersonation ? "client" : role} />
+  );
+
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
-      {isAdmin ? (
-        <AdminSidebar email={displayEmail} />
-      ) : (
-        <PortalSidebar companyName={displayCompanyName} email={displayEmail} role={impersonation ? "client" : role} />
-      )}
+    <PortalLayout sidebar={sidebar}>
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -79,7 +81,7 @@ function SettingsPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+          <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
               Account
             </h2>
@@ -108,7 +110,7 @@ function SettingsPage() {
           </section>
 
           {impersonation ? (
-            <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+            <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
               <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
                 Security
               </h2>
@@ -122,7 +124,7 @@ function SettingsPage() {
           {!impersonation && <ChangePasswordCard email={user.email ?? null} />}
         </div>
       </main>
-    </div>
+    </PortalLayout>
   );
 }
 
@@ -173,11 +175,11 @@ function ChangePasswordCard({ email }: { email: string | null }) {
   }
 
   const inputCls =
-    "mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#05070D] dark:text-white";
+    "mt-1 block w-full rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-white";
   const labelCls = "block text-xs font-medium text-slate-700 dark:text-[#E5E7EB]";
 
   return (
-    <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A] md:col-span-2">
+    <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A] md:col-span-2">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
         Change Password
       </h2>
@@ -309,7 +311,7 @@ function SecurityCard() {
   }
 
   return (
-    <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#111827] dark:border-[#1E2A3A]">
+    <section className="rounded-xl border p-5 bg-white border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">
         Security
       </h2>
@@ -336,7 +338,7 @@ function SecurityCard() {
           <button
             type="button"
             onClick={startReenroll}
-            className="mt-4 inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#0F1729] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+            className="mt-4 inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors bg-white border-[#E5E9F1] text-slate-700 hover:bg-slate-50 dark:bg-[#10111a] dark:border-[#1E2A3A] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Re-enroll authenticator
@@ -352,7 +354,7 @@ function SecurityCard() {
           </p>
         </>
       ) : (
-        <div className="mt-4 rounded-lg border border-[#E5E9F1] bg-slate-50/60 p-4 dark:border-[#1E2A3A] dark:bg-[#0F1729]">
+        <div className="mt-4 rounded-lg border border-[#E5E9F1] bg-slate-50/60 p-4 dark:border-[#1E2A3A] dark:bg-[#10111a]">
           {error && (
             <div className="mb-3 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-600 dark:text-red-300">
               {error}
@@ -374,7 +376,7 @@ function SecurityCard() {
                 {secret && (
                   <div className="mt-2 text-xs text-slate-500 dark:text-[#9CA3AF]">
                     Or enter this key:{" "}
-                    <code className="break-all rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-800 dark:bg-[#1E2A3A] dark:text-[#E5E7EB]">
+                    <code className="break-all rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] text-slate-800 dark:bg-[#10111a] dark:text-[#E5E7EB]">
                       {secret}
                     </code>
                   </div>
@@ -393,7 +395,7 @@ function SecurityCard() {
                     value={code}
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                     placeholder="123456"
-                    className="block w-36 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-center font-mono text-base tracking-widest text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#05070D] dark:text-white"
+                    className="block w-36 rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-center font-mono text-base tracking-widest text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-white"
                   />
                   <button
                     type="submit"
@@ -406,7 +408,7 @@ function SecurityCard() {
                   <button
                     type="button"
                     onClick={cancelReenroll}
-                    className="inline-flex items-center rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
+                    className="inline-flex items-center rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-[#E5E7EB] dark:hover:bg-[#1a2335]"
                   >
                     Cancel
                   </button>

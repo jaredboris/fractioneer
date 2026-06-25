@@ -16,6 +16,7 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { PortalEmptyState } from "@/components/portal/EmptyState";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
@@ -117,8 +118,9 @@ function CashFlowPage() {
   });
 
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
-      <PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />
+    <PortalLayout
+      sidebar={<PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />}
+    >
       <main className="flex flex-1 flex-col px-8 py-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -222,7 +224,7 @@ function CashFlowPage() {
           </div>
         )}
       </main>
-    </div>
+    </PortalLayout>
   );
 }
 
@@ -242,7 +244,7 @@ function RangeSelector({ value, onChange }: { value: RangeKey; onChange: (v: Ran
     { key: "ALL", label: "All" },
   ];
   return (
-    <div className="inline-flex rounded-lg border bg-white p-0.5 border-[#E5E9F1] dark:bg-[#0A0E18] dark:border-[#1E2A3A]">
+    <div className="inline-flex rounded-lg border p-0.5 border-[#E5E9F1] dark:bg-[#10111a] dark:border-[#1E2A3A]">
       {options.map((o) => (
         <button
           key={o.key}
@@ -250,7 +252,7 @@ function RangeSelector({ value, onChange }: { value: RangeKey; onChange: (v: Ran
           className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
             value === o.key
               ? "bg-blue-600 text-white shadow-[0_0_12px_rgba(59,130,246,0.4)]"
-              : "text-slate-600 hover:bg-slate-50 dark:text-[#9CA3AF] dark:hover:bg-[#111827]"
+              : "text-slate-600 hover:bg-slate-50 dark:text-[#9CA3AF] dark:hover:bg-[#10111a]"
           }`}
         >
           {o.label}
@@ -262,7 +264,7 @@ function RangeSelector({ value, onChange }: { value: RangeKey; onChange: (v: Ran
 
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border bg-white p-5 border-[#E5E9F1] dark:bg-[#0A0E18] dark:border-[#1E2A3A]">
+    <section className="rounded-2xl border p-5 border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
       <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 dark:text-[#9CA3AF]">{title}</h2>
       <div className="mt-4 text-slate-500 dark:text-[#9CA3AF]">{children}</div>
     </section>

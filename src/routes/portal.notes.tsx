@@ -4,6 +4,7 @@ import { MessageSquare, Send, Loader2, Users } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { PortalLayout } from "@/components/portal/PortalLayout";
 import { AdminShell } from "@/components/portal/AdminSidebar";
 import { getMyRole } from "@/lib/portal.functions";
 import { useCompanyName } from "@/hooks/useProfile";
@@ -78,8 +79,9 @@ function NotesPage() {
 function ClientNotesPage({ userId, email }: { userId: string; email: string | null }) {
   const companyName = useCompanyName(userId);
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
-      <PortalSidebar companyName={companyName} email={email} role="client" />
+    <PortalLayout
+      sidebar={<PortalSidebar companyName={companyName} email={email} role="client" />}
+    >
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -91,7 +93,7 @@ function ClientNotesPage({ userId, email }: { userId: string; email: string | nu
         </div>
         <NotesThread clientId={userId} viewerId={userId} viewerRole="client" />
       </main>
-    </div>
+    </PortalLayout>
   );
 }
 
@@ -156,7 +158,7 @@ function AdminNotesPage({ userId, email }: { userId: string; email: string | nul
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
               disabled={!clients || clients.length === 0}
-              className="block min-w-[18rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
+              className="block min-w-[18rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#040316] dark:text-white"
             >
               {(!clients || clients.length === 0) && <option value="">No clients yet</option>}
               {(clients ?? []).map((c) => (
@@ -302,7 +304,7 @@ function NotesThread({
   }, [notes, viewerRole]);
 
   return (
-    <div className="flex min-h-[400px] flex-col rounded-xl border border-[#E5E9F1] bg-white p-5 dark:border-[#1E2A3A] dark:bg-[#111827]">
+    <div className="flex min-h-[400px] flex-col rounded-xl border border-[#E5E9F1] bg-white p-5 dark:border-[#1E2A3A] dark:bg-[#040316]">
       <div className="mb-4 flex items-center gap-3">
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
           <MessageSquare className="h-4 w-4" />
@@ -329,7 +331,7 @@ function NotesThread({
           }
           rows={3}
           maxLength={4000}
-          className="block w-full resize-y rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#0F1729] dark:text-white dark:placeholder:text-[#6B7280]"
+          className="block w-full resize-y rounded-md border border-[#E5E9F1] bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-white dark:placeholder:text-[#6B7280]"
         />
         {error && (
           <div className="rounded-md border border-rose-500/30 bg-rose-500/5 px-3 py-1.5 text-xs text-rose-600 dark:text-rose-300">
@@ -360,7 +362,7 @@ function NotesThread({
           </div>
         )}
         {notes && notes.length === 0 && (
-          <div className="rounded-md border border-dashed border-[#E5E9F1] px-4 py-10 text-center text-xs text-slate-400 dark:border-[#1E2A3A] dark:text-[#6B7280]">
+          <div className="rounded-md border border-dashed border-[#E5E9F1] px-4 py-10 text-center text-xs text-slate-400 dark:border-[#1E2A3A] dark:bg-[#10111a] dark:text-[#6B7280]">
             No notes yet.
           </div>
         )}
@@ -375,7 +377,7 @@ function NotesThread({
 function NoteItem({ note }: { note: Note }) {
   const isAdmin = note.author_role === "admin";
   return (
-    <div className="rounded-lg border border-[#E5E9F1] bg-slate-50/60 px-3 py-2.5 dark:border-[#1E2A3A] dark:bg-[#0F1729]/60">
+    <div className="rounded-lg border border-[#E5E9F1] bg-slate-50/60 px-3 py-2.5 dark:border-[#1E2A3A] dark:bg-[#10111a]/60">
       <div className="mb-1 flex items-center gap-2">
         <span className="text-xs font-semibold text-slate-900 dark:text-white">
           {note.author_name || (isAdmin ? "Fractioneer" : "Client")}

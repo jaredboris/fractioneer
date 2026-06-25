@@ -595,7 +595,7 @@ function AdminOverview({ role: _role }: { role: string }) {
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:bg-[#0F1729] dark:text-[#6B7280]">
+                    <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wider text-slate-500 dark:bg-[#10111a] dark:text-[#6B7280]">
                       <tr>
                         <th className="px-5 py-3">Client</th>
                         <th className="px-5 py-3">Dashboard</th>
@@ -1832,7 +1832,7 @@ function CountUpValue({
 
 function LockedToggle({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
+    <div className="flex items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#10111a] dark:border-[#1E2A3A]">
       <span className="text-sm text-slate-700 dark:text-[#E5E7EB]">{label}</span>
       <span className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-[#6B7280]">Always on</span>
     </div>
@@ -1849,7 +1849,7 @@ function PrefToggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#0F1729] dark:border-[#1E2A3A]">
+    <label className="flex cursor-pointer items-center justify-between rounded-md border px-3 py-2 bg-slate-50 border-[#E5E9F1] dark:bg-[#10111a] dark:border-[#1E2A3A]">
       <span className="text-sm text-slate-700 dark:text-[#E5E7EB]">{label}</span>
       <input
         type="checkbox"

@@ -111,7 +111,7 @@ export function ProgressRow({
         {value}
       </span>
       <span className="inline-flex items-center gap-2">
-        <span className="rounded-md border border-[#1E2A3A] bg-[#0F1729] px-1.5 py-0.5 text-[11px] tabular-nums text-white">
+        <span className="rounded-md border border-[#1E2A3A] bg-[#10111a] px-1.5 py-0.5 text-[11px] tabular-nums text-white">
           {pct.toFixed(0)}%
         </span>
         <span className="relative block h-1 w-24 overflow-hidden rounded-full bg-[#1E2A3A]">
