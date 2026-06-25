@@ -228,15 +228,36 @@ function PortalRouter() {
 
   if (!user || role === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/40">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      <div className="flex h-full w-full flex-col items-center justify-center rounded-2xl bg-[#10111a]">
+        <Loader2 className="h-5 w-5 animate-spin text-[#9CA3AF]" />
       </div>
     );
   }
 
+  const clientSidebar = (
+    <PortalSidebar
+      companyName={companyName || null}
+      email={user.email ?? null}
+      role={role}
+    />
+  );
+
   // Admin viewing a client in spy mode → render the real client dashboard.
-  if (role === "admin" && impersonation) return <ClientDashboard role="client" />;
-  return role === "admin" ? <AdminOverview role={role} /> : <ClientDashboard role={role} />;
+  if (role === "admin" && impersonation) {
+    return (
+      <PortalLayout sidebar={clientSidebar}>
+        <ClientDashboard role="client" />
+      </PortalLayout>
+    );
+  }
+  if (role === "admin") {
+    return <AdminOverview role={role} />;
+  }
+  return (
+    <PortalLayout sidebar={clientSidebar}>
+      <ClientDashboard role={role} />
+    </PortalLayout>
+  );
 }
 
 function PortalHeader({
