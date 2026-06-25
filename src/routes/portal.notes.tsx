@@ -377,7 +377,7 @@ function NotesThread({
 function NoteItem({ note }: { note: Note }) {
   const isAdmin = note.author_role === "admin";
   return (
-    <div className="rounded-lg border border-[#E5E9F1] bg-slate-50/60 px-3 py-2.5 dark:border-[#1E2A3A] dark:bg-[#0F1729]/60">
+    <div className="rounded-lg border border-[#E5E9F1] bg-slate-50/60 px-3 py-2.5 dark:border-[#1E2A3A] dark:bg-[#10111a]/60">
       <div className="mb-1 flex items-center gap-2">
         <span className="text-xs font-semibold text-slate-900 dark:text-white">
           {note.author_name || (isAdmin ? "Fractioneer" : "Client")}
