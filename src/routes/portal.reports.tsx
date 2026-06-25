@@ -142,8 +142,9 @@ function ReportsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
-      <PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />
+    <PortalLayout
+      sidebar={<PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />}
+    >
       <main className="flex flex-1 flex-col px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -173,7 +174,7 @@ function ReportsPage() {
           </div>
         )}
       </main>
-    </div>
+    </PortalLayout>
   );
 }
 
