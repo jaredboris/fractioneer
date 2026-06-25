@@ -1651,7 +1651,6 @@ function ClientDashboard({ role }: { role: string | null }) {
           </a>
         </footer>
       </main>
-    </div>
   );
 }
 
