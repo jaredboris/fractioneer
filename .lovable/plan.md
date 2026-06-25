@@ -1,7 +1,11 @@
-Update the portal page background to a diagonal gradient from #040316 (top-left) to #11184c (bottom-right), applied at the outermost body/html wrapper. No other components (cards, sidebar, charts, nav) will be touched.
+Apply the diagonal gradient `linear-gradient(135deg, #040316 0%, #11184c 100%)` as the app-wide background on every page (portal + marketing), with `min-height: 100vh`. No other components are touched.
 
-Technical details:
-- Modify the inline theme init script in `src/routes/__root.tsx` so that when the current path is under `/portal`, it sets `document.body.style.background` to the diagonal gradient via `linear-gradient(135deg, #040316, #11184c)` and keeps `dark` mode class. For non-portal pages, behavior remains unchanged.
-- This is a single-line change scoped strictly to the root shell theme initializer, ensuring it shows behind all portal content without affecting any card, sidebar, chart, or navigation styling.
+Implementation:
+- In `src/styles.css`, add a global rule on `html, body`:
+  - `background: linear-gradient(135deg, #040316 0%, #11184c 100%) fixed;`
+  - `min-height: 100vh;`
+- Remove the portal-only background logic from the `THEME_INIT_SCRIPT` in `src/routes/__root.tsx` so it no longer overrides the body background.
+- Revert the portal wrapper in `src/routes/portal.tsx` line 1341 back to `bg-transparent` (already transparent in dark; will also be transparent in light) so the gradient shows through on both admin and client portal pages.
+- Verify marketing routes (e.g. `src/routes/index.tsx`) do not set a competing `bg-background`/`bg-white` on the outermost wrapper; if they do, make that wrapper transparent so the gradient is visible.
 
-No new dependencies, no schema changes, no server functions.
+No new dependencies, no schema changes.

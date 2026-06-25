@@ -141,7 +141,7 @@ function ReportsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
+    <div className="flex min-h-screen bg-transparent">
       <PortalSidebar companyName={companyName} email={user.email ?? null} role={role} />
       <main className="flex flex-1 flex-col px-8 py-8">
         <div className="mb-6">

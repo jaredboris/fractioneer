@@ -67,7 +67,7 @@ function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-transparent px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center">
           <img src={logo} alt="Fractioneer" className="h-8 w-auto" />

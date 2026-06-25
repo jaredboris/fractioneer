@@ -226,7 +226,7 @@ function PortalRouter() {
 
   if (!user || role === undefined) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-muted/40">
+      <div className="flex min-h-screen items-center justify-center bg-transparent">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </div>
     );
@@ -1338,7 +1338,7 @@ function ClientDashboard({ role }: { role: string | null }) {
 
 
   return (
-    <div className="relative flex min-h-screen bg-[#EEF2FA] dark:bg-transparent">
+    <div className="relative flex min-h-screen bg-transparent">
       <style>{`
         @keyframes nb-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .nb-rise { animation: nb-rise 0.5s ease-out backwards; }
