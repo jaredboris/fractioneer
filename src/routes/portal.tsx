@@ -188,12 +188,13 @@ function PortalShell() {
   });
   return (
     <div
-      className="flex flex-col"
+      className="nb-grid-overlay flex flex-col"
       style={{
         minHeight: "100vh",
         background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
       }}
     >
+
       <BetaBanner />
       <div className="flex-1">
         {pathname !== "/portal" ? <Outlet /> : <PortalRouter />}

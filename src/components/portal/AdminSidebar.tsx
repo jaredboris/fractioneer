@@ -165,7 +165,7 @@ export function AdminSidebar({ email }: { email: string | null }) {
 export function AdminShell({ email, children }: { email: string | null; children: React.ReactNode }) {
   return (
     <div
-      className="flex min-h-screen w-full"
+      className="nb-grid-overlay flex min-h-screen w-full"
       style={{
         background: "radial-gradient(ellipse at bottom right, #11184c 0%, #040316 60%)",
       }}
