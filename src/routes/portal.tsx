@@ -1382,7 +1382,7 @@ function ClientDashboard({ role }: { role: string | null }) {
         )}
 
         {periodOptions.length === 0 ? (
-          <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center nb-rise border-[#E5E9F1] dark:bg-[#0A0E18] dark:border-[#1E2A3A]">
+          <div className="mt-10 flex flex-col items-center justify-center rounded-2xl border bg-white px-6 py-16 text-center nb-rise border-[#E5E9F1] dark:bg-[#040316] dark:border-[#1E2A3A]">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-500/10 text-blue-500">
               <Loader2 className="h-5 w-5 animate-spin" />
             </div>
