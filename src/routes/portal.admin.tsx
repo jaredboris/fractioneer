@@ -1,6 +1,6 @@
 import { createFileRoute, getRouteApi, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download, Sparkles } from "lucide-react";
+import { Upload, FileText, Loader2, Plus, Trash2, Search, AlertTriangle, CheckCircle2, ChevronRight, Download, Sparkles, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/portal/AdminSidebar";
 import { getMyRole, createClientAccount, extractFinancialsFromRows, saveExtractedFinancials, generateAiInsights, generateInsightsForPeriod, approvePeriod, postClientAlert, clearClientAlert, recordSharedDocument, deleteSharedDocument, type ExtractedFinancials, type ExtractedMonth } from "@/lib/portal.functions";
@@ -889,10 +889,9 @@ function AdminPage() {
         {tab === "clients" && selectedId ? (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <section className="nb-card nb-card-glow rounded-2xl p-6">
-              <h2 className="text-lg font-semibold text-white">Dashboard values</h2>
-              <p className="mt-1 text-sm text-[#9CA3AF]">
+              <div className="mb-4 flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-[15px] font-medium text-white">Dashboard values</h2><p className="mt-0.5 text-xs text-[#9CA3AF]">
                 Shown on the client's portal homepage.
-              </p>
+              </p></div><span className="nb-arrow shrink-0"><ArrowUpRight className="h-4 w-4" /></span></div>
 
               <form onSubmit={handleSaveDashboard} className="mt-5 space-y-5">
                 <Field label="Monthly close status">
@@ -953,8 +952,7 @@ function AdminPage() {
             </section>
 
             <section className="nb-card nb-card-glow rounded-2xl p-6">
-              <h2 className="text-lg font-semibold text-white">Documents</h2>
-              <p className="mt-1 text-sm text-[#9CA3AF]">PDF or Excel files shared with this client.</p>
+              <div className="mb-4 flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-[15px] font-medium text-white">Documents</h2><p className="mt-0.5 text-xs text-[#9CA3AF]">PDF or Excel files shared with this client.</p></div><span className="nb-arrow shrink-0"><ArrowUpRight className="h-4 w-4" /></span></div>
 
               <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#1E2A3A] bg-[#0F1729] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#0F1729]">
                 {uploading ? (
@@ -1009,10 +1007,9 @@ function AdminPage() {
 
         {tab === "clients" && selectedId && (
           <section className="mt-6 nb-card nb-card-glow rounded-2xl p-6">
-            <h2 className="text-lg font-semibold text-white">Urgent alert on client dashboard</h2>
-            <p className="mt-1 text-sm text-[#9CA3AF]">
+            <div className="mb-4 flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-[15px] font-medium text-white">Urgent alert on client dashboard</h2><p className="mt-0.5 text-xs text-[#9CA3AF]">
               Pinned message shown above this client&apos;s stat cards. Only one active alert at a time.
-            </p>
+            </p></div><span className="nb-arrow shrink-0"><ArrowUpRight className="h-4 w-4" /></span></div>
             {activeAlert ? (
               <div className="mt-4 flex items-start justify-between gap-3 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-3 text-sm">
                 <div>
@@ -1052,10 +1049,9 @@ function AdminPage() {
 
         {tab === "clients" && selectedId && (
           <section className="mt-6 nb-card nb-card-glow rounded-2xl p-6">
-            <h2 className="text-lg font-semibold text-white">Shared files</h2>
-            <p className="mt-1 text-sm text-[#9CA3AF]">
+            <div className="mb-4 flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-[15px] font-medium text-white">Shared files</h2><p className="mt-0.5 text-xs text-[#9CA3AF]">
               Polished deliverables — reports, reconciliations, tax prep summaries. Visible in the client&apos;s Documents tab.
-            </p>
+            </p></div><span className="nb-arrow shrink-0"><ArrowUpRight className="h-4 w-4" /></span></div>
 
             <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#1E2A3A] bg-[#0F1729] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#0F1729]">
               {sharingDoc ? (
@@ -1108,10 +1104,9 @@ function AdminPage() {
 
         {tab === "clients" && selectedId && (
           <section className="mt-6 nb-card nb-card-glow rounded-2xl p-6">
-            <h2 className="text-lg font-semibold text-white">Reporting periods</h2>
-            <p className="mt-1 text-sm text-[#9CA3AF]">
+            <div className="mb-4 flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-[15px] font-medium text-white">Reporting periods</h2><p className="mt-0.5 text-xs text-[#9CA3AF]">
               Uploaded via the Upload tab. Click a row to view, re-upload, or delete.
-            </p>
+            </p></div><span className="nb-arrow shrink-0"><ArrowUpRight className="h-4 w-4" /></span></div>
 
             <div className="mt-5 overflow-x-auto rounded-md border border-[#1E2A3A]">
               <table className="w-full text-sm">
