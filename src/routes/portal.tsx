@@ -1629,7 +1629,7 @@ function ClientDashboard({ role }: { role: string | null }) {
                     </button>
                     <button
                       onClick={() => handleDownload(doc.file_path, doc.file_name)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground dark:bg-[#10111a]"
                       aria-label={`Download ${doc.file_name}`}
                     >
                       <Download className="h-3.5 w-3.5" />
