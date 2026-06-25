@@ -59,7 +59,7 @@ function AdminGate() {
 
   if (status !== "ok") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#0F1729]">
+      <div className="flex min-h-screen items-center justify-center bg-[#10111a]">
         <Loader2 className="h-5 w-5 animate-spin text-[#9CA3AF]" />
       </div>
     );
@@ -746,7 +746,7 @@ function AdminPage() {
                 value={selectedId}
                 onChange={(e) => setSelectedId(e.target.value)}
                 disabled={loading}
-                className="mt-2 block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                className="mt-2 block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
               >
                 <option value="">
                   {loading ? "Loading…" : clients.length === 0 ? "No clients yet" : "— choose a client —"}
@@ -763,7 +763,7 @@ function AdminPage() {
                 type="button"
                 onClick={handleBackfillInsights}
                 disabled={backfillRunning}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1a2335] disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#1a2335] disabled:opacity-60"
                 title="Generate AI insights for every period that doesn't have any yet, across all clients. Runs sequentially."
               >
                 {backfillRunning ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
@@ -780,7 +780,7 @@ function AdminPage() {
           </div>
 
           {backfillProgress && (
-            <div className="mt-4 rounded-lg border border-[#1E2A3A] bg-[#0F1729] px-4 py-3">
+            <div className="mt-4 rounded-lg border border-[#1E2A3A] bg-[#10111a] px-4 py-3">
               <div className="flex items-center justify-between gap-3 text-xs">
                 <span className="font-medium text-[#E5E7EB]">
                   {backfillProgress.total > 0
@@ -817,7 +817,7 @@ function AdminPage() {
           {addOpen && (
             <form
               onSubmit={handleCreateClient}
-              className="mt-5 grid grid-cols-1 gap-4 rounded-lg border border-[#1E2A3A] bg-[#0F1729] p-5 sm:grid-cols-2"
+              className="mt-5 grid grid-cols-1 gap-4 rounded-lg border border-[#1E2A3A] bg-[#10111a] p-5 sm:grid-cols-2"
             >
               <div className="sm:col-span-2">
                 <h3 className="text-sm font-semibold text-white">New client</h3>
@@ -832,7 +832,7 @@ function AdminPage() {
                   required
                   value={addForm.company_name}
                   onChange={(e) => setAddForm({ ...addForm, company_name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
               <label className="block text-xs font-medium text-[#9CA3AF]">
@@ -840,7 +840,7 @@ function AdminPage() {
                 <input
                   value={addForm.full_name}
                   onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
               <label className="block text-xs font-medium text-[#9CA3AF]">
@@ -850,7 +850,7 @@ function AdminPage() {
                   type="email"
                   value={addForm.email}
                   onChange={(e) => setAddForm({ ...addForm, email: e.target.value })}
-                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
               <label className="block text-xs font-medium text-[#9CA3AF]">
@@ -862,14 +862,14 @@ function AdminPage() {
                   value={addForm.password}
                   onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
                   placeholder="At least 8 characters"
-                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
               </label>
               <div className="sm:col-span-2 flex items-center justify-end gap-2 pt-1">
                 <button
                   type="button"
                   onClick={() => setAddOpen(false)}
-                  className="inline-flex items-center rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1a2335]"
+                  className="inline-flex items-center rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1a2335]"
                 >
                   Cancel
                 </button>
@@ -898,7 +898,7 @@ function AdminPage() {
                   <select
                     value={form.monthly_close}
                     onChange={(e) => setForm({ ...form, monthly_close: e.target.value })}
-                    className="block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                    className="block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                   >
                     {MONTHLY_OPTIONS.map((o) => (
                       <option key={o} value={o}>{o}</option>
@@ -928,7 +928,7 @@ function AdminPage() {
                   <select
                     value={form.ap_ar_status}
                     onChange={(e) => setForm({ ...form, ap_ar_status: e.target.value })}
-                    className="block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                    className="block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                   >
                     {APAR_OPTIONS.map((o) => (
                       <option key={o} value={o}>{o}</option>
@@ -954,7 +954,7 @@ function AdminPage() {
             <section className="nb-card nb-card-glow rounded-2xl p-6">
               <div className="mb-4 flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="text-[15px] font-medium text-white">Documents</h2><p className="mt-0.5 text-xs text-[#9CA3AF]">PDF or Excel files shared with this client.</p></div><span className="nb-arrow shrink-0"><ArrowUpRight className="h-4 w-4" /></span></div>
 
-              <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#1E2A3A] bg-[#0F1729] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#0F1729]">
+              <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#1E2A3A] bg-[#10111a] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#10111a]">
                 {uploading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -1020,7 +1020,7 @@ function AdminPage() {
                 </div>
                 <button
                   onClick={handleClearAlert}
-                  className="shrink-0 rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-1.5 text-xs text-white hover:bg-[#0F1729]"
+                  className="shrink-0 rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-1.5 text-xs text-white hover:bg-[#10111a]"
                 >
                   Clear alert
                 </button>
@@ -1032,7 +1032,7 @@ function AdminPage() {
                   onChange={(e) => setAlertDraft(e.target.value)}
                   placeholder="e.g. Your November close has been delayed — we'll have it ready by Friday."
                   rows={3}
-                  className="w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+                  className="w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
                 />
                 <button
                   onClick={handlePostAlert}
@@ -1053,7 +1053,7 @@ function AdminPage() {
               Polished deliverables — reports, reconciliations, tax prep summaries. Visible in the client&apos;s Documents tab.
             </p></div><span className="nb-arrow shrink-0"><ArrowUpRight className="h-4 w-4" /></span></div>
 
-            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#1E2A3A] bg-[#0F1729] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#0F1729]">
+            <label className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-[#1E2A3A] bg-[#10111a] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#10111a]">
               {sharingDoc ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -1110,7 +1110,7 @@ function AdminPage() {
 
             <div className="mt-5 overflow-x-auto rounded-md border border-[#1E2A3A]">
               <table className="w-full text-sm">
-                <thead className="bg-[#0F1729] text-xs uppercase tracking-wider text-[#9CA3AF]">
+                <thead className="bg-[#10111a] text-xs uppercase tracking-wider text-[#9CA3AF]">
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">Period end</th>
                     <th className="px-3 py-2 text-left font-medium">Status</th>
@@ -1149,7 +1149,7 @@ function AdminPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setConfirmingDelete(false); setOpenPeriod(p); }
                         }}
-                        className={`cursor-pointer text-white transition-colors hover:bg-[#0F1729] focus:bg-[#0F1729] focus:outline-none ${isPending ? "bg-amber-500/5" : ""}`}
+                        className={`cursor-pointer text-white transition-colors hover:bg-[#10111a] focus:bg-[#10111a] focus:outline-none ${isPending ? "bg-amber-500/5" : ""}`}
                       >
                         <td className="px-3 py-2">{p.period_end}</td>
                         <td className="px-3 py-2">
@@ -1236,7 +1236,7 @@ function AdminPage() {
             )}
 
 
-            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-[#1E2A3A] bg-[#0F1729] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#0F1729]">
+            <label className="mt-5 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-md border border-dashed border-[#1E2A3A] bg-[#10111a] px-4 py-6 text-sm text-[#9CA3AF] transition-colors hover:bg-[#10111a]">
               {analyzing ? (
                 <ExtractionProgress phase={analyzePhase} fileName={xlsxFileName} />
               ) : (
@@ -1276,7 +1276,7 @@ function AdminPage() {
               const hasConflicts = rows.some((r) => r.status === "conflict");
               const allMissingIS = months.every((m) => m.net_revenue == null && m.net_income == null);
               return (
-                <div className="mt-5 rounded-lg border border-[#1E2A3A] bg-[#0F1729] p-5">
+                <div className="mt-5 rounded-lg border border-[#1E2A3A] bg-[#10111a] p-5">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <h3 className="text-sm font-semibold text-white">
@@ -1343,7 +1343,7 @@ function AdminPage() {
                     <button
                       type="button"
                       onClick={() => { setExtracted(null); setExtractedSourceRows(null); setExistingByPeriod({}); setXlsxFileName(null); setIncomeStatementDetected(false); }}
-                      className="inline-flex items-center rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1a2335]"
+                      className="inline-flex items-center rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#1a2335]"
                     >
                       Discard
                     </button>
@@ -1365,7 +1365,7 @@ function AdminPage() {
         )}
 
         {!selectedId && (
-          <div className="rounded-2xl border border-dashed border-[#1E2A3A] bg-[#111827] p-12 text-center text-sm text-[#9CA3AF]">
+          <div className="rounded-2xl border border-dashed border-[#1E2A3A] bg-[#040316] p-12 text-center text-sm text-[#9CA3AF]">
             Select a client above to manage their dashboard and documents.
           </div>
         )}
@@ -1399,7 +1399,7 @@ function Input({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white placeholder:text-[#9CA3AF] focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+      className="block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white placeholder:text-[#9CA3AF] focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
     />
   );
 }
@@ -1435,7 +1435,7 @@ function ExtractedRow({
     ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(Number(value))
     : String(value);
   return (
-    <div className="rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2">
+    <div className="rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2">
       <div className="text-xs font-medium uppercase tracking-wider text-[#9CA3AF]">{label}</div>
       <div className={`mt-1 text-sm font-semibold ${missing ? "text-destructive" : "text-white"}`}>
         {display}
@@ -1466,7 +1466,7 @@ function NumField({
         required={required}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#0F1729] px-2 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
+        className="mt-1 block w-full rounded-md border border-[#1E2A3A] bg-[#10111a] px-2 py-2 text-sm text-white focus:border-blue-500/60 focus:outline-none focus:ring-1 focus:ring-blue-500/40"
       />
     </label>
   );
@@ -1542,7 +1542,7 @@ function PeriodDetailSheet({
         onClick={onClose}
         aria-label="Close panel"
       />
-      <aside className="flex h-full w-full max-w-md flex-col border-l border-[#1E2A3A] bg-[#111827] shadow-2xl">
+      <aside className="flex h-full w-full max-w-md flex-col border-l border-[#1E2A3A] bg-[#040316] shadow-2xl">
         <header className="flex items-start justify-between gap-3 border-b border-[#1E2A3A] px-6 py-5">
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-wider text-[#9CA3AF]">
@@ -1576,7 +1576,7 @@ function PeriodDetailSheet({
             {doc ? (
               <button
                 onClick={() => onDownload(doc.file_path, doc.file_name)}
-                className="mt-2 inline-flex items-center gap-2 rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm text-white transition-colors hover:bg-[#0F1729]"
+                className="mt-2 inline-flex items-center gap-2 rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm text-white transition-colors hover:bg-[#10111a]"
               >
                 <Download className="h-4 w-4" />
                 {doc.file_name}
@@ -1597,7 +1597,7 @@ function PeriodDetailSheet({
                 <button
                   onClick={() => setConfirmingDelete(false)}
                   disabled={deleting}
-                  className="rounded-md border border-[#1E2A3A] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F1729] disabled:opacity-60"
+                  className="rounded-md border border-[#1E2A3A] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#10111a] disabled:opacity-60"
                 >
                   Cancel
                 </button>
@@ -1615,7 +1615,7 @@ function PeriodDetailSheet({
             <div className="flex items-center justify-between gap-2">
               <button
                 onClick={() => onReupload(period.period_end)}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[#1E2A3A] bg-[#0F1729] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0F1729]"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#1E2A3A] bg-[#10111a] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#10111a]"
               >
                 <Upload className="h-4 w-4" />
                 Re-upload
@@ -1698,7 +1698,7 @@ function ActivityLogPanel() {
   }, [items, query]);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-[#1E2A3A] bg-[#111827]">
+    <section className="overflow-hidden rounded-2xl border border-[#1E2A3A] bg-[#040316]">
       <div className="flex flex-col gap-3 border-b border-[#1E2A3A] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-base font-semibold text-white">All activity</h2>
@@ -1713,7 +1713,7 @@ function ActivityLogPanel() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search client, file, kind…"
-            className="block w-full min-w-[18rem] rounded-md border border-[#1E2A3A] bg-[#0F1729] py-2 pl-8 pr-3 text-sm text-white placeholder:text-[#6B7280] focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="block w-full min-w-[18rem] rounded-md border border-[#1E2A3A] bg-[#10111a] py-2 pl-8 pr-3 text-sm text-white placeholder:text-[#6B7280] focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -1730,7 +1730,7 @@ function ActivityLogPanel() {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-[#0F1729] text-left text-xs font-medium uppercase tracking-wider text-[#6B7280]">
+            <thead className="bg-[#10111a] text-left text-xs font-medium uppercase tracking-wider text-[#6B7280]">
               <tr>
                 <th className="px-5 py-3">Date</th>
                 <th className="px-5 py-3">Client</th>
@@ -1808,7 +1808,7 @@ function ExtractionProgress({
                     ? "bg-emerald-500/20 text-emerald-300"
                     : active
                       ? "bg-blue-500/20 text-blue-300"
-                      : "bg-[#0F1729] text-[#9CA3AF]/50"
+                      : "bg-[#10111a] text-[#9CA3AF]/50"
                 }`}
               >
                 {done ? (

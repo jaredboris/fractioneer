@@ -158,7 +158,7 @@ function AdminNotesPage({ userId, email }: { userId: string; email: string | nul
               value={selectedId}
               onChange={(e) => setSelectedId(e.target.value)}
               disabled={!clients || clients.length === 0}
-              className="block min-w-[18rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#111827] dark:text-white"
+              className="block min-w-[18rem] rounded-md border border-[#E5E9F1] bg-white py-2 pl-8 pr-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50 dark:border-[#1E2A3A] dark:bg-[#040316] dark:text-white"
             >
               {(!clients || clients.length === 0) && <option value="">No clients yet</option>}
               {(clients ?? []).map((c) => (
