@@ -79,8 +79,9 @@ function NotesPage() {
 function ClientNotesPage({ userId, email }: { userId: string; email: string | null }) {
   const companyName = useCompanyName(userId);
   return (
-    <div className="flex min-h-screen bg-[#EEF2FA] dark:bg-[#05070D]">
-      <PortalSidebar companyName={companyName} email={email} role="client" />
+    <PortalLayout
+      sidebar={<PortalSidebar companyName={companyName} email={email} role="client" />}
+    >
       <main className="flex-1 px-8 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
@@ -92,7 +93,7 @@ function ClientNotesPage({ userId, email }: { userId: string; email: string | nu
         </div>
         <NotesThread clientId={userId} viewerId={userId} viewerRole="client" />
       </main>
-    </div>
+    </PortalLayout>
   );
 }
 
