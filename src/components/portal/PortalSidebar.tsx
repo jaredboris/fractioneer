@@ -12,9 +12,9 @@ const THEME_KEY = "fractioneer-portal-theme";
 
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
-    if (typeof window === "undefined") return "light";
+    if (typeof window === "undefined") return "dark";
     const stored = window.localStorage.getItem(THEME_KEY);
-    return stored === "dark" ? "dark" : "light";
+    return stored === "light" ? "light" : "dark";
   });
   useEffect(() => {
     const root = document.documentElement;

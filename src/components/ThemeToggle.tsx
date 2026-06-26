@@ -4,10 +4,10 @@ import { Moon, Sun } from "lucide-react";
 const STORAGE_KEY = "fractioneer-portal-theme";
 
 function getInitialTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "dark";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
-  return "light";
+  return "dark";
 }
 
 export function ThemeToggle() {
